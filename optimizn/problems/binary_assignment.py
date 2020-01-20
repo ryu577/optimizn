@@ -1,6 +1,9 @@
+## Binary assignment for equal spoils.
+
 import numpy as np
 import cvxpy as cp
 import optimizn.problems.sample_ci as sci
+
 
 ## https://math.stackexchange.com/questions/3515223/binary-assignment-distributing-candies/3515391#3515391
 
