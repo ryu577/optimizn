@@ -10,10 +10,11 @@ import optimizn.problems.sample_ci as sci
 def formultn1(ci = sci.candy_preferences):
     #ci = np.array([10,7,6,3])
     x = cp.Variable(len(ci),boolean=True)
-    objective = cp.Minimize(cp.sum_squares(ci*(2*x-1)))
-    problm = cp.Problem(objective,[x<=1,x>=0])
+    objective = cp.Minimize(cp.sum_squares(ci@(2*x-1)))
+    problm = cp.Problem(objective)
     #res = problm.solve(solver='GLPK')
-    res = problm.solve()
+    #_ = problm.solve(solver=cp.GLPK_MI)
+    _ = problm.solve()
     return x.value
 
 
@@ -25,6 +26,6 @@ def formulatn2(ci = sci.candy_preferences):
     #constraints = [sum(ci*x)<=z,sum(ci*(1-x))<=z]
     objective = cp.Minimize(z+0*sum(x))
     problm = cp.Problem(objective,constraints)
-    res = problm.solve()
+    _ = problm.solve(solver=cp.GLPK_MI)
     return x.value
 

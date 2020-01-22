@@ -15,7 +15,6 @@ def integer_probs(p,m,n):
     _ = problm.solve()
     return x.value
 
-
 def integer_probs_v2(p,m,n):
     """
     We want to allocate an integer vector in a way that each element
@@ -30,6 +29,14 @@ def integer_probs_v2(p,m,n):
     h = redistribute(x.value)
     return h
 
+def integer_probs_v3(p,m,n):
+    x = cp.Variable(len(p),integer=True)
+    z = cp.Variable()
+    objective = cp.Minimize(z)
+    constraints = [m <= x, x <= n, sum(x) == n, x/n-p<=z, p-x/n<=z]
+    problm = cp.Problem(objective, constraints)
+    _ = problm.solve()
+    return x.value
 
 def redistribute(x_value):
     """
@@ -45,4 +52,13 @@ def redistribute(x_value):
                         ,axis=0)
     h = vals + excess_vals_unif + excess_vals_nonunif
     return h
+
+def tst_optimizn():
+    p=np.random.rand(200)
+    p = p/sum(p)
+    m=3; n=3*len(p)+40
+    x1 = integer_probs(p,m,n)
+    x2 = integer_probs_v2(p,m,n)
+    x3 = integer_probs_v3(p,m,n)
+    return x3
 
