@@ -2,6 +2,7 @@ import numpy as np
 import cvxpy as cp
 import pandas as pd
 
+
 def integer_probs(p,m,n):
     """
     We want to allocate an integer vector in a way that each element
@@ -10,6 +11,7 @@ def integer_probs(p,m,n):
     """
     x = cp.Variable(len(p),integer=True)
     constraints = [m <= x, x <= n, sum(x) == n]
+    #objective = cp.Minimize(cp.sum_squares((x-m)/(n-m*len(p)) - p))
     objective = cp.Minimize(cp.sum_squares(x/n - p))
     problm = cp.Problem(objective, constraints)
     _ = problm.solve()
@@ -33,7 +35,9 @@ def integer_probs_v3(p,m,n):
     x = cp.Variable(len(p),integer=True)
     z = cp.Variable()
     objective = cp.Minimize(z)
-    constraints = [m <= x, x <= n, sum(x) == n, x/n-p<=z, p-x/n<=z]
+    constraints = [m <= x, x <= n, sum(x) == n, \
+                (x-m)/(n-m*len(p))-p<=z, p-(x-m)/(n-m*len(p))<=z]
+                #(x)/(n)-p<=z, p-(x)/(n)<=z]                
     problm = cp.Problem(objective, constraints)
     _ = problm.solve()
     return x.value
@@ -53,12 +57,19 @@ def redistribute(x_value):
     h = vals + excess_vals_unif + excess_vals_nonunif
     return h
 
-def tst_optimizn():
+
+def tst_optimizn(m=2,excess=40):
     p=np.random.rand(200)
-    p = p/sum(p)
-    m=3; n=3*len(p)+40
-    x1 = integer_probs(p,m,n)
-    x2 = integer_probs_v2(p,m,n)
+    p=np.sort(p)
+    p=p/sum(p)
+    n=m*len(p)+excess
+    x2 = integer_probs(p,m,n)
     x3 = integer_probs_v3(p,m,n)
-    return x3
+    df = pd.DataFrame()
+    df["p"]=p
+    df["x3"]=x3
+    df["prct_x3"] = x3/sum(x3)
+    df["x2"]=x2
+    df["prct_x2"] = x2/sum(x2)
+    return df
 
