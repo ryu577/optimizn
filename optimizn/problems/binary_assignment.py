@@ -29,3 +29,16 @@ def formulatn2(ci=sci.candy_preferences):
     _ = problm.solve()
     return x.value
 
+
+def formultn3(ri=np.array([1,3,5,2,4,6]),\
+            ui=np.array([1,1,1,1,1,1])):
+    z1 = cp.Variable()
+    z2 = cp.Variable()
+    x = cp.Variable(len(ri),boolean=True)
+    constraints = [ri@x<=z1, ri@(1-x)<=z1,\
+                    ui@x<=z1, ui@(1-x)<=z2]
+    objective = cp.Minimize(z1+z2)
+    problm = cp.Problem(objective,constraints)
+    _ = problm.solve()
+    return x.value
+
