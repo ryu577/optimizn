@@ -6,7 +6,7 @@ from copy import deepcopy
 class OptProblem():
 	def cost(self, candidate):
 		''' Gets the cost for candidate solution.'''
-		raise Exception("Not yet implemented")
+		raise Exception("Not implemented")
 
 	def get_candidate(self):
 		''' Gets a feasible candidate.'''
@@ -23,14 +23,14 @@ class OptProblem():
 		self.best_cost = self.current_cost
 		self.best_candidate = make_copy(candidate)
 
-	def anneal(self, n_iter=1000000):
+	def anneal(self, n_iter=100000):
 		for i in range(n_iter):
 			eps = 0.3 * e**(-i/n_iter)
 			new_candidate = make_copy(self.candidate)
 			new_cost = self.cost(self.new_candidate)
 			if self.new_cost < self.best_cost:
 				self.update_best(new_candidate, new_cost)
-				print("Best cost updated to": + str(self.new_cost))
+				print("Best cost updated to:" + str(self.new_cost))
 			if self.new_cost < self.current_cost or eps < uniform():
 				self.update_candidate(new_candidate, new_cost)
 
@@ -45,3 +45,4 @@ class OptProblem():
 
 def make_copy(candidate):
 	return deepcopy(candidate)
+
