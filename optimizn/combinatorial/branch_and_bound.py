@@ -11,8 +11,8 @@ class BnBProblem():
         raise NotImplementedError('Implement a function to compute a lower '\
             + 'bound on a feasible solution') 
 
-    def score(self, sol): 
-        raise NotImplementedError('Implement a function to compute a score '\
+    def cost(self, sol): 
+        raise NotImplementedError('Implement a function to compute a cost '\
             + 'for a feasible solution') 
 
     def branch(self, sol):
