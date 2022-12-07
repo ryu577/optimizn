@@ -1,10 +1,10 @@
-from queue import PriorityQueue
+from queue import Queue
 
 class BnBProblem():
     def __init__(self, init_sol): 
         self.best_score = float('inf')
         self.best_sol = None
-        self.queue =  PriorityQueue()
+        self.queue =  Queue()
         self.init_sol = init_sol
 
     def lbound(self, sol): 
@@ -24,9 +24,10 @@ class BnBProblem():
             + 'if a solution is a feasible solution') 
 
     def process(self): 
-        self.queue.put((self.lbound(self.init_sol), self.init_sol))
+        self.queue.put(self.init_sol)
         while not self.queue.empty():
-            lbound, curr_sol = self.queue.get()
+            curr_sol = self.queue.get()
+            lbound = self.lbound(curr_sol)
             if lbound >= self.best_score: 
                 continue 
             score = self.score(curr_sol)
@@ -36,5 +37,5 @@ class BnBProblem():
             if score != lbound: 
                 next_sols = self.branch(curr_sol)
                 for next_sol in next_sols: 
-                    self.queue.put((self.lbound(next_sol), next_sol))
+                    self.queue.put(next_sol)
         return self.best_score, self.best_sol
