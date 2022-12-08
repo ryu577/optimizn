@@ -7,7 +7,7 @@ class BnBProblem():
         self.queue =  Queue()
         self.init_sol = init_sol
 
-    def lbound(self): 
+    def lbound(self, sol): 
         '''
         Computes lower bound for a solution and the feasible solutions 
         that can be obtained from it
@@ -15,21 +15,21 @@ class BnBProblem():
         raise NotImplementedError('Implement a function to compute a lower '\
             + 'bound on a feasible solution') 
 
-    def cost(self): 
+    def cost(self, sol): 
         '''
         Computes the cost of a solution
         '''
         raise NotImplementedError('Implement a function to compute a cost '\
             + 'for a feasible solution') 
 
-    def branch(self):
+    def branch(self, sol):
         '''
         Generates other potential solutions from an existing feasible solution
         '''
         raise NotImplementedError('Implement a function to produce other '\
             + 'potential solutions from a single feasible solution') 
 
-    def is_sol(self): 
+    def is_sol(self, sol): 
         '''
         Checks if potential solution is feasible solution or not
         '''
