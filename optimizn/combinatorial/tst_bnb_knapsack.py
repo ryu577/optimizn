@@ -79,7 +79,7 @@ class SimplifiedKnapsackProblem(BnBProblem):
         check_length1 = len(sol[0]) == len(self.weights)
         check_length2 = len(sol[0]) == len(self.values)
         check_length = check_length1 and check_length2
-        check_values = set(sol[0].tolist()) == {0, 1}
+        check_values = len(set(sol[0].tolist()).difference({0, 1})) == 0
         check_weight = np.sum(sol[0] * self.weights) <= self.capacity
         return check_length and check_values and check_weight
 
