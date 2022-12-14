@@ -1,5 +1,4 @@
 import numpy as np
-import copy
 from branch_and_bound import BnBProblem
 
 
