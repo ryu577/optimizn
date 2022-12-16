@@ -112,12 +112,13 @@ def test_bnb_simplified_knapsack():
 
     for i in range(len(init_sol)):
         print('\n=====================')
-        print(f'TEST CASE {i}\n')
+        print(f'TEST CASE {i+1}\n')
         score, sol = SimplifiedKnapsackProblem(
             values[i], weights[i], capacity[i], init_sol[i]).solve()
         print(f'\nScore: {-1 * score}')
         print(f'Solution: {sol[0]}')
         print(f'True solution: {true_sol[i]}')
+        assert list(sol[0]) == list(true_sol[i]), f'Test case {i} failed'
         print('=====================\n')
 
 

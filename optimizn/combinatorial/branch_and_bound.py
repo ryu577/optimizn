@@ -49,9 +49,9 @@ class BnBProblem():
         while not self.queue.empty():
             print('\nBest Solution (upper bound): ', self.min_cost, self.best_sol)
             # get feasible solution
-            print('Queue: ', list(self.queue.queue))
             curr_sol = self.queue.get()
             print('Curr Solution: ', curr_sol)
+            print('Queue: ', list(self.queue.queue))
 
             # do not explore current solution if lowest possible cost is higher 
             # than minimum cost
