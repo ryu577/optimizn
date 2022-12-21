@@ -81,10 +81,26 @@ class MinPathCoverProblem(BnBProblem):
 
 
 def test_bnb_minpathcover():
-    edges1 = np.array([[1, 4], [2, 4], [2, 5], [3, 5]])
-    edges2 = np.array([[4, 6], [4, 7], [5, 8]])
-    scr, sol = MinPathCoverProblem(edges1, edges2).solve()
-    print(scr, sol)
+    TEST_CASES = [
+        (
+            np.array([[1, 4], [2, 4], [2, 5], [3, 5]]),
+            np.array([[4, 6], [4, 7], [5, 8]])
+        )
+    ]
+    for i in range(len(TEST_CASES)):
+        print('\n=============================')
+        print(f'TEST CASE {i}')
+        edges1 = TEST_CASES[i][0]
+        edges2 = TEST_CASES[i][1]
+        mpc = MinPathCoverProblem(edges1, edges2)
+        scr, sol = mpc.solve()
+        solution = []
+        for j in range(len(sol[0].astype(int))):
+            if sol[0][j] == 1:
+                solution.append(mpc.all_paths[j])
+        solution = np.array(solution)
+        print(f'\nScore: {scr}\nSolution: {solution}')
+        print('=============================\n')
 
 
 if __name__ == '__main__':
