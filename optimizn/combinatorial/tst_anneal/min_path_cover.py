@@ -22,6 +22,7 @@ class MinPathCover_NTG(OptProblem):
 		self.ntg = ntg
 		self.adj = ntg.g1.adj
 		self.swtch = swtch
+		self.name = "MinPathCover_NeuralTriGraph"
 		super().__init__()
 
 	def get_candidate(self):
