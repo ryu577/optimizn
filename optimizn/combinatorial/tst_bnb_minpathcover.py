@@ -245,8 +245,8 @@ def test_bnb_minpathcover():
             'Not all vertices covered'
         print('All vertices covered')
         print('\nSECOND APPROACH:')
-        print(f'\nTime:{(e-s)/60} min\nScore: {scr2}\nSolution: {sol2}')
         solution2 = np.concatenate((sol2[0], sol2[1]), axis=0)
+        print(f'\nTime:{(e-s)/60} min\nScore: {scr2}\nSolution: {solution2}')
         if len(solution2) != LENGTHS[i]:
             print(f'Paths: {len(solution2)} '
                   + f'Optimal number of paths: {LENGTHS[i]}')
