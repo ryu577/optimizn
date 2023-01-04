@@ -219,13 +219,13 @@ def test_bnb_minpathcover():
         # first approach
         mpc1 = MinPathCoverProblem1(edges1, edges2)
         s1 = time.time()
-        scr1, sol1 = mpc1.solve(2000, 4000)
+        scr1, sol1 = mpc1.solve(1000, 2000)
         e1 = time.time()
 
         # second approach
         mpc2 = MinPathCoverProblem2(edges1, edges2)
         s = time.time()
-        scr2, sol2 = mpc2.solve(2000, 4000)
+        scr2, sol2 = mpc2.solve(1000, 2000)
         e = time.time()
         
         print('\nFIRST APPROACH:')
