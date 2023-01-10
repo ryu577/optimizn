@@ -20,7 +20,7 @@ class SimplifiedKnapsackProblem(BnBProblem):
         self.sorted_vw_ratios = sorted(vw_ratios_ixs)
         self.sorted_vw_ratios.reverse()
 
-        super().__init__(init_sol)
+        super().__init__(init_sol, iters_limit=100, time_limit=6000)
 
     def lbound(self, sol):
         value = 0
@@ -114,7 +114,7 @@ def test_bnb_simplified_knapsack():
         print('\n=====================')
         print(f'TEST CASE {i+1}\n')
         score, sol = SimplifiedKnapsackProblem(
-            values[i], weights[i], capacity[i], init_sol[i]).solve(2, 10)
+            values[i], weights[i], capacity[i], init_sol[i]).solve()
         print(f'\nScore: {-1 * score}')
         print(f'Solution: {sol[0]}')
         print(f'True solution: {true_sol[i]}')

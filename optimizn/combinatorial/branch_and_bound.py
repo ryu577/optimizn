@@ -1,11 +1,18 @@
+import time
 from queue import Queue
 
+
 class BnBProblem():
-    def __init__(self, init_sol): 
+    def __init__(self, init_sol, iters_limit=1e6, print_iters=100,
+                 time_limit=3600):
         self.min_cost = float('inf')
         self.best_sol = None
         self.queue = Queue()
+        self.iters_limit = iters_limit
+        self.time_limit = time_limit
         self.init_sol = init_sol
+        self.iters = 0
+        self.time_elapsed = 0
         if not self.is_sol(init_sol):
             raise Exception('Initial solution is infeasible')
 
@@ -31,23 +38,29 @@ class BnBProblem():
         raise NotImplementedError('Implement a function to produce other '
             + 'potential solutions from a single feasible solution')
 
-    def is_sol(self, sol): 
+    def is_sol(self, sol):
         '''
         Checks if potential solution is feasible solution or not
         '''
         raise NotImplementedError('Implement a function to check '
             + 'if a solution is a feasible solution')
 
-    def solve(self, print_best_iters=20, stop_iters=200):
+    def _print_results(self):
+        print(f'\nSolutions explored: {self.iters}')
+        print(f'Time elapsed: {self.time_elapsed} seconds')
+        print(f'Best solution: {self.best_sol}')
+        print(f'Score: {self.min_cost}')
+
+    def solve(self):
         '''
         Executes branch and bound algorithm
         '''
         # initialization
+        start = time.time()
         self.queue.put(self.init_sol)
 
         # explore feasible solutions
-        iters = 0
-        while not self.queue.empty() and iters != stop_iters:
+        while not self.queue.empty() and self.iters != self.iters_limit:
             # get feasible solution
             curr_sol = self.queue.get()
 
@@ -70,12 +83,14 @@ class BnBProblem():
                     if self.is_sol(next_sol):
                         self.queue.put(next_sol)
 
-            # print best solution and minimum cost
-            iters += 1
-            if iters == 1 or (iters > 0 and iters % print_best_iters == 0):
-                print(f'\nBest solution: {self.best_sol}'
-                      + f'\nScore: {self.min_cost}')
-                print(f'ITER: {iters}')
+            # print best solution and min cost, check if time limit exceeded
+            self.iters += 1
+            self.time_elapsed = time.time() - start
+            if self.iters == 1 or (self.iters > 0 and self.iters % 10 == 0):
+                self._print_results()
+            if self.time_elapsed > self.time_limit:
+                break
 
         # return minimum cost and best solution
+        self._print_results()
         return self.min_cost, self.best_sol

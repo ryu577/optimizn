@@ -1,5 +1,4 @@
 import numpy as np
-import time
 from branch_and_bound import BnBProblem
 from graphing.special_graphs.neural_trigraph.rand_graph import rep_graph
 from graphing.special_graphs.neural_trigraph.path_cover import \
@@ -20,12 +19,13 @@ class MinPathCoverProblem1(BnBProblem):
     vertices, then the branching only produces the solution where the path
     is omitted from the cover
     '''
-    def __init__(self, edges1, edges2):
+    def __init__(self, edges1, edges2, iters_limit, time_limit):
         self.edges1 = edges1
         self.edges2 = edges2
         self.vertices = set(edges1.flatten()).union(set(edges2.flatten()))
         self._get_all_paths()
-        super().__init__(init_sol=(np.ones(len(self.all_paths)), -1))
+        super().__init__(init_sol=(np.ones(len(self.all_paths)), -1),
+                         iters_limit=iters_limit, time_limit=time_limit)
 
     def _get_all_paths(self):
         self.all_paths = []
@@ -121,7 +121,7 @@ class MinPathCoverProblem2(BnBProblem):
     either remain the same (if the path cover already covered vertex X+1)
     or include one extra path (to cover vertex X+1).
     '''
-    def __init__(self, edges1, edges2):
+    def __init__(self, edges1, edges2, iters_limit, time_limit):
         self.edges1 = edges1
         self.edges2 = edges2
         self.vertices = set(edges1.flatten()).union(set(edges2.flatten()))
@@ -137,7 +137,8 @@ class MinPathCoverProblem2(BnBProblem):
                             self.cov_dict[vert] = set()
                         self.cov_dict[vert].add(path)
         super().__init__(init_sol=(np.zeros((0, 3)),
-                         np.array(self.all_paths), min(self.vertices) - 1))
+                         np.array(self.all_paths), min(self.vertices) - 1),
+                         iters_limit=iters_limit, time_limit=time_limit)
 
     def lbound(self, sol):
         # sum of existing paths and (number of vertices left to cover / 3)
@@ -204,11 +205,19 @@ def test_bnb_minpathcover():
             np.array([[1, 4], [2, 4], [2, 5], [3, 5]]),
             np.array([[4, 6], [4, 7], [5, 8]])
         ),
-        rep_graph(8, 10, 14, reps=4)
+        rep_graph(8, 10, 14, reps=4),
+        rep_graph(10, 14, 10, reps=4),
+        rep_graph(20, 40, 20, reps=4),
+        rep_graph(20, 40, 20, reps=8),
+        rep_graph(40, 50, 60, reps=10)
     ]
     LENGTHS = [
         3,
-        len(min_cover_trigraph(EDGES[1][0], EDGES[1][1]))
+        len(min_cover_trigraph(EDGES[1][0], EDGES[1][1])),
+        len(min_cover_trigraph(EDGES[2][0], EDGES[2][1])),
+        len(min_cover_trigraph(EDGES[3][0], EDGES[3][1])),
+        len(min_cover_trigraph(EDGES[4][0], EDGES[4][1])),
+        len(min_cover_trigraph(EDGES[5][0], EDGES[5][1])),
     ]
     for i in range(len(EDGES)):
         print('\n=============================')
@@ -217,25 +226,24 @@ def test_bnb_minpathcover():
         edges2 = EDGES[i][1]
 
         # first approach
-        mpc1 = MinPathCoverProblem1(edges1, edges2)
-        s1 = time.time()
-        scr1, sol1 = mpc1.solve(1000, 2000)
-        e1 = time.time()
+        mpc1 = MinPathCoverProblem1(
+            edges1, edges2, iters_limit=1e6, print_iters=1000,
+            time_limit=1200)
+        scr1, sol1 = mpc1.solve()
 
         # second approach
-        mpc2 = MinPathCoverProblem2(edges1, edges2)
-        s = time.time()
-        scr2, sol2 = mpc2.solve(1000, 2000)
-        e = time.time()
-        
+        mpc2 = MinPathCoverProblem2(
+            edges1, edges2, iters_limit=1e6, print_iters=1000,
+            time_limit=1200)
+        scr2, sol2 = mpc2.solve()
+
         print('\nFIRST APPROACH:')
         solution1 = []
         for j in range(len(sol1[0].astype(int))):
             if sol1[0][j] == 1:
                 solution1.append(mpc1.all_paths[j])
         solution1 = np.array(solution1)
-        print(f'\nTime:{(e1-s1)/60} min\nScore: {scr1}\nSolution: {solution1}')
-
+        print(f'Score: {scr1}\nSolution: {solution1}')
         if len(solution1) != LENGTHS[i]:
             print(f'Paths: {len(solution1)} '
                   + f'Optimal number of paths: {LENGTHS[i]}')
@@ -244,9 +252,10 @@ def test_bnb_minpathcover():
         assert set(solution1.flatten()) == mpc1.vertices, \
             'Not all vertices covered'
         print('All vertices covered')
+
         print('\nSECOND APPROACH:')
         solution2 = np.concatenate((sol2[0], sol2[1]), axis=0)
-        print(f'\nTime:{(e-s)/60} min\nScore: {scr2}\nSolution: {solution2}')
+        print(f'Score: {scr2}\nSolution: {solution2}')
         if len(solution2) != LENGTHS[i]:
             print(f'Paths: {len(solution2)} '
                   + f'Optimal number of paths: {LENGTHS[i]}')
