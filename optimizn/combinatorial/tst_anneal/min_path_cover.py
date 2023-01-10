@@ -10,7 +10,8 @@ from graphing.special_graphs.neural_trigraph.path_cover import \
 	min_cover_trigraph
 from copy import deepcopy
 
-# For demonstration purposes. 
+
+# For demonstration purposes.
 # We pick the min path cover problem 
 # where we have an algorithm for computing
 # the optimal solution.
@@ -20,6 +21,7 @@ class MinPathCover_NTG(OptProblem):
 	"""
 	def __init__(self, ntg, swtch=1):
 		self.ntg = ntg
+		self.params = ntg
 		self.adj = ntg.g1.adj
 		self.swtch = swtch
 		self.name = "MinPathCover_NeuralTriGraph"
@@ -43,11 +45,12 @@ class MinPathCover_NTG(OptProblem):
 		self.candidate = paths
 		return paths
 
-	def next_candidate_v2(self):
+	def next_candidate_v2(self, candidate, del_paths=1):
+		self.candidate = deepcopy(candidate)
 		paths = self.candidate
 		covered = deepcopy(self.covered)
 		del_paths = []
-		for i in range(4):
+		for i in range(del_paths):
 			ix = np.random.choice(range(len(paths)))
 			del_paths.append(paths[ix])
 			paths = np.delete(paths, ix, 0)
@@ -66,11 +69,11 @@ class MinPathCover_NTG(OptProblem):
 					#breakpoint()
 		return paths
 
-	def next_candidate(self):
+	def next_candidate(self, candidate, del_paths=1):
 		if self.swtch == 0:
 			return self.get_candidate()
 		else:
-			return self.next_candidate_v2()
+			return self.next_candidate_v2(candidate, del_paths)
 
 	def add_path(self, i):
 		path = complete_paths([[i]],
@@ -102,10 +105,8 @@ class MinPathCover_NTG(OptProblem):
 		super().update_candidate(candidate, cost)
 
 
-
 # Scipy simulated annealing can't be used 
-# because it expects a 1-d array
-# and probably permutes the 1-d array to switch between solutions.
+# because it expects a 1-d continuous array
 # https://docs.scipy.org/doc/scipy-0.14.0/reference/generated/scipy.optimize.anneal.html
 
 def tst1(edges1=None, edges2=None, n_iter=20000, swtch=1):
