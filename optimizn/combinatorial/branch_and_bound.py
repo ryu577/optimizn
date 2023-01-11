@@ -9,6 +9,7 @@ class BnBProblem():
         self.best_sol = None
         self.queue = Queue()
         self.iters_limit = iters_limit
+        self.print_iters = print_iters
         self.time_limit = time_limit
         self.init_sol = init_sol
         self.iters = 0
@@ -46,10 +47,11 @@ class BnBProblem():
             + 'if a solution is a feasible solution')
 
     def _print_results(self):
-        print(f'\nSolutions explored: {self.iters}')
-        print(f'Time elapsed: {self.time_elapsed} seconds')
-        print(f'Best solution: {self.best_sol}')
-        print(f'Score: {self.min_cost}')
+        if self.iters == 1 or self.iters % self.print_iters == 0:
+            print(f'\nSolutions explored: {self.iters}')
+            print(f'Time elapsed: {self.time_elapsed} seconds')
+            print(f'Best solution: {self.best_sol}')
+            print(f'Score: {self.min_cost}')
 
     def solve(self):
         '''
