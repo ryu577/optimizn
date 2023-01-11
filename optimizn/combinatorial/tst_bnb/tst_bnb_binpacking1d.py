@@ -4,7 +4,7 @@ import copy
 import math
 
 
-class BinPackingProblem(BnBProblem):
+class BinPackingProblem1D(BnBProblem):
     '''
     Solution format:
     1. Allocation of items up to last allocated item to bins (dict)
@@ -162,9 +162,9 @@ def test_bnb_binpacking():
         ([10, 7, 6, 3, 12, 12, 2, 1], 13, 5)
     ]
     for weights, capacity, min_bins in TEST_CASES:
-        bpp = BinPackingProblem(weights, capacity)
+        bpp = BinPackingProblem1D(weights, capacity)
         bpp.solve()
-        print('Item weight dictionary:', bpp.item_weights)
+        print('\nItem weight dictionary:', bpp.item_weights)
         print('Final solution:', bpp.best_sol)
         print('Score:', bpp.min_cost)
         print('Optimal solution reached: ', min_bins == bpp.min_cost)
@@ -173,7 +173,7 @@ def test_bnb_binpacking():
 def test_constructor():
     weights = [1, 2, 3]
     capacity = 3
-    bpp = BinPackingProblem(weights, capacity)
+    bpp = BinPackingProblem1D(weights, capacity)
 
     # check capacity
     assert bpp.capacity == capacity
@@ -196,7 +196,7 @@ def test_constructor():
 
     weights = [7, 8, 2, 3]
     capacity = 15
-    bpp = BinPackingProblem(weights, capacity)
+    bpp = BinPackingProblem1D(weights, capacity)
 
     # check capacity
     assert bpp.capacity == capacity
@@ -223,7 +223,7 @@ def test_constructor():
 def test_is_sol():
     weights = [1, 2, 3]
     capacity = 3
-    bpp = BinPackingProblem(weights, capacity)
+    bpp = BinPackingProblem1D(weights, capacity)
 
     # check valid solutions
     assert bpp.is_sol(({1: {1, 2}, 2: {3}}, -1))
@@ -244,7 +244,7 @@ def test_is_sol():
 def test_cost():
     weights = [1, 2, 3]
     capacity = 3
-    bpp = BinPackingProblem(weights, capacity)
+    bpp = BinPackingProblem1D(weights, capacity)
 
     # check cost
     assert bpp.cost(({1: {3}, 2: {1, 2}}, -1)) == 2
@@ -258,7 +258,7 @@ def test_cost():
 def test_lbound():
     weights = [1, 2, 3]
     capacity = 3
-    bpp = BinPackingProblem(weights, capacity)
+    bpp = BinPackingProblem1D(weights, capacity)
 
     # check lower bounds
     assert bpp.lbound(({1: {3}, 2: {1, 2}}, -1)) == 2
@@ -274,7 +274,7 @@ def test_branch():
     # check branch
     weights = [1, 2, 3]
     capacity = 3
-    bpp = BinPackingProblem(weights, capacity)
+    bpp = BinPackingProblem1D(weights, capacity)
     expected = [
         ({1: {3}, 2: {2, 1}}, 2),
         ({1: {3}, 2: {2}, 3: {1}}, 2),
@@ -285,7 +285,7 @@ def test_branch():
     # check branch
     weights = [7, 8, 2, 3]
     capacity = 15
-    bpp = BinPackingProblem(weights, capacity)
+    bpp = BinPackingProblem1D(weights, capacity)
     expected = [
         ({1: {2, 1}, 2: {4, 3}}, 1),
         ({1: {2, 4, 3}, 2: {1}}, 1),
