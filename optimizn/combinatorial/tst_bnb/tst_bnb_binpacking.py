@@ -158,13 +158,15 @@ def test_bnb_binpacking():
     # weights, capacity, min bins (optimal solution)
     TEST_CASES = [
         ([1, 2, 3], 3, 2),
-        ([7, 8, 2, 3], 15, 2)
+        ([7, 8, 2, 3], 15, 2),
+        ([10, 7, 6, 3, 12, 12, 2, 1], 13, 5)
     ]
     for weights, capacity, min_bins in TEST_CASES:
         bpp = BinPackingProblem(weights, capacity)
         bpp.solve()
-        print('Final solution: \n')
-        print(bpp.best_sol, bpp.min_cost)
+        print('Item weight dictionary:', bpp.item_weights)
+        print('Final solution:', bpp.best_sol)
+        print('Score:', bpp.min_cost)
         print('Optimal solution reached: ', min_bins == bpp.min_cost)
 
 
