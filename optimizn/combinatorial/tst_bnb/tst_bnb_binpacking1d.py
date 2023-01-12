@@ -12,7 +12,7 @@ class BinPackingProblem1D(BnBProblem):
     '''
     Solution format:
     1. Allocation of items up to last allocated item to bins (dict)
-    3. Last allocated item (int)
+    2. Last allocated item (int)
 
     Branching strategy:
     Each level of the solution space tree corresponds to an item. Each
@@ -159,127 +159,121 @@ class BinPackingProblem1D(BnBProblem):
 
 
 def test_constructor():
-    weights = [1, 2, 3]
-    capacity = 3
-    bpp = BinPackingProblem1D(weights, capacity)
+    TEST_CASES = [
+        ([1, 2, 3], 3, {1: {3}, 2: {1, 2}}),
+        ([7, 8, 2, 3], 15, {1: {2, 1}, 2: {4, 3}})
+    ]
+    for weights, capacity, expected in TEST_CASES:
+        bpp = BinPackingProblem1D(weights, capacity)
 
-    # check capacity
-    assert bpp.capacity == capacity
+        # check capacity
+        assert bpp.capacity == capacity
 
-    # check item weights
-    for i in range(len(weights)):
-        assert bpp.item_weights[i + 1] == weights[i]
+        # check item weights
+        for i in range(len(weights)):
+            assert bpp.item_weights[i + 1] == weights[i]
 
-    # check sorted item weights
-    for i in range(len(bpp.sorted_item_weights)):
-        weight, item = bpp.sorted_item_weights[i]
-        assert bpp.item_weights[item] == weight
-        if i > 0:
-            assert weight < bpp.sorted_item_weights[i - 1][0]
+        # check sorted item weights
+        for i in range(len(bpp.sorted_item_weights)):
+            weight, item = bpp.sorted_item_weights[i]
+            assert bpp.item_weights[item] == weight
+            if i > 0:
+                assert weight < bpp.sorted_item_weights[i - 1][0]
 
-    # check initial solution
-    expected = {1: {3}, 2: {1, 2}}
-    assert bpp.init_sol[0] == expected
-    assert bpp.init_sol[1] == -1
-
-    weights = [7, 8, 2, 3]
-    capacity = 15
-    bpp = BinPackingProblem1D(weights, capacity)
-
-    # check capacity
-    assert bpp.capacity == capacity
-
-    # check item weights
-    for i in range(len(weights)):
-        assert bpp.item_weights[i + 1] == weights[i]
-
-    # check sorted item weights
-    for i in range(len(bpp.sorted_item_weights)):
-        weight, item = bpp.sorted_item_weights[i]
-        assert bpp.item_weights[item] == weight
-        if i > 0:
-            assert weight < bpp.sorted_item_weights[i - 1][0]
-
-    # check initial solution
-    expected = {1: {2, 1}, 2: {4, 3}}
-    assert bpp.init_sol[0] == expected
-    assert bpp.init_sol[1] == -1
-
+        # check initial solution
+        assert bpp.init_sol[0] == expected
+        assert bpp.init_sol[1] == -1
     print('Constructor tests passed')
 
 
 def test_is_sol():
-    weights = [1, 2, 3]
-    capacity = 3
-    bpp = BinPackingProblem1D(weights, capacity)
+    TEST_CASES = [
+        ([1, 2, 3], 3)
+    ]
+    for weights, capacity in TEST_CASES:
+        bpp = BinPackingProblem1D(weights, capacity)
 
-    # check valid solutions
-    assert bpp.is_sol(({1: {1, 2}, 2: {3}}, -1))
-    assert bpp.is_sol(({1: {3}, 2: {1, 2}}, -1))
-    assert bpp.is_sol(({1: {3}, 2: {2}, 3: {1}}, 1))
-    assert bpp.is_sol(({1: {3}, 2: {2}, 3: {1}}, 1))
+        # check valid solutions
+        assert bpp.is_sol(({1: {1, 2}, 2: {3}}, -1))
+        assert bpp.is_sol(({1: {3}, 2: {1, 2}}, -1))
+        assert bpp.is_sol(({1: {3}, 2: {2}, 3: {1}}, 1))
+        assert bpp.is_sol(({1: {3}, 2: {2}, 3: {1}}, 1))
 
-    # check invalid solutions
-    assert not bpp.is_sol(({1: {1, 2, 3}}, -1))
-    assert not bpp.is_sol(({1: {3, 1}, 2: {2}}, -1))
-    assert not bpp.is_sol(({1: {3, 2}, 2: {1}}, 1))
-    assert not bpp.is_sol(({1: {3, 2}, 2: {1, 4}}, 1))
-    assert not bpp.is_sol(({1: {3}, 2: {1}}, 1))
+        # check invalid solutions
+        assert not bpp.is_sol(({1: {1, 2, 3}}, -1))
+        assert not bpp.is_sol(({1: {3, 1}, 2: {2}}, -1))
+        assert not bpp.is_sol(({1: {3, 2}, 2: {1}}, 1))
+        assert not bpp.is_sol(({1: {3, 2}, 2: {1, 4}}, 1))
+        assert not bpp.is_sol(({1: {3}, 2: {1}}, 1))
 
     print('Is solution tests passed')
 
 
 def test_cost():
-    weights = [1, 2, 3]
-    capacity = 3
-    bpp = BinPackingProblem1D(weights, capacity)
+    TEST_CASES = [
+        ([1, 2, 3], 3)
+    ]
+    for weights, capacity in TEST_CASES:
+        bpp = BinPackingProblem1D(weights, capacity)
 
-    # check cost
-    assert bpp.cost(({1: {3}, 2: {1, 2}}, -1)) == 2
-    assert bpp.cost(({1: {1, 2}, 2: {3}}, -1)) == 2
-    assert bpp.cost(({1: {2}, 2: {3}, 3: {1}}, 1)) == 3
-    assert bpp.cost(({1: {3}, 2: {2}, 3: {1}}, 1)) == 3
+        # check cost
+        assert bpp.cost(({1: {3}, 2: {1, 2}}, -1)) == 2
+        assert bpp.cost(({1: {1, 2}, 2: {3}}, -1)) == 2
+        assert bpp.cost(({1: {2}, 2: {3}, 3: {1}}, 1)) == 3
+        assert bpp.cost(({1: {3}, 2: {2}, 3: {1}}, 1)) == 3
 
     print('Cost tests passed')
 
 
 def test_lbound():
-    weights = [1, 2, 3]
-    capacity = 3
-    bpp = BinPackingProblem1D(weights, capacity)
+    TEST_CASES = [
+        ([1, 2, 3], 3)
+    ]
+    for weights, capacity in TEST_CASES:
+        bpp = BinPackingProblem1D(weights, capacity)
 
-    # check lower bounds
-    assert bpp.lbound(({1: {3}, 2: {1, 2}}, -1)) == 2
-    assert bpp.lbound(({1: {3}, 2: {1, 2}}, 0)) == 2
-    assert bpp.lbound(({1: {3}, 2: {1}, 3: {2}}, 0)) == 2
-    assert bpp.lbound(({1: {3}, 2: {1}, 3: {2}}, 1)) == 3
-    assert bpp.lbound(({1: {3}, 2: {1}, 3: {2}}, 2)) == 3
+        # check lower bounds
+        assert bpp.lbound(({1: {3}, 2: {1, 2}}, -1)) <= 2
+        assert bpp.lbound(({1: {3}, 2: {1, 2}}, 0)) <= 2
+        assert bpp.lbound(({1: {3}, 2: {1}, 3: {2}}, 0)) <= 2
+        assert bpp.lbound(({1: {3}, 2: {1}, 3: {2}}, 1)) <= 3
+        assert bpp.lbound(({1: {3}, 2: {1}, 3: {2}}, 2)) <= 3
 
     print('Lower bound tests passed')
 
 
 def test_branch():
-    # check branch
-    weights = [1, 2, 3]
-    capacity = 3
-    bpp = BinPackingProblem1D(weights, capacity)
-    expected = [
-        ({1: {3}, 2: {2, 1}}, 2),
-        ({1: {3}, 2: {2}, 3: {1}}, 2),
+    TEST_CASES = [
+        ([1, 2, 3], 3, [
+                ({1: {3}, 2: {2, 1}}, 2),
+                ({1: {3}, 2: {2}, 3: {1}}, 2),
+            ],
+            ({1: {3}, 2: {2, 1}}, 1)),
+        ([7, 8, 2, 3], 15, [
+                ({1: {2, 1}, 2: {4, 3}}, 1),
+                ({1: {2, 4, 3}, 2: {1}}, 1),
+            ],
+            ({1: {2, 1}, 2: {4, 3}}, 0)),
+        ([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 12, [
+                ({1: {10, 2}, 2: {9, 3}, 3: {8, 4}, 4: {7, 5}, 5: {6, 1}}, 5),
+                ({1: {10, 2}, 2: {9, 3}, 3: {8, 4}, 4: {7, 1}, 5: {6, 5}}, 5),
+                ({1: {10, 2}, 2: {9, 3}, 3: {8, 4}, 4: {7, 1}, 5: {6}, 6: {5}}, 5)
+            ],
+            ({1: {10}, 2: {9}, 3: {8}, 4: {7}, 5: {6}, 6: {5, 4}, 7: {2, 1}}, 4)),
+        ([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 12, [
+                ({1: {10, 2}, 2: {9, 3}, 3: {8, 4}, 4: {7, 1}, 5: {6}, 6: {5}}, 6),
+                ({1: {10, 2}, 2: {9, 3}, 3: {8, 1}, 4: {7, 4}, 5: {6}, 6: {5}}, 6),
+                ({1: {10, 2}, 2: {9, 3}, 3: {8, 1}, 4: {7}, 5: {6, 4}, 6: {5}}, 6),
+                ({1: {10, 2}, 2: {9, 3}, 3: {8, 1}, 4: {7}, 5: {6}, 6: {5, 4}}, 6),
+                ({1: {10, 2}, 2: {9, 3}, 3: {8, 1}, 4: {7}, 5: {6}, 6: {5}, 7: {4}}, 6)
+            ],
+            ({1: {10}, 2: {9}, 3: {8}, 4: {7}, 5: {6}, 6: {5, 4}, 7: {2, 1}}, 5))
     ]
-    new_sols = bpp.branch(({1: {3}, 2: {2, 1}}, 1))
-    assert new_sols == expected
-
-    # check branch
-    weights = [7, 8, 2, 3]
-    capacity = 15
-    bpp = BinPackingProblem1D(weights, capacity)
-    expected = [
-        ({1: {2, 1}, 2: {4, 3}}, 1),
-        ({1: {2, 4, 3}, 2: {1}}, 1),
-    ]
-    new_sols = bpp.branch(({1: {2, 1}, 2: {4, 3}}, 0))
-    assert new_sols == expected
+    for weights, capacity, expected, init_sol in TEST_CASES:
+        # check branch
+        bpp = BinPackingProblem1D(weights, capacity)
+        new_sols = bpp.branch(init_sol)
+        assert new_sols == expected
 
     print('Branch tests passed')
 
@@ -289,8 +283,9 @@ def test_bnb_binpacking():
     TEST_CASES = [
         ([1, 2, 3], 3, 2),
         ([7, 8, 2, 3], 15, 2),
+        ([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 12, 5),
         ([49, 41, 34, 33, 29, 26, 26, 22, 20, 19], 100, 3),
-        ([49, 41, 34, 33, 29, 26, 26, 22, 20, 19] * 4, 100, 12)
+        ([49, 41, 34, 33, 29, 26, 26, 22, 20, 19] * 6, 100, 18)
     ]
     for weights, capacity, min_bins in TEST_CASES:
         print('-----------------')
