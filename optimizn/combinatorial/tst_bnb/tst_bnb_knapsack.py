@@ -1,5 +1,5 @@
 import numpy as np
-from branch_and_bound import BnBProblem
+from optimizn.combinatorial.branch_and_bound import BnBProblem
 
 # References:
 # https://www.youtube.com/watch?v=yV1d-b_NeK8
