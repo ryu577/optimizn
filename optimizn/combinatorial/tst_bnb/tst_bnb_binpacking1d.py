@@ -4,6 +4,10 @@ import copy
 import math
 
 
+# References:
+# http://www.or.deis.unibo.it/knapsack.html (See PDF for Chapter 8,
+#   http://www.or.deis.unibo.it/kp/Chapter8.pdf)
+# https://imada.sdu.dk/~jbj/heuristikker/TSPtext.pdf
 class BinPackingProblem1D(BnBProblem):
     '''
     Solution format:
@@ -154,22 +158,6 @@ class BinPackingProblem1D(BnBProblem):
         return True
 
 
-def test_bnb_binpacking():
-    # weights, capacity, min bins (optimal solution)
-    TEST_CASES = [
-        ([1, 2, 3], 3, 2),
-        ([7, 8, 2, 3], 15, 2),
-        ([10, 7, 6, 3, 12, 12, 2, 1], 13, 5)
-    ]
-    for weights, capacity, min_bins in TEST_CASES:
-        bpp = BinPackingProblem1D(weights, capacity)
-        bpp.solve()
-        print('\nItem weight dictionary:', bpp.item_weights)
-        print('Final solution:', bpp.best_sol)
-        print('Score:', bpp.min_cost)
-        print('Optimal solution reached: ', min_bins == bpp.min_cost)
-
-
 def test_constructor():
     weights = [1, 2, 3]
     capacity = 3
@@ -294,6 +282,25 @@ def test_branch():
     assert new_sols == expected
 
     print('Branch tests passed')
+
+
+def test_bnb_binpacking():
+    # weights, capacity, min bins (optimal solution)
+    TEST_CASES = [
+        ([1, 2, 3], 3, 2),
+        ([7, 8, 2, 3], 15, 2),
+        ([49, 41, 34, 33, 29, 26, 26, 22, 20, 19], 100, 3),
+        ([49, 41, 34, 33, 29, 26, 26, 22, 20, 19] * 4, 100, 12)
+    ]
+    for weights, capacity, min_bins in TEST_CASES:
+        print('-----------------')
+        bpp = BinPackingProblem1D(weights, capacity)
+        bpp.solve()
+        print('\nItem weight dictionary:', bpp.item_weights)
+        print('Final solution:', bpp.best_sol)
+        print('Score:', bpp.min_cost)
+        print('Optimal solution reached: ', min_bins == bpp.min_cost)
+        print('-----------------')
 
 
 if __name__ == '__main__':
