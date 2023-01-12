@@ -49,16 +49,24 @@ class BnBProblem():
         iters = 0
         while not self.queue.empty():
             # get feasible solution
+            print('Queue:', list(self.queue.queue))
             curr_sol = self.queue.get()
+            iters += 1
+            print('\nSolution: ', iters)
+            print('Current soluton:', curr_sol)
 
             # do not explore current solution if lowest possible cost is higher 
             # than minimum cost
             lbound = self.lbound(curr_sol)
+            print('Lower bound:', lbound)
+            print('Best solution:', self.best_sol)
+            print('Best solution cost:', self.min_cost)
             if lbound >= self.min_cost:
                 continue
 
             # score current solution, update minimum cost and best solution
             cost = self.cost(curr_sol)
+            print('Cost:', cost)
             if self.min_cost > cost:
                 self.min_cost = cost
                 self.best_sol = curr_sol
@@ -70,15 +78,9 @@ class BnBProblem():
                     if self.is_sol(next_sol):
                         self.queue.put(next_sol)
 
-            # print results
-            iters += 1
-            print('\nSolutions explored: ', iters)
-            print('Best Solution (upper bound): ', self.min_cost,
-                  self.best_sol)
-            print('Curr Solution: ', curr_sol)
-            print('Lower bound:', lbound)
-            print('Cost:', cost)
-            print('Queue: ', list(self.queue.queue))
+        print('\nSolutions explored: ', iters)
+        print('Best solution: ', self.best_sol)
+        print('Best solution cost: ', self.min_cost)
 
         # return minimum cost and best solution
         return self.min_cost, self.best_sol

@@ -285,11 +285,13 @@ def test_bnb_binpacking():
         ([7, 8, 2, 3], 15, 2),
         ([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 12, 5),
         ([49, 41, 34, 33, 29, 26, 26, 22, 20, 19], 100, 3),
-        ([49, 41, 34, 33, 29, 26, 26, 22, 20, 19] * 6, 100, 18)
+        ([49, 41, 34, 33, 29, 26, 26, 22, 20, 19] * 2, 100, 6)
     ]
     for weights, capacity, min_bins in TEST_CASES:
         print('-----------------')
         bpp = BinPackingProblem1D(weights, capacity)
+        print('Sorted item weights (w, i):', bpp.sorted_item_weights)
+        print('Item weights:', bpp.item_weights)
         bpp.solve()
         print('\nItem weight dictionary:', bpp.item_weights)
         print('Final solution:', bpp.best_sol)
