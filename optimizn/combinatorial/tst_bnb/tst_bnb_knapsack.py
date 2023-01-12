@@ -1,7 +1,8 @@
 import numpy as np
 from branch_and_bound import BnBProblem
 
-
+# References:
+# https://www.youtube.com/watch?v=yV1d-b_NeK8
 class SimplifiedKnapsackProblem(BnBProblem):
     '''
     Class for the simplified knapsack problem, where each item is either 

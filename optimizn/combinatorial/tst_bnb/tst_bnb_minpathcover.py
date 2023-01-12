@@ -1,5 +1,5 @@
 import numpy as np
-from branch_and_bound import BnBProblem
+from optimizn.combinatorial.branch_and_bound import BnBProblem
 from graphing.special_graphs.neural_trigraph.rand_graph import rep_graph
 from graphing.special_graphs.neural_trigraph.path_cover import \
     min_cover_trigraph

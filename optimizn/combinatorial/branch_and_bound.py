@@ -49,6 +49,9 @@ class BnBProblem():
     def _print_results(self):
         if self.iters == 1 or self.iters % self.print_iters == 0:
             print(f'\nSolutions explored: {self.iters}')
+            queue = list(self.queue.queue)
+            print(f'Queue size: {len(queue)}')
+            print(f'Queue: {queue}')
             print(f'Time elapsed: {self.time_elapsed} seconds')
             print(f'Best solution: {self.best_sol}')
             print(f'Score: {self.min_cost}')
@@ -79,7 +82,7 @@ class BnBProblem():
                 self.best_sol = curr_sol
 
             # if lower bound not yet reached, explore other feasible solutions
-            if cost != lbound:
+            if cost > lbound:
                 next_sols = self.branch(curr_sol)
                 for next_sol in next_sols:
                     if self.is_sol(next_sol):
@@ -88,8 +91,7 @@ class BnBProblem():
             # print best solution and min cost, check if time limit exceeded
             self.iters += 1
             self.time_elapsed = time.time() - start
-            if self.iters == 1 or (self.iters > 0 and self.iters % 10 == 0):
-                self._print_results()
+            self._print_results()
             if self.time_elapsed > self.time_limit:
                 break
 
