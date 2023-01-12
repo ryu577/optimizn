@@ -91,8 +91,7 @@ class BinPackingProblem1D(BnBProblem):
             list(range(last_item_idx + 1, len(self.sorted_item_weights)))
         )))        
 
-        # return curr_bin_ct + math.ceil(rem_weight / self.capacity)
-        return math.ceil(sum(self.item_weights.values()) / self.capacity)
+        return curr_bin_ct + math.ceil(rem_weight / self.capacity)
 
     def cost(self, sol):
         bin_packing = sol[0]

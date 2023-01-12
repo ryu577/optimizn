@@ -17,7 +17,7 @@ class BnBProblem():
         if not self.is_sol(init_sol):
             raise Exception('Initial solution is infeasible')
 
-    def lbound(self, sol):
+    def lbound(self):
         '''
         Computes lower bound for a solution and the feasible solutions 
         that can be obtained from it
@@ -25,21 +25,21 @@ class BnBProblem():
         raise NotImplementedError('Implement a function to compute a lower '
             + 'bound on a feasible solution')
 
-    def cost(self, sol):
+    def cost(self):
         '''
         Computes the cost of a solution
         '''
         raise NotImplementedError('Implement a function to compute a cost '
             + 'for a feasible solution')
 
-    def branch(self, sol):
+    def branch(self):
         '''
         Generates other potential solutions from an existing feasible solution
         '''
         raise NotImplementedError('Implement a function to produce other '
             + 'potential solutions from a single feasible solution')
 
-    def is_sol(self, sol):
+    def is_sol(self):
         '''
         Checks if potential solution is feasible solution or not
         '''
