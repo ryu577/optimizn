@@ -1,21 +1,27 @@
 import time
 from queue import Queue
+from optimizn.combinatorial.opt_problem import OptProblem
 
 
-class BnBProblem():
-    def __init__(self, init_sol, iters_limit=1e6, print_iters=100,
+class BnBProblem(OptProblem):
+    def __init__(self, name, iters_limit=1e6, print_iters=100,
                  time_limit=3600):
-        self.min_cost = float('inf')
-        self.best_sol = None
-        self.queue = Queue()
         self.iters_limit = iters_limit
         self.print_iters = print_iters
         self.time_limit = time_limit
-        self.init_sol = init_sol
+        self.queue = Queue()
         self.iters = 0
         self.time_elapsed = 0
-        if not self.is_sol(init_sol):
+        super().__init__(name=name)
+        if not self.is_sol(self.best_solution):
             raise Exception('Initial solution is infeasible')
+
+    def get_candidate():
+        '''
+        Get initial solution
+        '''
+        raise NotImplementedError('Implement a function to generate an '
+            + 'initial feasible solution')
 
     def lbound(self):
         '''
@@ -24,13 +30,6 @@ class BnBProblem():
         '''
         raise NotImplementedError('Implement a function to compute a lower '
             + 'bound on a feasible solution')
-
-    def cost(self):
-        '''
-        Computes the cost of a solution
-        '''
-        raise NotImplementedError('Implement a function to compute a cost '
-            + 'for a feasible solution')
 
     def branch(self):
         '''
@@ -53,8 +52,8 @@ class BnBProblem():
             print(f'Queue size: {len(queue)}')
             print(f'Queue: {queue}')
             print(f'Time elapsed: {self.time_elapsed} seconds')
-            print(f'Best solution: {self.best_sol}')
-            print(f'Score: {self.min_cost}')
+            print(f'Best solution: {self.best_solution}')
+            print(f'Score: {self.best_cost}')
 
     def solve(self):
         '''
@@ -62,24 +61,24 @@ class BnBProblem():
         '''
         # initialization
         start = time.time()
-        self.queue.put(self.init_sol)
+        self.queue.put(self.best_solution)
 
         # explore feasible solutions
         while not self.queue.empty() and self.iters != self.iters_limit:
             # get feasible solution
             curr_sol = self.queue.get()
 
-            # do not explore current solution if lowest possible cost is higher 
+            # do not explore current solution if lowest possible cost is higher
             # than minimum cost
             lbound = self.lbound(curr_sol)
-            if lbound >= self.min_cost:
+            if lbound >= self.best_cost:
                 continue
 
             # score current solution, update minimum cost and best solution
             cost = self.cost(curr_sol)
-            if self.min_cost > cost:
-                self.min_cost = cost
-                self.best_sol = curr_sol
+            if self.best_cost > cost:
+                self.best_cost = cost
+                self.best_solution = curr_sol
 
             # if lower bound not yet reached, explore other feasible solutions
             if cost > lbound:
@@ -97,4 +96,5 @@ class BnBProblem():
 
         # return minimum cost and best solution
         self._print_results()
-        return self.min_cost, self.best_sol
+        # self.persist()
+        return self.best_cost, self.best_solution

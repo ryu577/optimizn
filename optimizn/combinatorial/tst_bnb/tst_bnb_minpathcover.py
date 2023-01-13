@@ -19,14 +19,18 @@ class MinPathCoverProblem1(BnBProblem):
     vertices, then the branching only produces the solution where the path
     is omitted from the cover
     '''
-    def __init__(self, edges1, edges2, iters_limit, print_iters, time_limit):
+    def __init__(self, edges1, edges2, iters_limit, print_iters, time_limit,
+                 name='MinPathCoverProblem1'):
         self.edges1 = edges1
         self.edges2 = edges2
         self.vertices = set(edges1.flatten()).union(set(edges2.flatten()))
         self._get_all_paths()
-        super().__init__(init_sol=(np.ones(len(self.all_paths)), -1),
+        super().__init__(name=name,
                          iters_limit=iters_limit, print_iters=print_iters,
                          time_limit=time_limit)
+
+    def get_candidate(self):
+        return (np.ones(len(self.all_paths)), -1)
 
     def _get_all_paths(self):
         self.all_paths = []
@@ -122,7 +126,8 @@ class MinPathCoverProblem2(BnBProblem):
     either remain the same (if the path cover already covered vertex X+1)
     or include one extra path (to cover vertex X+1).
     '''
-    def __init__(self, edges1, edges2, iters_limit, print_iters, time_limit):
+    def __init__(self, edges1, edges2, iters_limit, print_iters, time_limit,
+                 name='MinPathCoverProblem2'):
         self.edges1 = edges1
         self.edges2 = edges2
         self.vertices = set(edges1.flatten()).union(set(edges2.flatten()))
@@ -137,10 +142,13 @@ class MinPathCoverProblem2(BnBProblem):
                         if vert not in self.cov_dict.keys():
                             self.cov_dict[vert] = set()
                         self.cov_dict[vert].add(path)
-        super().__init__(init_sol=(np.zeros((0, 3)),
-                         np.array(self.all_paths), min(self.vertices) - 1),
-                         iters_limit=iters_limit, print_iters=print_iters,
+        super().__init__(name=name, iters_limit=iters_limit,
+                         print_iters=print_iters,
                          time_limit=time_limit)
+
+    def get_candidate(self):
+        return (np.zeros((0, 3)), np.array(self.all_paths),
+                min(self.vertices) - 1)
 
     def lbound(self, sol):
         # sum of existing paths and (number of vertices left to cover / 3)
@@ -229,7 +237,7 @@ def test_bnb_minpathcover():
 
         # first approach
         mpc1 = MinPathCoverProblem1(
-            edges1, edges2, iters_limit=100, print_iters=1000,
+            edges1, edges2, iters_limit=1e6, print_iters=1000,
             time_limit=120)
         scr1, sol1 = mpc1.solve()
 

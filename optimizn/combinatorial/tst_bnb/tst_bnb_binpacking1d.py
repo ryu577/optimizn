@@ -22,7 +22,8 @@ class BinPackingProblem1D(BnBProblem):
     New bins created as needed
     '''
     def __init__(self, weights, capacity, iters_limit, print_iters,
-                 time_limit):
+                 time_limit, name='BinPackingProblem1D'):
+        self.name = name
         self.item_weights = {}  # mapping of items to weights
         self.sorted_item_weights = []  # sorted (weight, item) tuples (desc)
         for i in range(1, len(weights) + 1):
@@ -30,10 +31,12 @@ class BinPackingProblem1D(BnBProblem):
             self.sorted_item_weights.append((weights[i - 1], i))
         self.sorted_item_weights.sort(reverse=True)
         self.capacity = capacity
-        init_packing = self._pack_rem_items({}, -1)
         super().__init__(
-            init_sol=(init_packing, -1), iters_limit=iters_limit,
+            name=name, iters_limit=iters_limit,
             print_iters=print_iters, time_limit=time_limit)
+    
+    def get_candidate(self):
+        return (self._pack_rem_items({}, -1), -1)
 
     def _pack_rem_items(self, bin_packing, last_item_idx):
         next_item_idx = last_item_idx + 1
@@ -189,8 +192,8 @@ def test_constructor():
                 assert weight < bpp.sorted_item_weights[i - 1][0]
 
         # check initial solution
-        assert bpp.init_sol[0] == expected
-        assert bpp.init_sol[1] == -1
+        assert bpp.best_solution[0] == expected
+        assert bpp.best_solution[1] == -1
     print('Constructor tests passed')
 
 
@@ -323,9 +326,9 @@ def test_bnb_binpacking():
         print('Item weights:', bpp.item_weights)
         bpp.solve()
         print('\nItem weight dictionary:', bpp.item_weights)
-        print('Final solution:', bpp.best_sol)
-        print('Score:', bpp.min_cost)
-        print('Optimal solution reached: ', min_bins == bpp.min_cost)
+        print('Final solution:', bpp.best_solution)
+        print('Score:', bpp.best_cost)
+        print('Optimal solution reached: ', min_bins == bpp.best_cost)
         print('-----------------')
 
 

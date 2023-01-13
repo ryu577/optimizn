@@ -5,23 +5,27 @@ from optimizn.combinatorial.branch_and_bound import BnBProblem
 # https://www.youtube.com/watch?v=yV1d-b_NeK8
 class SimplifiedKnapsackProblem(BnBProblem):
     '''
-    Class for the simplified knapsack problem, where each item is either 
+    Class for the simplified knapsack problem, where each item is either
     taken or omitted in its entirety
     '''
-    def __init__(self, values, weights, capacity, init_sol): 
+    def __init__(self, values, weights, capacity, init_sol):
         self.values = np.array(values)
         self.weights = np.array(weights)
         self.capacity = capacity
 
-        # value/weight ratios, in decreasing order 
+        # value/weight ratios, in decreasing order
         vw_ratios = self.values / self.weights
         vw_ratios_ixs = []
         for i in range(len(vw_ratios)):
             vw_ratios_ixs.append((vw_ratios[i], i))
         self.sorted_vw_ratios = sorted(vw_ratios_ixs)
         self.sorted_vw_ratios.reverse()
+        self.init_sol = init_sol
+        super().__init__(
+            "SimplifiedKnapsackProblem", iters_limit=100, time_limit=6000)
 
-        super().__init__(init_sol, iters_limit=100, time_limit=6000)
+    def get_candidate(self):
+        return self.init_sol
 
     def lbound(self, sol):
         value = 0
