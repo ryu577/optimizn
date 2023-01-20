@@ -217,6 +217,8 @@ def test_bnb_minpathcover():
             np.array([[4, 6], [4, 7], [5, 8]])
         ),
         rep_graph(8, 10, 14, reps=4),
+        # NOTE: below test cases have relatively longer execution times,
+        # uncomment to run
         # rep_graph(10, 14, 10, reps=4),
         # rep_graph(20, 40, 20, reps=4),
         # rep_graph(20, 40, 20, reps=8),
@@ -224,7 +226,9 @@ def test_bnb_minpathcover():
     ]
     LENGTHS = [
         3,
-        len(min_cover_trigraph(EDGES[0][0], EDGES[0][1])),
+        len(min_cover_trigraph(EDGES[1][0], EDGES[1][1])),
+        # NOTE: below test cases have relatively longer execution times,
+        # uncomment to run
         # len(min_cover_trigraph(EDGES[2][0], EDGES[2][1])),
         # len(min_cover_trigraph(EDGES[3][0], EDGES[3][1])),
         # len(min_cover_trigraph(EDGES[4][0], EDGES[4][1])),
@@ -240,13 +244,13 @@ def test_bnb_minpathcover():
         mpc1 = MinPathCoverProblem1(
             edges1, edges2, iters_limit=1e6, print_iters=1000,
             time_limit=120)
-        scr1, sol1 = mpc1.solve()
+        sol1, scr1 = mpc1.solve()
 
         # second approach
         mpc2 = MinPathCoverProblem2(
             edges1, edges2, iters_limit=1e6, print_iters=1000,
             time_limit=120)
-        scr2, sol2 = mpc2.solve()
+        sol2, scr2 = mpc2.solve()
 
         print('\nFIRST APPROACH:')
         solution1 = []

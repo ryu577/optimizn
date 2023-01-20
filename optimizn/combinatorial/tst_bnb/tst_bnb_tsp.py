@@ -273,8 +273,8 @@ def test_bnb_tsp():
 
     tsp = TravelingSalesmanProblem(graph, 1000, 500, 600)
     sol = tsp.solve()
-    print('BnB-produced path: ', sol[1])
-    print('Distance of BnB-produced path: ', sol[0])
+    print('BnB-produced path: ', sol[0][0])
+    print('Distance of BnB-produced path: ', sol[1])
     print('Distance of external-library-produced distance: ', distance)
 
 

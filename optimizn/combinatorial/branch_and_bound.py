@@ -1,5 +1,5 @@
 import time
-from queue import Queue
+from queue import PriorityQueue
 from optimizn.combinatorial.opt_problem import OptProblem
 
 
@@ -9,7 +9,7 @@ class BnBProblem(OptProblem):
         self.iters_limit = iters_limit
         self.print_iters = print_iters
         self.time_limit = time_limit
-        self.queue = Queue()
+        self.queue = PriorityQueue()
         self.iters = 0
         self.time_elapsed = 0
         super().__init__(name=name)
@@ -54,16 +54,18 @@ class BnBProblem(OptProblem):
         '''
         # initialization
         start = time.time()
-        self.queue.put(self.best_solution)
+        sol_count = 1  # breaks ties between solutions with same lower bound
+        # solutions generated earlier are given priority in such cases
+        self.queue.put((
+            self.lbound(self.best_solution), sol_count, self.best_solution))
 
         # explore feasible solutions
         while not self.queue.empty() and self.iters != self.iters_limit:
             # get feasible solution
-            curr_sol = self.queue.get()
+            lbound, _, curr_sol = self.queue.get()
 
             # do not explore current solution if lowest possible cost is higher
             # than minimum cost
-            lbound = self.lbound(curr_sol)
             if lbound >= self.best_cost:
                 continue
 
@@ -78,7 +80,10 @@ class BnBProblem(OptProblem):
                 next_sols = self.branch(curr_sol)
                 for next_sol in next_sols:
                     if self.is_sol(next_sol):
-                        self.queue.put(next_sol)
+                        lbound = self.lbound(curr_sol)
+                        if lbound < self.best_cost:
+                            sol_count += 1
+                            self.queue.put((lbound, sol_count, next_sol))
 
             # print best solution and min cost, check if time limit exceeded
             self.iters += 1
@@ -87,7 +92,7 @@ class BnBProblem(OptProblem):
             if self.time_elapsed > self.time_limit:
                 break
 
-        # return minimum cost and best solution
+        # return best solution and cost
         self._print_results()
         # self.persist()
-        return self.best_cost, self.best_solution
+        return self.best_solution, self.best_cost

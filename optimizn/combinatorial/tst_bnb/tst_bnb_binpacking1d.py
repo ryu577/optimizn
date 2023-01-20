@@ -326,7 +326,7 @@ def test_bnb_binpacking():
         print('Item weights:', bpp.item_weights)
         bpp.solve()
         print('\nItem weight dictionary:', bpp.item_weights)
-        print('Final solution:', bpp.best_solution)
+        print('Final solution:', bpp.best_solution[0])
         print('Score:', bpp.best_cost)
         print('Optimal solution reached: ', min_bins == bpp.best_cost)
         print('-----------------')
