@@ -16,14 +16,7 @@ class BnBProblem(OptProblem):
         if not self.is_sol(self.best_solution):
             raise Exception('Initial solution is infeasible')
 
-    def get_candidate():
-        '''
-        Get initial solution
-        '''
-        raise NotImplementedError('Implement a function to generate an '
-            + 'initial feasible solution')
-
-    def lbound(self):
+    def lbound(self, sol):
         '''
         Computes lower bound for a solution and the feasible solutions 
         that can be obtained from it
@@ -31,14 +24,14 @@ class BnBProblem(OptProblem):
         raise NotImplementedError('Implement a function to compute a lower '
             + 'bound on a feasible solution')
 
-    def branch(self):
+    def branch(self, sol):
         '''
         Generates other potential solutions from an existing feasible solution
         '''
         raise NotImplementedError('Implement a function to produce other '
             + 'potential solutions from a single feasible solution')
 
-    def is_sol(self):
+    def is_sol(self, sol):
         '''
         Checks if potential solution is feasible solution or not
         '''
@@ -50,7 +43,7 @@ class BnBProblem(OptProblem):
             print(f'\nSolutions explored: {self.iters}')
             queue = list(self.queue.queue)
             print(f'Queue size: {len(queue)}')
-            print(f'Queue: {queue}')
+            #  print(f'Queue: {queue}')
             print(f'Time elapsed: {self.time_elapsed} seconds')
             print(f'Best solution: {self.best_solution}')
             print(f'Score: {self.best_cost}')

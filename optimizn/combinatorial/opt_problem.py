@@ -1,7 +1,6 @@
 import pickle
 import os
 from datetime import datetime
-import copy
 
 class OptProblem():
     def __init__(self, name):
@@ -12,7 +11,7 @@ class OptProblem():
         self.best_cost = self.cost(self.best_solution)
         self.name = name
 
-    def get_candidate(): 
+    def get_candidate(self):
         ''' Gets a feasible candidate.'''
         raise Exception("Not implemented")
     
@@ -30,7 +29,6 @@ class OptProblem():
             f_name = "Data//" + self.name + "//DailyObj//" +\
                         str(self.init_secs) + ".obj"
             file1 = open(f_name, 'wb')
-            # TODO: find a way to pickle params (self.__dict__, self.params not working)
             pickle.dump(self.params, file1)
             print("Wrote to DailyObj")
         # Write the optimization object.
@@ -74,7 +72,11 @@ def load_latest_pckl(path1="Data/DailyObj"):
     msh_files = sorted(msh_files)
     if len(msh_files) > 0:
         latest_file = msh_files[len(msh_files)-1]
-        filehandler = open(path1 + "//" + latest_file, 'rb')
-        existing_obj = pickle.load(filehandler)
-        return existing_obj
+        filepath = path1 + "//" + latest_file
+        if os.path.getsize(filepath) == 0:
+            print('File located at', filepath, 'is empty')
+        else:
+            filehandler = open(filepath, 'rb')
+            existing_obj = pickle.load(filehandler)
+            return existing_obj
     return None
