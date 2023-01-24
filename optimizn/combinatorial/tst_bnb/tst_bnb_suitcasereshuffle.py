@@ -46,10 +46,14 @@ class SuitcaseReshuffleProblem(BnBProblem):
         max_empty_space = float('-inf')
         for suitcase in suitcases.config:
             max_empty_space = max(max_empty_space, suitcase[-1])
-        return max_empty_space
+        return -1 * max_empty_space
 
     def lbound(self, sol):
-        pass
+        suitcases = sol[0]
+        empty_space = 0
+        for suitcase in suitcases.config:
+            empty_space += suitcase[-1]
+        return -1 * empty_space
 
     def is_sol(self, sol):
         suitcases = sol[0]
@@ -68,12 +72,42 @@ class SuitcaseReshuffleProblem(BnBProblem):
         return True
 
     def branch(self, sol):
-        pass
+        suitcases = sol[0]
+        swap_from = sol[1]
+        if swap_from > len(suitcases.config) - 2:
+            return []
+
+        # produce a new solution for each swap between suitcases
+        # swap_from and swap_from + 1
+        new_sols = []
+        for i1 in range(len(suitcases.config[swap_from]) - 1):
+            for i2 in range(len(suitcases.config[swap_from + 1]) - 1):
+                new_suitcases = deepcopy(suitcases)
+
+                # compute empty space change, see if swap is possible
+                empty_space_change = new_suitcases.config[swap_from + 1][i2] \
+                    - new_suitcases.config[swap_from][i1]
+                new_suitcases.config[swap_from][-1] -= empty_space_change
+                new_suitcases.config[swap_from + 1][-1] += empty_space_change
+                if (new_suitcases.config[swap_from][-1] < 0 or
+                        new_suitcases.config[swap_from + 1][-1] < 0):
+                    continue
+
+                # swap items
+                temp = new_suitcases.config[swap_from][i1]
+                new_suitcases.config[swap_from][i1] = new_suitcases.config[
+                    swap_from + 1][i2]
+                new_suitcases.config[swap_from + 1][i2] = temp
+
+                # create new solution
+                new_sol = (new_suitcases, swap_from + 1)
+                new_sols.append(new_sol)
+        return new_sols
 
 
 def test_constructor():
     TEST_CASES = [
-        ([[7, 5, 1], [4, 6, 1]], [13, 11], 1)
+        ([[7, 5, 1], [4, 6, 1]], [13, 11], -1)
     ]
     for config, capacities, cost in TEST_CASES:
         sc = SuitCases(config)
@@ -96,9 +130,9 @@ def test_constructor():
 
 def test_cost():
     TEST_CASES = [
-        (([[7, 5, 1], [4, 6, 1]], 0), 1),
-        (([[7, 5, 1], [4, 6, 1], [12, 12, 4], [11, 10, 2]], 1), 4),
-        (([[7, 5, 1], [4, 6, 1], [12, 12, 4], [11, 10, 2]], 2), 4)
+        (([[7, 5, 1], [4, 6, 1]], 0), -1),
+        (([[7, 5, 1], [4, 6, 1], [12, 12, 4], [11, 10, 2]], 1), -4),
+        (([[7, 5, 1], [4, 6, 1], [12, 12, 4], [11, 10, 2]], 2), -4)
     ]
     for sol, cost in TEST_CASES:
         sc = SuitCases(sol[0])
@@ -111,7 +145,18 @@ def test_cost():
 
 
 def test_lbound():
-    pass
+    TEST_CASES = [
+        (([[7, 5, 1], [4, 6, 1]], 0), -2),
+        (([[7, 5, 3], [4, 6, 1]], 0), -4),
+        (([[7, 5, 1], [4, 6, 4]], 0), -5)
+    ]
+    for sol, lbound in TEST_CASES:
+        sc = SuitCases(sol[0])
+        srp = SuitcaseReshuffleProblem(init_sol=sc, iters_limit=10000,
+                                       print_iters=100, time_limit=300)
+        sol_lb = srp.lbound((sc, sol[1]))
+        assert sol_lb == lbound, f'Computed cost of solution {sol} is '\
+            + f'incorrect. Expected: {lbound}, Actual: {sol_lb}'
     print('lbound tests passed')
 
 
@@ -154,7 +199,42 @@ def test_is_sol():
 
 
 def test_branch():
-    pass
+    TEST_CASES = [
+        ([[7, 5, 1], [4, 6, 1]], 0, [
+            [[6, 5, 2], [4, 7, 0]],
+            [[7, 4, 2], [5, 6, 0]],
+            [[7, 6, 0], [4, 5, 2]],
+        ]),
+        ([[7, 5, 1], [4, 6, 1]], 1, []),
+        ([[7, 5, 1], [4, 6, 1], [5, 5, 1]], 0, [
+            [[6, 5, 2], [4, 7, 0], [5, 5, 1]],
+            [[7, 4, 2], [5, 6, 0], [5, 5, 1]],
+            [[7, 6, 0], [4, 5, 2], [5, 5, 1]],
+        ]),
+        ([[7, 5, 1], [4, 6, 1], [5, 5, 1]], 1, [
+            [[7, 5, 1], [5, 6, 0], [4, 5, 2]],
+            [[7, 5, 1], [5, 6, 0], [5, 4, 2]],
+            [[7, 5, 1], [4, 5, 2], [6, 5, 0]],
+            [[7, 5, 1], [4, 5, 2], [5, 6, 0]],
+        ])
+    ]
+    for config, suitcase_num, branch_sols in TEST_CASES: 
+        sc = SuitCases(config)
+        srp = SuitcaseReshuffleProblem(init_sol=sc, iters_limit=10000,
+                                       print_iters=100, time_limit=300)
+        sol = (sc, suitcase_num)
+        new_sols = srp.branch(sol)
+        assert len(new_sols) == len(branch_sols), 'Length of branched '\
+            + f'solutions for solution {sol} are incorrect. Expected: '\
+            + f'{branch_sols}, Actual: {new_sols}'
+        for i in range(len(new_sols)):
+            new_sc, new_sc_num = new_sols[i]
+            assert new_sc_num == suitcase_num + 1, 'Incorrect suitcase index '\
+                + f'for next branching. Expected: {suitcase_num + 1}, Actual:'\
+                + f' {new_sc_num}'
+            assert branch_sols[i] == new_sc.config, 'Branched solution for '\
+                + f'solution {sol} is incorrect. Expected: {branch_sols[i]}'\
+                + f', Actual: {new_sc.config}'
     print('branch tests passed')
 
 
