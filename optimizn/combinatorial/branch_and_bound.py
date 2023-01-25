@@ -95,5 +95,5 @@ class BnBProblem(OptProblem):
 
         # return best solution and cost
         self._print_results()
-        # self.persist()
+        # self.persist()  # TODO: fix this
         return self.best_solution, self.best_cost

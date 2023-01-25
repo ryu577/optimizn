@@ -69,7 +69,7 @@ def tst1():
 	scr = SuitCaseReshuffle(params=sc)
 
 def tst2():
-	from optimizn.combinatorial.tst_anneal.suitcase_reshuffle import *
+	# from optimizn.combinatorial.tst_anneal.suitcase_reshuffle import *
 
 	config = [[7,5,1],[4,6,1]]
 	sc = SuitCases(config)

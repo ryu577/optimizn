@@ -5,6 +5,16 @@ from graphing.special_graphs.neural_trigraph.path_cover import \
     min_cover_trigraph
 
 
+class MinPathCoverParams():
+    def __init__(self, edges1, edges2, iters_limit=1e6, print_iters=1000,
+                 time_limit=120):
+        self.edges1 = edges1
+        self.edges2 = edges2
+        self.iters_limit = iters_limit
+        self.print_iters = print_iters
+        self.time_limit = time_limit
+
+
 class MinPathCoverProblem1(BnBProblem):
     '''
     Solution format:
@@ -19,15 +29,17 @@ class MinPathCoverProblem1(BnBProblem):
     vertices, then the branching only produces the solution where the path
     is omitted from the cover
     '''
-    def __init__(self, edges1, edges2, iters_limit, print_iters, time_limit,
-                 name='MinPathCoverProblem1'):
-        self.edges1 = edges1
-        self.edges2 = edges2
-        self.vertices = set(edges1.flatten()).union(set(edges2.flatten()))
+    def __init__(self, params):
+        self.params = params
+        self.edges1 = self.params.edges1
+        self.edges2 = self.params.edges2
+        self.vertices = set(self.params.edges1.flatten()).union(
+            set(self.params.edges2.flatten()))
         self._get_all_paths()
-        super().__init__(name=name,
-                         iters_limit=iters_limit, print_iters=print_iters,
-                         time_limit=time_limit)
+        super().__init__(name='MinPathCoverProblem1',
+                         iters_limit=self.params.iters_limit, 
+                         print_iters=self.params.print_iters,
+                         time_limit=self.params.time_limit)
 
     def get_candidate(self):
         return (np.ones(len(self.all_paths)), -1)
@@ -126,11 +138,12 @@ class MinPathCoverProblem2(BnBProblem):
     either remain the same (if the path cover already covered vertex X+1)
     or include one extra path (to cover vertex X+1).
     '''
-    def __init__(self, edges1, edges2, iters_limit, print_iters, time_limit,
-                 name='MinPathCoverProblem2'):
-        self.edges1 = edges1
-        self.edges2 = edges2
-        self.vertices = set(edges1.flatten()).union(set(edges2.flatten()))
+    def __init__(self, params):
+        self.params = params
+        self.edges1 = self.params.edges1
+        self.edges2 = self.params.edges2
+        self.vertices = set(self.params.edges1.flatten()).union(
+            set(self.params.edges2.flatten()))
         self.all_paths = []
         self.cov_dict = {}
         for u1, u2 in self.edges1:
@@ -142,9 +155,10 @@ class MinPathCoverProblem2(BnBProblem):
                         if vert not in self.cov_dict.keys():
                             self.cov_dict[vert] = set()
                         self.cov_dict[vert].add(path)
-        super().__init__(name=name, iters_limit=iters_limit,
-                         print_iters=print_iters,
-                         time_limit=time_limit)
+        super().__init__(name='MinPathCoverProblem2',
+                         iters_limit=self.params.iters_limit,
+                         print_iters=self.params.print_iters,
+                         time_limit=self.params.time_limit)
 
     def get_candidate(self):
         return (np.zeros((0, 3)), np.array(self.all_paths),
@@ -241,15 +255,12 @@ def test_bnb_minpathcover():
         edges2 = EDGES[i][1]
 
         # first approach
-        mpc1 = MinPathCoverProblem1(
-            edges1, edges2, iters_limit=1e6, print_iters=1000,
-            time_limit=120)
+        params = MinPathCoverParams(edges1, edges2)
+        mpc1 = MinPathCoverProblem1(params)
         sol1, scr1 = mpc1.solve()
 
         # second approach
-        mpc2 = MinPathCoverProblem2(
-            edges1, edges2, iters_limit=1e6, print_iters=1000,
-            time_limit=120)
+        mpc2 = MinPathCoverProblem2(params)
         sol2, scr2 = mpc2.solve()
 
         print('\nFIRST APPROACH:')

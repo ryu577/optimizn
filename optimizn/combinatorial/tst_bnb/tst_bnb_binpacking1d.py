@@ -4,6 +4,16 @@ import copy
 import math
 
 
+class BinPackingParams():
+    def __init__(self, weights, capacity, iters_limit=1000, print_iters=200, 
+                 time_limit=300):
+        self.weights = weights
+        self.capacity = capacity
+        self.iters_limit = iters_limit
+        self.print_iters = print_iters
+        self.time_limit = time_limit
+
+
 # References:
 # http://www.or.deis.unibo.it/knapsack.html (See PDF for Chapter 8,
 #   http://www.or.deis.unibo.it/kp/Chapter8.pdf)
@@ -21,19 +31,19 @@ class BinPackingProblem1D(BnBProblem):
     decreasing order of weight, into the first bin that can fit it.
     New bins created as needed
     '''
-    def __init__(self, weights, capacity, iters_limit, print_iters,
-                 time_limit, name='BinPackingProblem1D'):
-        self.name = name
+    def __init__(self, params):
+        self.params = params
         self.item_weights = {}  # mapping of items to weights
         self.sorted_item_weights = []  # sorted (weight, item) tuples (desc)
-        for i in range(1, len(weights) + 1):
-            self.item_weights[i] = weights[i - 1]
-            self.sorted_item_weights.append((weights[i - 1], i))
+        for i in range(1, len(self.params.weights) + 1):
+            self.item_weights[i] = self.params.weights[i - 1]
+            self.sorted_item_weights.append((self.params.weights[i - 1], i))
         self.sorted_item_weights.sort(reverse=True)
-        self.capacity = capacity
+        self.capacity = self.params.capacity
         super().__init__(
-            name=name, iters_limit=iters_limit,
-            print_iters=print_iters, time_limit=time_limit)
+            name='BinPackingProblem1D', iters_limit=self.params.iters_limit,
+            print_iters=self.params.print_iters,
+            time_limit=self.params.time_limit)
     
     def get_candidate(self):
         return (self._pack_rem_items({}, -1), -1)
@@ -170,12 +180,14 @@ def test_constructor():
         ([7, 8, 2, 3], 15, {1: {2, 1}, 2: {4, 3}})
     ]
     for weights, capacity, expected in TEST_CASES:
-        bpp = BinPackingProblem1D(
-            weights, capacity,
+        params = BinPackingParams(
+            weights,
+            capacity,
             iters_limit=1000,
             print_iters=200,
-            time_limit=300,
+            time_limit=300
         )
+        bpp = BinPackingProblem1D(params)
 
         # check capacity
         assert bpp.capacity == capacity
@@ -202,12 +214,14 @@ def test_is_sol():
         ([1, 2, 3], 3)
     ]
     for weights, capacity in TEST_CASES:
-        bpp = BinPackingProblem1D(
-            weights, capacity,
+        params = BinPackingParams(
+            weights,
+            capacity,
             iters_limit=1000,
             print_iters=200,
-            time_limit=300,
+            time_limit=300
         )
+        bpp = BinPackingProblem1D(params)
 
         # check valid solutions
         assert bpp.is_sol(({1: {1, 2}, 2: {3}}, -1))
@@ -230,12 +244,14 @@ def test_cost():
         ([1, 2, 3], 3)
     ]
     for weights, capacity in TEST_CASES:
-        bpp = BinPackingProblem1D(
-            weights, capacity,
+        params = BinPackingParams(
+            weights,
+            capacity,
             iters_limit=1000,
             print_iters=200,
-            time_limit=300,
+            time_limit=300
         )
+        bpp = BinPackingProblem1D(params)
 
         # check cost
         assert bpp.cost(({1: {3}, 2: {1, 2}}, -1)) == 2
@@ -251,12 +267,11 @@ def test_lbound():
         ([1, 2, 3], 3)
     ]
     for weights, capacity in TEST_CASES:
-        bpp = BinPackingProblem1D(
-            weights, capacity,
-            iters_limit=1000,
-            print_iters=200,
-            time_limit=300,
+        params = BinPackingParams(
+            weights,
+            capacity
         )
+        bpp = BinPackingProblem1D(params)
 
         # check lower bounds
         assert bpp.lbound(({1: {3}, 2: {1, 2}}, -1)) <= 2
@@ -297,12 +312,11 @@ def test_branch():
     ]
     for weights, capacity, expected, init_sol in TEST_CASES:
         # check branch
-        bpp = BinPackingProblem1D(
-            weights, capacity,
-            iters_limit=10000,
-            print_iters=1000,
-            time_limit=300,
+        params = BinPackingParams(
+            weights,
+            capacity
         )
+        bpp = BinPackingProblem1D(params)
         new_sols = bpp.branch(init_sol)
         assert new_sols == expected
 
@@ -320,8 +334,8 @@ def test_bnb_binpacking():
     ]
     for weights, capacity, min_bins in TEST_CASES:
         print('-----------------')
-        bpp = BinPackingProblem1D(weights, capacity, iters_limit=1000,
-                                  print_iters=100, time_limit=300)
+        params = BinPackingParams(weights, capacity)
+        bpp = BinPackingProblem1D(params)
         print('Sorted item weights (w, i):', bpp.sorted_item_weights)
         print('Item weights:', bpp.item_weights)
         bpp.solve()

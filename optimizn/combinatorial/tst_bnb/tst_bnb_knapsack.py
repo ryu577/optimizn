@@ -1,6 +1,14 @@
 import numpy as np
 from optimizn.combinatorial.branch_and_bound import BnBProblem
 
+
+class KnapsackParams():
+    def __init__(self, values, weights, capacity, init_sol):
+        self.values = values
+        self.weights = weights
+        self.capacity = capacity
+        self.init_sol = init_sol
+
 # References:
 # https://www.youtube.com/watch?v=yV1d-b_NeK8
 class SimplifiedKnapsackProblem(BnBProblem):
@@ -8,10 +16,11 @@ class SimplifiedKnapsackProblem(BnBProblem):
     Class for the simplified knapsack problem, where each item is either
     taken or omitted in its entirety
     '''
-    def __init__(self, values, weights, capacity, init_sol):
-        self.values = np.array(values)
-        self.weights = np.array(weights)
-        self.capacity = capacity
+    def __init__(self, params):
+        self.params = params
+        self.values = np.array(self.params.values)
+        self.weights = np.array(self.params.weights)
+        self.capacity = self.params.capacity
 
         # value/weight ratios, in decreasing order
         vw_ratios = self.values / self.weights
@@ -20,9 +29,12 @@ class SimplifiedKnapsackProblem(BnBProblem):
             vw_ratios_ixs.append((vw_ratios[i], i))
         self.sorted_vw_ratios = sorted(vw_ratios_ixs)
         self.sorted_vw_ratios.reverse()
-        self.init_sol = init_sol
+        self.init_sol = self.params.init_sol
         super().__init__(
-            "SimplifiedKnapsackProblem", iters_limit=100, time_limit=6000)
+            name="SimplifiedKnapsackProblem",
+            iters_limit=1000,
+            print_iters=100,
+            time_limit=6000)
 
     def get_candidate(self):
         return self.init_sol
@@ -118,8 +130,9 @@ def test_bnb_simplified_knapsack():
     for i in range(len(init_sol)):
         print('\n=====================')
         print(f'TEST CASE {i+1}\n')
-        sol, score = SimplifiedKnapsackProblem(
-            values[i], weights[i], capacity[i], init_sol[i]).solve()
+        params = KnapsackParams(
+            values[i], weights[i], capacity[i], init_sol[i])
+        sol, score = SimplifiedKnapsackProblem(params).solve()
         print(f'\nScore: {-1 * score}')
         print(f'Solution: {sol[0]}')
         print(f'True solution: {true_sol[i]}')
