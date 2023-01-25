@@ -3,7 +3,7 @@ from optimizn.combinatorial.anneal import OptProblem
 from copy import deepcopy
 
 
-class SuitCases():
+class SuitCases:
 	def __init__(self, config):
 		"""
 		The configuration of the suitcases

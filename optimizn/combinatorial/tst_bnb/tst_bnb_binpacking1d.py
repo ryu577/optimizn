@@ -4,7 +4,7 @@ import copy
 import math
 
 
-class BinPackingParams():
+class BinPackingParams:
     def __init__(self, weights, capacity, iters_limit=1000, print_iters=200, 
                  time_limit=300):
         self.weights = weights

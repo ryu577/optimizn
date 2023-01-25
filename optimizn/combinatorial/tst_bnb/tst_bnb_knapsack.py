@@ -2,7 +2,7 @@ import numpy as np
 from optimizn.combinatorial.branch_and_bound import BnBProblem
 
 
-class KnapsackParams():
+class KnapsackParams:
     def __init__(self, values, weights, capacity, init_sol):
         self.values = values
         self.weights = weights

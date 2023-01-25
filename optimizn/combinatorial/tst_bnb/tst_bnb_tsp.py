@@ -3,7 +3,7 @@ from optimizn.combinatorial.branch_and_bound import BnBProblem
 from python_tsp.heuristics import solve_tsp_local_search
 import numpy as np
 
-class TravelingSalesmanParams():
+class TravelingSalesmanParams:
     def __init__(self, input_graph, iters_limit=1000, print_iters=500,
                  time_limit=600):
         self.input_graph = input_graph
@@ -127,7 +127,7 @@ class TravelingSalesmanProblem(BnBProblem):
         return new_sols
 
 
-class MockCityGraph():
+class MockCityGraph:
     def __init__(self, dists):
         self.dists = dists
 

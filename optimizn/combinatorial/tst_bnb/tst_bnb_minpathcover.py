@@ -5,7 +5,7 @@ from graphing.special_graphs.neural_trigraph.path_cover import \
     min_cover_trigraph
 
 
-class MinPathCoverParams():
+class MinPathCoverParams:
     def __init__(self, edges1, edges2, iters_limit=1e6, print_iters=1000,
                  time_limit=120):
         self.edges1 = edges1
