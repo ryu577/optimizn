@@ -73,34 +73,62 @@ class SuitcaseReshuffleProblem(BnBProblem):
 
     def branch(self, sol):
         suitcases = sol[0]
-        swap_from = sol[1]
-        if swap_from > len(suitcases.config) - 2:
+        curr = sol[1]
+        if curr > len(suitcases.config) - 2:
             return []
+
+        # produce a solution where no items are swapped or moved between
+        # suitcases curr and curr + 1
+        new_sols = []
+        new_sols.append((suitcases, curr + 1))
+
+        # produce solutions where only one item is moved from suitcase
+        # swap_from to suitcase swap_from + 1, and vice versa
+        for from_ix, to_ix in [
+                (curr, curr + 1), (curr + 1, curr)]:
+            for i in range(len(suitcases.config[from_ix]) - 1):
+                new_suitcases = deepcopy(suitcases)
+
+                # compute empty space change, see if move is possible
+                empty_space_change = new_suitcases.config[from_ix][i]
+                new_suitcases.config[from_ix][-1] += empty_space_change
+                new_suitcases.config[to_ix][-1] -= empty_space_change
+                if (new_suitcases.config[from_ix][-1] < 0 or
+                        new_suitcases.config[to_ix][-1] < 0):
+                    continue
+
+                # move item
+                new_suitcases.config[to_ix].insert(
+                    -1, new_suitcases.config[from_ix][i])
+                del new_suitcases.config[from_ix][i]
+
+                # create new solution
+                new_sol = (new_suitcases, curr + 1)
+                new_sols.append(new_sol)
 
         # produce a new solution for each swap between suitcases
         # swap_from and swap_from + 1
-        new_sols = []
-        for i1 in range(len(suitcases.config[swap_from]) - 1):
-            for i2 in range(len(suitcases.config[swap_from + 1]) - 1):
+        for i1 in range(len(suitcases.config[curr]) - 1):
+            for i2 in range(len(suitcases.config[curr + 1]) - 1):
                 new_suitcases = deepcopy(suitcases)
 
                 # compute empty space change, see if swap is possible
-                empty_space_change = new_suitcases.config[swap_from + 1][i2] \
-                    - new_suitcases.config[swap_from][i1]
-                new_suitcases.config[swap_from][-1] -= empty_space_change
-                new_suitcases.config[swap_from + 1][-1] += empty_space_change
-                if (new_suitcases.config[swap_from][-1] < 0 or
-                        new_suitcases.config[swap_from + 1][-1] < 0):
+                empty_space_change = new_suitcases.config[curr + 1][i2] \
+                    - new_suitcases.config[curr][i1]
+                new_suitcases.config[curr][-1] -= empty_space_change
+                new_suitcases.config[curr + 1][-1] += empty_space_change
+                if (new_suitcases.config[curr][-1] < 0 or
+                        new_suitcases.config[curr + 1][-1] < 0):
                     continue
 
                 # swap items
-                temp = new_suitcases.config[swap_from][i1]
-                new_suitcases.config[swap_from][i1] = new_suitcases.config[
-                    swap_from + 1][i2]
-                new_suitcases.config[swap_from + 1][i2] = temp
+                temp = new_suitcases.config[curr][i1]
+                new_suitcases.config[curr][i1] = new_suitcases.config[
+                    curr + 1][i2]
+                new_suitcases.config[curr + 1][i2] = temp
 
                 # create new solution
-                new_sol = (new_suitcases, swap_from + 1)
+                new_sol = (new_suitcases, curr + 1)
                 new_sols.append(new_sol)
         return new_sols
 
@@ -201,24 +229,34 @@ def test_is_sol():
 def test_branch():
     TEST_CASES = [
         ([[7, 5, 1], [4, 6, 1]], 0, [
+            [[7, 5, 1], [4, 6, 1]],
             [[6, 5, 2], [4, 7, 0]],
             [[7, 4, 2], [5, 6, 0]],
             [[7, 6, 0], [4, 5, 2]],
         ]),
         ([[7, 5, 1], [4, 6, 1]], 1, []),
         ([[7, 5, 1], [4, 6, 1], [5, 5, 1]], 0, [
+            [[7, 5, 1], [4, 6, 1], [5, 5, 1]],
             [[6, 5, 2], [4, 7, 0], [5, 5, 1]],
             [[7, 4, 2], [5, 6, 0], [5, 5, 1]],
             [[7, 6, 0], [4, 5, 2], [5, 5, 1]],
         ]),
         ([[7, 5, 1], [4, 6, 1], [5, 5, 1]], 1, [
+            [[7, 5, 1], [4, 6, 1], [5, 5, 1]],
             [[7, 5, 1], [5, 6, 0], [4, 5, 2]],
             [[7, 5, 1], [5, 6, 0], [5, 4, 2]],
             [[7, 5, 1], [4, 5, 2], [6, 5, 0]],
             [[7, 5, 1], [4, 5, 2], [5, 6, 0]],
+        ]),
+        ([[7, 5, 4], [4, 6, 1], [5, 5, 1]], 0, [
+            [[7, 5, 4], [4, 6, 1], [5, 5, 1]],
+            [[7, 5, 4, 0], [6, 5], [5, 5, 1]],
+            [[6, 5, 5], [4, 7, 0], [5, 5, 1]],
+            [[7, 4, 5], [5, 6, 0], [5, 5, 1]],
+            [[7, 6, 3], [4, 5, 2], [5, 5, 1]]
         ])
     ]
-    for config, suitcase_num, branch_sols in TEST_CASES: 
+    for config, suitcase_num, branch_sols in TEST_CASES:
         sc = SuitCases(config)
         srp = SuitcaseReshuffleProblem(init_sol=sc, iters_limit=10000,
                                        print_iters=100, time_limit=300)
@@ -238,9 +276,33 @@ def test_branch():
     print('branch tests passed')
 
 
+def test_bnb_suitcasereshuffle():
+    TEST_CASES = [
+        ([[7, 5, 1], [4, 6, 1]], -2),
+        ([[7, 5, 4], [4, 6, 1], [5, 5, 1]], -6),
+        ([[1, 4, 3, 6, 4, 2], [2, 4, 7, 1, 0], [1, 7, 3, 8, 3, 4]], -6),
+        ([
+            [12, 52, 34, 23, 17, 18, 22, 10],
+            [100, 21, 36, 77, 82, 44, 40],
+            [1, 5, 2, 8, 22, 34, 50]
+        ], -100)
+    ]
+    for config, final_cost in TEST_CASES:
+        sc = SuitCases(config)
+        srp = SuitcaseReshuffleProblem(sc, iters_limit=1000,
+                                       print_iters=100, time_limit=300)
+        srp.solve()
+        print('Best solution: ', srp.best_solution[0].config)
+        print(f'Expected cost: {final_cost}, Actual cost: {srp.best_cost}')
+
+
 if __name__ == '__main__':
+    print('Unit tests:')
     test_constructor()
     test_cost()
     test_lbound()
     test_is_sol()
     test_branch()
+    print('-----------------\n')
+
+    test_bnb_suitcasereshuffle()

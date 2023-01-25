@@ -38,8 +38,9 @@ class BnBProblem(OptProblem):
         raise NotImplementedError('Implement a function to check '
             + 'if a solution is a feasible solution')
 
-    def _print_results(self):
-        if self.iters == 1 or self.iters % self.print_iters == 0:
+    def _print_results(self, ignore_iters=False):
+        if (ignore_iters or self.iters == 1 or
+                self.iters % self.print_iters == 0):
             print(f'\nSolutions explored: {self.iters}')
             queue = list(self.queue.queue)
             print(f'Queue size: {len(queue)}')
