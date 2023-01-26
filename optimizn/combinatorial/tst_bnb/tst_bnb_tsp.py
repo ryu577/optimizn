@@ -37,7 +37,6 @@ class TravelingSalesmanProblem(BnBProblem):
                     self.sorted_dists.append(self.input_graph.dists[i, j])
         self.sorted_dists.sort()
         super().__init__(
-            name='TravelingSalesmanProblem',
             iters_limit=self.params.iters_limit,
             print_iters=self.params.print_iters,
             time_limit=self.params.time_limit)

@@ -36,8 +36,7 @@ class MinPathCoverProblem1(BnBProblem):
         self.vertices = set(self.params.edges1.flatten()).union(
             set(self.params.edges2.flatten()))
         self._get_all_paths()
-        super().__init__(name='MinPathCoverProblem1',
-                         iters_limit=self.params.iters_limit, 
+        super().__init__(iters_limit=self.params.iters_limit, 
                          print_iters=self.params.print_iters,
                          time_limit=self.params.time_limit)
 
@@ -155,8 +154,7 @@ class MinPathCoverProblem2(BnBProblem):
                         if vert not in self.cov_dict.keys():
                             self.cov_dict[vert] = set()
                         self.cov_dict[vert].add(path)
-        super().__init__(name='MinPathCoverProblem2',
-                         iters_limit=self.params.iters_limit,
+        super().__init__(iters_limit=self.params.iters_limit,
                          print_iters=self.params.print_iters,
                          time_limit=self.params.time_limit)
 

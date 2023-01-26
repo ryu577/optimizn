@@ -4,7 +4,7 @@ from optimizn.combinatorial.opt_problem import OptProblem
 
 
 class BnBProblem(OptProblem):
-    def __init__(self, name, iters_limit=1e6, print_iters=100,
+    def __init__(self, iters_limit=1e6, print_iters=100,
                  time_limit=3600):
         self.iters_limit = iters_limit
         self.print_iters = print_iters
@@ -12,7 +12,7 @@ class BnBProblem(OptProblem):
         self.queue = PriorityQueue()
         self.iters = 0
         self.time_elapsed = 0
-        super().__init__(name=name)
+        super().__init__()
         if not self.is_sol(self.best_solution):
             raise Exception('Initial solution is infeasible')
 
@@ -57,8 +57,18 @@ class BnBProblem(OptProblem):
         start = time.time()
         sol_count = 1  # breaks ties between solutions with same lower bound
         # solutions generated earlier are given priority in such cases
-        self.queue.put((
-            self.lbound(self.best_solution), sol_count, self.best_solution))
+
+        # if problem class instance is loaded, queue is saved as list, so
+        # convert back to PriorityQueue
+        if type(self.queue) is not PriorityQueue:
+            queue = PriorityQueue()
+            while not self.queue.empty():
+                queue.put(self.queue.get())
+        # otherwise, queue is created as PriorityQueue, so put initial solution
+        # onto PriorityQueue
+        else:
+            self.queue.put((self.lbound(self.best_solution),
+                            sol_count, self.best_solution))
 
         # explore feasible solutions
         while not self.queue.empty() and self.iters != self.iters_limit:
@@ -95,5 +105,8 @@ class BnBProblem(OptProblem):
 
         # return best solution and cost
         self._print_results()
-        # self.persist()  # TODO: fix this
+
+        # convert the queue to a list before saving solution
+        self.queue = list(self.queue.queue)
+        self.persist()
         return self.best_solution, self.best_cost

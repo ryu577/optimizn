@@ -3,13 +3,18 @@ import os
 from datetime import datetime
 
 class OptProblem():
-    def __init__(self, name):
+    def __init__(self):
         ''' Initialize the problem '''
         self.init_time = datetime.now()
         self.init_secs = int(self.init_time.timestamp())
         self.best_solution = self.get_candidate()
         self.best_cost = self.cost(self.best_solution)
-        self.name = name
+        self.name = self.__class__.__name__
+        if not hasattr(self, 'params'):
+            raise Exception(
+                'All problem class instances must have a "params" attribute, '
+                + 'which is an object that contains the input parameters '
+                + 'to the problem class')
 
     def get_candidate(self):
         ''' Gets a feasible candidate.'''
@@ -38,7 +43,7 @@ class OptProblem():
         pickle.dump(self, file1)
         print("Wrote to DailyOpt")
 
-        # Now check if the current best is better 
+        # Now check if the current best is better
         # than the global best
         existing_best = load_latest_pckl("Data//" +\
                         self.name + "//GlobalOpt")

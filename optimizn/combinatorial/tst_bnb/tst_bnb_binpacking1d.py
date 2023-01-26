@@ -41,7 +41,7 @@ class BinPackingProblem1D(BnBProblem):
         self.sorted_item_weights.sort(reverse=True)
         self.capacity = self.params.capacity
         super().__init__(
-            name='BinPackingProblem1D', iters_limit=self.params.iters_limit,
+            iters_limit=self.params.iters_limit,
             print_iters=self.params.print_iters,
             time_limit=self.params.time_limit)
     

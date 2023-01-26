@@ -30,11 +30,9 @@ class SimplifiedKnapsackProblem(BnBProblem):
         self.sorted_vw_ratios = sorted(vw_ratios_ixs)
         self.sorted_vw_ratios.reverse()
         self.init_sol = self.params.init_sol
-        super().__init__(
-            name="SimplifiedKnapsackProblem",
-            iters_limit=1000,
-            print_iters=100,
-            time_limit=6000)
+        super().__init__(iters_limit=1000,
+                         print_iters=100,
+                         time_limit=6000)
 
     def get_candidate(self):
         return self.init_sol
