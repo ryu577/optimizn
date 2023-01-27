@@ -1,12 +1,30 @@
-from queue import Queue
+import time
+from queue import PriorityQueue
+from optimizn.combinatorial.opt_problem import OptProblem
 
-class BnBProblem():
-    def __init__(self, init_sol): 
-        self.min_cost = float('inf')
-        self.best_sol = None
-        self.queue = Queue()
-        self.init_sol = init_sol
-        if not self.is_sol(init_sol):
+
+class BnBProblem(OptProblem):
+    def __init__(self, params):
+        self.params = params
+        if type(params) is dict:
+            self.iters_limit = 1e6 if 'iters_limit' not in self.params.keys()\
+                else self.params['iters_limit']
+            self.print_iters = 100 if 'print_iters' not in self.params.keys()\
+                else self.params['print_iters']
+            self.time_limit = 3600 if 'time_limit' not in self.params.keys()\
+                else self.params['time_limit']
+        else:
+            self.iters_limit = 1e6 if not hasattr(self.params, 'iters_limit')\
+                else self.params.iters_limit
+            self.print_iters = 100 if not hasattr(self.params, 'print_iters')\
+                else self.params.print_iters
+            self.time_limit = 3600 if not hasattr(self.params, 'time_limit')\
+                else self.params.time_limit
+        self.queue = PriorityQueue()
+        self.iters = 0
+        self.time_elapsed = 0
+        super().__init__()
+        if not self.is_sol(self.best_solution):
             raise Exception('Initial solution is infeasible')
 
     def lbound(self, sol):
@@ -17,13 +35,6 @@ class BnBProblem():
         raise NotImplementedError('Implement a function to compute a lower '
             + 'bound on a feasible solution')
 
-    def cost(self, sol):
-        '''
-        Computes the cost of a solution
-        '''
-        raise NotImplementedError('Implement a function to compute a cost '
-            + 'for a feasible solution')
-
     def branch(self, sol):
         '''
         Generates other potential solutions from an existing feasible solution
@@ -31,48 +42,82 @@ class BnBProblem():
         raise NotImplementedError('Implement a function to produce other '
             + 'potential solutions from a single feasible solution')
 
-    def is_sol(self, sol): 
+    def is_sol(self, sol):
         '''
         Checks if potential solution is feasible solution or not
         '''
         raise NotImplementedError('Implement a function to check '
             + 'if a solution is a feasible solution')
 
-    def solve(self): 
+    def _print_results(self, ignore_iters=False):
+        if (ignore_iters or self.iters == 1 or
+                self.iters % self.print_iters == 0):
+            print(f'\nSolutions explored: {self.iters}')
+            queue = list(self.queue.queue)
+            print(f'Queue size: {len(queue)}')
+            #  print(f'Queue: {queue}')
+            print(f'Time elapsed: {self.time_elapsed} seconds')
+            print(f'Best solution: {self.best_solution}')
+            print(f'Score: {self.best_cost}')
+
+    def solve(self):
         '''
         Executes branch and bound algorithm
         '''
         # initialization
-        self.queue.put(self.init_sol)
+        start = time.time()
+        sol_count = 1  # breaks ties between solutions with same lower bound
+        # solutions generated earlier are given priority in such cases
+
+        # if problem class instance is loaded, queue is saved as list, so
+        # convert back to PriorityQueue
+        if type(self.queue) is not PriorityQueue:
+            queue = PriorityQueue()
+            while not self.queue.empty():
+                queue.put(self.queue.get())
+        # otherwise, queue is created as PriorityQueue, so put initial solution
+        # onto PriorityQueue
+        else:
+            self.queue.put((self.lbound(self.best_solution),
+                            sol_count, self.best_solution))
 
         # explore feasible solutions
-        while not self.queue.empty():
-            print('\nBest Solution (upper bound): ', self.min_cost, self.best_sol)
+        while not self.queue.empty() and self.iters != self.iters_limit:
             # get feasible solution
-            curr_sol = self.queue.get()
-            print('Curr Solution: ', curr_sol)
-            print('Queue: ', list(self.queue.queue))
+            lbound, _, curr_sol = self.queue.get()
 
-            # do not explore current solution if lowest possible cost is higher 
+            # do not explore current solution if lowest possible cost is higher
             # than minimum cost
-            lbound = self.lbound(curr_sol)
-            print('Lower bound:', lbound)
-            if lbound >= self.min_cost:
+            if lbound >= self.best_cost:
                 continue
 
             # score current solution, update minimum cost and best solution
             cost = self.cost(curr_sol)
-            print('Cost:', cost)
-            if self.min_cost > cost:
-                self.min_cost = cost
-                self.best_sol = curr_sol
+            if self.best_cost > cost:
+                self.best_cost = cost
+                self.best_solution = curr_sol
 
             # if lower bound not yet reached, explore other feasible solutions
-            if cost != lbound:
+            if cost > lbound:
                 next_sols = self.branch(curr_sol)
                 for next_sol in next_sols:
                     if self.is_sol(next_sol):
-                        self.queue.put(next_sol)
+                        lbound = self.lbound(curr_sol)
+                        if lbound < self.best_cost:
+                            sol_count += 1
+                            self.queue.put((lbound, sol_count, next_sol))
 
-        # return minimum cost and best solution
-        return self.min_cost, self.best_sol
+            # print best solution and min cost, check if time limit exceeded
+            self.iters += 1
+            self.time_elapsed = time.time() - start
+            self._print_results()
+            if self.time_elapsed > self.time_limit:
+                break
+
+        # return best solution and cost
+        self._print_results()
+
+        # convert the queue to a list before saving solution
+        self.queue = list(self.queue.queue)
+        self.persist()
+        return self.best_solution, self.best_cost

@@ -1,26 +1,55 @@
 import numpy as np
-from branch_and_bound import BnBProblem
+from optimizn.combinatorial.branch_and_bound import BnBProblem
 
 
-class SimplifiedKnapsackProblem(BnBProblem):
+class KnapsackParams:
+    def __init__(self, values, weights, capacity, init_sol):
+        self.values = values
+        self.weights = weights
+        self.capacity = capacity
+        self.init_sol = init_sol
+
+    def __eq__(self, other):
+        return (
+            other is not None
+            and (len(self.values) == len(other.values)
+                 and (self.values == other.values).all())
+            and (len(self.weights) == len(other.weights)
+                 and (self.weights == other.weights).all())
+            and self.capacity == other.capacity
+            and (len(self.init_sol[0]) == len(other.init_sol[0])
+                 and (self.init_sol[0] == other.init_sol[0]).all())
+            and self.init_sol[1] == self.init_sol[1]
+        )
+
+
+# References:
+# https://www.youtube.com/watch?v=yV1d-b_NeK8
+class ZeroOneKnapsackProblem(BnBProblem):
     '''
-    Class for the simplified knapsack problem, where each item is either 
+    Class for the simplified knapsack problem, where each item is either
     taken or omitted in its entirety
     '''
-    def __init__(self, values, weights, capacity, init_sol): 
-        self.values = np.array(values)
-        self.weights = np.array(weights)
-        self.capacity = capacity
+    def __init__(self, params):
+        self.values = np.array(params.values)
+        self.weights = np.array(params.weights)
+        self.capacity = params.capacity
 
-        # value/weight ratios, in decreasing order 
+        # value/weight ratios, in decreasing order
         vw_ratios = self.values / self.weights
         vw_ratios_ixs = []
         for i in range(len(vw_ratios)):
             vw_ratios_ixs.append((vw_ratios[i], i))
         self.sorted_vw_ratios = sorted(vw_ratios_ixs)
         self.sorted_vw_ratios.reverse()
+        self.init_sol = params.init_sol
+        params.iters_limit = 1000
+        params.print_iters = 100
+        params.time_limit = 6000
+        super().__init__(params)
 
-        super().__init__(init_sol)
+    def get_candidate(self):
+        return self.init_sol
 
     def lbound(self, sol):
         value = 0
@@ -113,8 +142,9 @@ def test_bnb_simplified_knapsack():
     for i in range(len(init_sol)):
         print('\n=====================')
         print(f'TEST CASE {i+1}\n')
-        score, sol = SimplifiedKnapsackProblem(
-            values[i], weights[i], capacity[i], init_sol[i]).solve()
+        params = KnapsackParams(
+            values[i], weights[i], capacity[i], init_sol[i])
+        sol, score = ZeroOneKnapsackProblem(params).solve()
         print(f'\nScore: {-1 * score}')
         print(f'Solution: {sol[0]}')
         print(f'True solution: {true_sol[i]}')
