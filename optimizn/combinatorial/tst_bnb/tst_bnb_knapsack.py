@@ -9,18 +9,31 @@ class KnapsackParams:
         self.capacity = capacity
         self.init_sol = init_sol
 
+    def __eq__(self, other):
+        return (
+            other is not None
+            and (len(self.values) == len(other.values)
+                 and (self.values == other.values).all())
+            and (len(self.weights) == len(other.weights)
+                 and (self.weights == other.weights).all())
+            and self.capacity == other.capacity
+            and (len(self.init_sol[0]) == len(other.init_sol[0])
+                 and (self.init_sol[0] == other.init_sol[0]).all())
+            and self.init_sol[1] == self.init_sol[1]
+        )
+
+
 # References:
 # https://www.youtube.com/watch?v=yV1d-b_NeK8
-class SimplifiedKnapsackProblem(BnBProblem):
+class ZeroOneKnapsackProblem(BnBProblem):
     '''
     Class for the simplified knapsack problem, where each item is either
     taken or omitted in its entirety
     '''
     def __init__(self, params):
-        self.params = params
-        self.values = np.array(self.params.values)
-        self.weights = np.array(self.params.weights)
-        self.capacity = self.params.capacity
+        self.values = np.array(params.values)
+        self.weights = np.array(params.weights)
+        self.capacity = params.capacity
 
         # value/weight ratios, in decreasing order
         vw_ratios = self.values / self.weights
@@ -29,10 +42,11 @@ class SimplifiedKnapsackProblem(BnBProblem):
             vw_ratios_ixs.append((vw_ratios[i], i))
         self.sorted_vw_ratios = sorted(vw_ratios_ixs)
         self.sorted_vw_ratios.reverse()
-        self.init_sol = self.params.init_sol
-        super().__init__(iters_limit=1000,
-                         print_iters=100,
-                         time_limit=6000)
+        self.init_sol = params.init_sol
+        params.iters_limit = 1000
+        params.print_iters = 100
+        params.time_limit = 6000
+        super().__init__(params)
 
     def get_candidate(self):
         return self.init_sol
@@ -130,7 +144,7 @@ def test_bnb_simplified_knapsack():
         print(f'TEST CASE {i+1}\n')
         params = KnapsackParams(
             values[i], weights[i], capacity[i], init_sol[i])
-        sol, score = SimplifiedKnapsackProblem(params).solve()
+        sol, score = ZeroOneKnapsackProblem(params).solve()
         print(f'\nScore: {-1 * score}')
         print(f'Solution: {sol[0]}')
         print(f'True solution: {true_sol[i]}')

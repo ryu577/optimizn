@@ -4,11 +4,22 @@ from optimizn.combinatorial.opt_problem import OptProblem
 
 
 class BnBProblem(OptProblem):
-    def __init__(self, iters_limit=1e6, print_iters=100,
-                 time_limit=3600):
-        self.iters_limit = iters_limit
-        self.print_iters = print_iters
-        self.time_limit = time_limit
+    def __init__(self, params):
+        self.params = params
+        if type(params) is dict:
+            self.iters_limit = 1e6 if 'iters_limit' not in self.params.keys()\
+                else self.params['iters_limit']
+            self.print_iters = 100 if 'print_iters' not in self.params.keys()\
+                else self.params['print_iters']
+            self.time_limit = 3600 if 'time_limit' not in self.params.keys()\
+                else self.params['time_limit']
+        else:
+            self.iters_limit = 1e6 if not hasattr(self.params, 'iters_limit')\
+                else self.params.iters_limit
+            self.print_iters = 100 if not hasattr(self.params, 'print_iters')\
+                else self.params.print_iters
+            self.time_limit = 3600 if not hasattr(self.params, 'time_limit')\
+                else self.params.time_limit
         self.queue = PriorityQueue()
         self.iters = 0
         self.time_elapsed = 0

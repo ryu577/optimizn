@@ -28,7 +28,7 @@ class OptProblem():
         create_folders(self.name)
         existing_obj = load_latest_pckl("Data//" +\
                         self.name + "//DailyObj")
-        self.obj_changed = (existing_obj == self)
+        self.obj_changed = (existing_obj != self.params)
         if self.obj_changed or existing_obj is None:
             # Write the latest input object that has changed.
             f_name = "Data//" + self.name + "//DailyObj//" +\
@@ -53,7 +53,6 @@ class OptProblem():
             f_name = "Data//" + self.name + "//GlobalOpt//" +\
                         str(self.init_secs) + ".obj"
             file1 = open(f_name, 'wb')
-            # TODO: find a way to pickle object as a whole (self not working)
             pickle.dump(self, file1)
             print("Wrote to GlobalOpt")
 

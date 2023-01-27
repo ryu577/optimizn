@@ -3,14 +3,6 @@ from optimizn.combinatorial.branch_and_bound import BnBProblem
 from python_tsp.heuristics import solve_tsp_local_search
 import numpy as np
 
-class TravelingSalesmanParams:
-    def __init__(self, input_graph, iters_limit=1000, print_iters=500,
-                 time_limit=600):
-        self.input_graph = input_graph
-        self.iters_limit = iters_limit
-        self.print_iters = print_iters
-        self.time_limit = time_limit
-
 class TravelingSalesmanProblem(BnBProblem):
     '''
     Solution format:
@@ -28,18 +20,14 @@ class TravelingSalesmanProblem(BnBProblem):
     unvisited vertices). Branching continues on these solutions, and so on
     '''
     def __init__(self, params):
-        self.params = params
-        self.input_graph = self.params.input_graph
+        self.input_graph = params['input_graph']
         self.sorted_dists = []
         for i in range(self.input_graph.dists.shape[0]):
             for j in range(self.input_graph.dists.shape[1]):
                 if i != j:
                     self.sorted_dists.append(self.input_graph.dists[i, j])
         self.sorted_dists.sort()
-        super().__init__(
-            iters_limit=self.params.iters_limit,
-            print_iters=self.params.print_iters,
-            time_limit=self.params.time_limit)
+        super().__init__(params)
 
     def _get_closest_vert(self, vert, visited):
         dists = self.input_graph.dists[vert]
@@ -139,7 +127,12 @@ def test_get_closest_vert():
         [1, 4, 2, 0],
     ])
     mcg = MockCityGraph(dists)
-    params = TravelingSalesmanParams(mcg, 1000, 100, 600)
+    params = {
+        'input_graph': mcg,
+        'iters_limit': 1000,
+        'print_iters': 100,
+        'time_limit': 600
+    }
     tsp = TravelingSalesmanProblem(params)
     TEST_CASES = [
         (0, {}, (0, 3)),
@@ -161,7 +154,12 @@ def test_is_sol():
         [1, 4, 2, 0],
     ])
     mcg = MockCityGraph(dists)
-    params = TravelingSalesmanParams(mcg, 1000, 100, 600)
+    params = {
+        'input_graph': mcg,
+        'iters_limit': 1000,
+        'print_iters': 100,
+        'time_limit': 600
+    }
     tsp = TravelingSalesmanProblem(params)
     TEST_CASES = [
         (([(0, 1), (1, 2), (2, 3), (3, 0)], -1), True),
@@ -184,7 +182,12 @@ def test_complete_path():
         [1, 4, 2, 0],
     ])
     mcg = MockCityGraph(dists)
-    params = TravelingSalesmanParams(mcg, 1000, 100, 600)
+    params = {
+        'input_graph': mcg,
+        'iters_limit': 1000,
+        'print_iters': 100,
+        'time_limit': 600
+    }
     tsp = TravelingSalesmanProblem(params)
     TEST_CASES = [
         ([], [(0, 3), (3, 2), (2, 1), (1, 0)]),
@@ -208,7 +211,12 @@ def test_cost():
         [1, 4, 2, 0],
     ])
     mcg = MockCityGraph(dists)
-    params = TravelingSalesmanParams(mcg, print_iters=100)
+    params = {
+        'input_graph': mcg,
+        'iters_limit': 1000,
+        'print_iters': 100,
+        'time_limit': 600
+    }
     tsp = TravelingSalesmanProblem(params)
     TEST_CASES = [
         (([(0, 3), (3, 2), (2, 1), (1, 0)], 0), 10),
@@ -231,7 +239,12 @@ def test_lbound():
         [1, 4, 2, 0],
     ])
     mcg = MockCityGraph(dists)
-    params = TravelingSalesmanParams(mcg, print_iters=100)
+    params = {
+        'input_graph': mcg,
+        'iters_limit': 1000,
+        'print_iters': 100,
+        'time_limit': 600
+    }
     tsp = TravelingSalesmanProblem(params)
     TEST_CASES = [
         (([(0, 3), (3, 2), (2, 1), (1, 0)], -1), 6),
@@ -255,7 +268,12 @@ def test_branch():
         [1, 4, 2, 0],
     ])
     mcg = MockCityGraph(dists)
-    params = TravelingSalesmanParams(mcg, 1000, 100, 600)
+    params = {
+        'input_graph': mcg,
+        'iters_limit': 1000,
+        'print_iters': 100,
+        'time_limit': 600
+    }
     tsp = TravelingSalesmanProblem(params)
     TEST_CASES = [
         (([(0, 3), (3, 2), (2, 1), (1, 0)], -1), [
@@ -283,8 +301,12 @@ def test_branch():
 def test_bnb_tsp():
     graph = CityGraph()
     permutation, distance = solve_tsp_local_search(graph.dists)
-
-    params = TravelingSalesmanParams(graph)
+    params = {
+        'input_graph': graph,
+        'iters_limit': 1000,
+        'print_iters': 100,
+        'time_limit': 600
+    }
     tsp = TravelingSalesmanProblem(params)
     sol = tsp.solve()
     print('BnB-produced path: ', sol[0][0])

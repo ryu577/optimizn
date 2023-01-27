@@ -14,6 +14,16 @@ class MinPathCoverParams:
         self.print_iters = print_iters
         self.time_limit = time_limit
 
+    def __eq__(self, other):
+        return (
+            other is not None
+            and self.edges1 == other.edges1
+            and self.edges2 == other.edges2
+            and self.iters_limit == other.iters_limit
+            and self.print_iters == other.print_iters
+            and self.time_limit == other.time_limit
+        )
+
 
 class MinPathCoverProblem1(BnBProblem):
     '''
@@ -30,15 +40,12 @@ class MinPathCoverProblem1(BnBProblem):
     is omitted from the cover
     '''
     def __init__(self, params):
-        self.params = params
-        self.edges1 = self.params.edges1
-        self.edges2 = self.params.edges2
-        self.vertices = set(self.params.edges1.flatten()).union(
-            set(self.params.edges2.flatten()))
+        self.edges1 = params.edges1
+        self.edges2 = params.edges2
+        self.vertices = set(params.edges1.flatten()).union(
+            set(params.edges2.flatten()))
         self._get_all_paths()
-        super().__init__(iters_limit=self.params.iters_limit, 
-                         print_iters=self.params.print_iters,
-                         time_limit=self.params.time_limit)
+        super().__init__(params)
 
     def get_candidate(self):
         return (np.ones(len(self.all_paths)), -1)
@@ -138,11 +145,10 @@ class MinPathCoverProblem2(BnBProblem):
     or include one extra path (to cover vertex X+1).
     '''
     def __init__(self, params):
-        self.params = params
-        self.edges1 = self.params.edges1
-        self.edges2 = self.params.edges2
-        self.vertices = set(self.params.edges1.flatten()).union(
-            set(self.params.edges2.flatten()))
+        self.edges1 = params.edges1
+        self.edges2 = params.edges2
+        self.vertices = set(params.edges1.flatten()).union(
+            set(params.edges2.flatten()))
         self.all_paths = []
         self.cov_dict = {}
         for u1, u2 in self.edges1:
@@ -154,9 +160,7 @@ class MinPathCoverProblem2(BnBProblem):
                         if vert not in self.cov_dict.keys():
                             self.cov_dict[vert] = set()
                         self.cov_dict[vert].add(path)
-        super().__init__(iters_limit=self.params.iters_limit,
-                         print_iters=self.params.print_iters,
-                         time_limit=self.params.time_limit)
+        super().__init__(params)
 
     def get_candidate(self):
         return (np.zeros((0, 3)), np.array(self.all_paths),

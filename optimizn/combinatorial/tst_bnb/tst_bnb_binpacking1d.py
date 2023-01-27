@@ -13,6 +13,16 @@ class BinPackingParams:
         self.print_iters = print_iters
         self.time_limit = time_limit
 
+    def __eq__(self, other):
+        return (
+            other is not None
+            and self.weights == other.weights
+            and self.capacity == other.capacity
+            and self.iters_limit == other.iters_limit
+            and self.print_iters == other.print_iters
+            and self.time_limit == other.time_limit
+        )
+
 
 # References:
 # http://www.or.deis.unibo.it/knapsack.html (See PDF for Chapter 8,
@@ -32,18 +42,14 @@ class BinPackingProblem1D(BnBProblem):
     New bins created as needed
     '''
     def __init__(self, params):
-        self.params = params
         self.item_weights = {}  # mapping of items to weights
         self.sorted_item_weights = []  # sorted (weight, item) tuples (desc)
-        for i in range(1, len(self.params.weights) + 1):
-            self.item_weights[i] = self.params.weights[i - 1]
-            self.sorted_item_weights.append((self.params.weights[i - 1], i))
+        for i in range(1, len(params.weights) + 1):
+            self.item_weights[i] = params.weights[i - 1]
+            self.sorted_item_weights.append((params.weights[i - 1], i))
         self.sorted_item_weights.sort(reverse=True)
-        self.capacity = self.params.capacity
-        super().__init__(
-            iters_limit=self.params.iters_limit,
-            print_iters=self.params.print_iters,
-            time_limit=self.params.time_limit)
+        self.capacity = params.capacity
+        super().__init__(params)
     
     def get_candidate(self):
         return (self._pack_rem_items({}, -1), -1)
@@ -174,20 +180,65 @@ class BinPackingProblem1D(BnBProblem):
         return True
 
 
+def test_param_equality():
+    TEST_CASES = [
+        (
+            BinPackingParams([1, 2, 3, 4], [6]),
+            None,
+            False
+        ),
+        (
+            None,
+            BinPackingParams([1, 2, 3, 4], [6]),
+            False
+        ),
+        (
+            BinPackingParams([1, 2, 3, 4], [6]),
+            BinPackingParams([1, 2, 3, 4], [6], 1000, 200, 300),
+            True
+        ),
+        (
+            BinPackingParams([1, 2, 3, 4], [6], iters_limit=1100),
+            BinPackingParams([1, 2, 3, 4], [6], 1000, 200, 300),
+            False
+        ),
+        (
+            BinPackingParams([1, 2, 3, 4], [6], print_iters=300),
+            BinPackingParams([1, 2, 3, 4], [6], 1000, 300, 300),
+            True
+        ),
+        (
+            BinPackingParams([1, 2, 3, 4], [6], 1200, 400, 300),
+            BinPackingParams([1, 2, 3, 4], [6], 1000, 300, 300),
+            False
+        )
+    ]
+    for params1, params2, equal in TEST_CASES:
+        assert (params1 == params2) == equal
+
+
 def test_constructor():
     TEST_CASES = [
         ([1, 2, 3], 3, {1: {3}, 2: {1, 2}}),
         ([7, 8, 2, 3], 15, {1: {2, 1}, 2: {4, 3}})
     ]
+    ITERS_LIMIT = 1000
+    PRINT_ITERS = 200
+    TIME_LIMIT = 300
     for weights, capacity, expected in TEST_CASES:
         params = BinPackingParams(
             weights,
             capacity,
-            iters_limit=1000,
-            print_iters=200,
-            time_limit=300
+            iters_limit=ITERS_LIMIT,
+            print_iters=PRINT_ITERS,
+            time_limit=TIME_LIMIT
         )
         bpp = BinPackingProblem1D(params)
+
+        # check iters_limit, print_iters, and time_limit
+        assert bpp.iters_limit == ITERS_LIMIT
+        assert bpp.print_iters == PRINT_ITERS
+        assert bpp.time_limit == TIME_LIMIT
 
         # check capacity
         assert bpp.capacity == capacity
