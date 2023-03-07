@@ -27,7 +27,6 @@ class BinPackingParams:
 # References:
 # http://www.or.deis.unibo.it/knapsack.html (See PDF for Chapter 8,
 #   http://www.or.deis.unibo.it/kp/Chapter8.pdf)
-# https://imada.sdu.dk/~jbj/heuristikker/TSPtext.pdf
 class BinPackingProblem1D(BnBProblem):
     '''
     Solution format:

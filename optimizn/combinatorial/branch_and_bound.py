@@ -2,7 +2,8 @@ import time
 from queue import PriorityQueue
 from optimizn.combinatorial.opt_problem import OptProblem
 
-
+# References:
+# https://imada.sdu.dk/~jbj/heuristikker/TSPtext.pdf
 class BnBProblem(OptProblem):
     def __init__(self, params):
         self.params = params
