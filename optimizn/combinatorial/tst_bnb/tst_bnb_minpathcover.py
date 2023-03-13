@@ -6,22 +6,15 @@ from graphing.special_graphs.neural_trigraph.path_cover import \
 
 
 class MinPathCoverParams:
-    def __init__(self, edges1, edges2, iters_limit=1e6, print_iters=1000,
-                 time_limit=120):
+    def __init__(self, edges1, edges2):
         self.edges1 = edges1
         self.edges2 = edges2
-        self.iters_limit = iters_limit
-        self.print_iters = print_iters
-        self.time_limit = time_limit
 
     def __eq__(self, other):
         return (
             other is not None
             and self.edges1 == other.edges1
             and self.edges2 == other.edges2
-            and self.iters_limit == other.iters_limit
-            and self.print_iters == other.print_iters
-            and self.time_limit == other.time_limit
         )
 
 
@@ -233,8 +226,7 @@ def test_bnb_minpathcover():
             np.array([[4, 6], [4, 7], [5, 8]])
         ),
         rep_graph(8, 10, 14, reps=4),
-        # NOTE: below test cases have relatively longer execution times,
-        # uncomment to run
+        # NOTE: uncomment to run below test cases
         # rep_graph(10, 14, 10, reps=4),
         # rep_graph(20, 40, 20, reps=4),
         # rep_graph(20, 40, 20, reps=8),
@@ -243,8 +235,7 @@ def test_bnb_minpathcover():
     LENGTHS = [
         3,
         len(min_cover_trigraph(EDGES[1][0], EDGES[1][1])),
-        # NOTE: below test cases have relatively longer execution times,
-        # uncomment to run
+        # NOTE: uncomment to run below test cases
         # len(min_cover_trigraph(EDGES[2][0], EDGES[2][1])),
         # len(min_cover_trigraph(EDGES[3][0], EDGES[3][1])),
         # len(min_cover_trigraph(EDGES[4][0], EDGES[4][1])),
@@ -259,11 +250,11 @@ def test_bnb_minpathcover():
         # first approach
         params = MinPathCoverParams(edges1, edges2)
         mpc1 = MinPathCoverProblem1(params)
-        sol1, scr1 = mpc1.solve()
+        sol1, scr1 = mpc1.solve(1000, 100, 120)
 
         # second approach
         mpc2 = MinPathCoverProblem2(params)
-        sol2, scr2 = mpc2.solve()
+        sol2, scr2 = mpc2.solve(1000, 100, 120)
 
         print('\nFIRST APPROACH:')
         solution1 = []

@@ -129,9 +129,6 @@ def test_get_closest_vert():
     mcg = MockCityGraph(dists)
     params = {
         'input_graph': mcg,
-        'iters_limit': 1000,
-        'print_iters': 100,
-        'time_limit': 600
     }
     tsp = TravelingSalesmanProblem(params)
     TEST_CASES = [
@@ -156,9 +153,6 @@ def test_is_sol():
     mcg = MockCityGraph(dists)
     params = {
         'input_graph': mcg,
-        'iters_limit': 1000,
-        'print_iters': 100,
-        'time_limit': 600
     }
     tsp = TravelingSalesmanProblem(params)
     TEST_CASES = [
@@ -184,9 +178,6 @@ def test_complete_path():
     mcg = MockCityGraph(dists)
     params = {
         'input_graph': mcg,
-        'iters_limit': 1000,
-        'print_iters': 100,
-        'time_limit': 600
     }
     tsp = TravelingSalesmanProblem(params)
     TEST_CASES = [
@@ -213,9 +204,6 @@ def test_cost():
     mcg = MockCityGraph(dists)
     params = {
         'input_graph': mcg,
-        'iters_limit': 1000,
-        'print_iters': 100,
-        'time_limit': 600
     }
     tsp = TravelingSalesmanProblem(params)
     TEST_CASES = [
@@ -241,9 +229,6 @@ def test_lbound():
     mcg = MockCityGraph(dists)
     params = {
         'input_graph': mcg,
-        'iters_limit': 1000,
-        'print_iters': 100,
-        'time_limit': 600
     }
     tsp = TravelingSalesmanProblem(params)
     TEST_CASES = [
@@ -270,9 +255,6 @@ def test_branch():
     mcg = MockCityGraph(dists)
     params = {
         'input_graph': mcg,
-        'iters_limit': 1000,
-        'print_iters': 100,
-        'time_limit': 600
     }
     tsp = TravelingSalesmanProblem(params)
     TEST_CASES = [
@@ -303,12 +285,9 @@ def test_bnb_tsp():
     permutation, distance = solve_tsp_local_search(graph.dists)
     params = {
         'input_graph': graph,
-        'iters_limit': 1000,
-        'print_iters': 100,
-        'time_limit': 600
     }
     tsp = TravelingSalesmanProblem(params)
-    sol = tsp.solve()
+    sol = tsp.solve(1000, 100, 120)
     print('BnB-produced path: ', sol[0][0])
     print('Distance of BnB-produced path: ', sol[1])
     print('Distance of external-library-produced distance: ', distance)

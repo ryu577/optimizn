@@ -5,22 +5,15 @@ import math
 
 
 class BinPackingParams:
-    def __init__(self, weights, capacity, iters_limit=1000, print_iters=200, 
-                 time_limit=300):
+    def __init__(self, weights, capacity):
         self.weights = weights
         self.capacity = capacity
-        self.iters_limit = iters_limit
-        self.print_iters = print_iters
-        self.time_limit = time_limit
 
     def __eq__(self, other):
         return (
             other is not None
             and self.weights == other.weights
             and self.capacity == other.capacity
-            and self.iters_limit == other.iters_limit
-            and self.print_iters == other.print_iters
-            and self.time_limit == other.time_limit
         )
 
 
@@ -187,29 +180,14 @@ def test_param_equality():
             False
         ),
         (
-            None,
+            BinPackingParams([1, 2, 3, 4], [7]),
             BinPackingParams([1, 2, 3, 4], [6]),
             False
         ),
         (
             BinPackingParams([1, 2, 3, 4], [6]),
-            BinPackingParams([1, 2, 3, 4], [6], 1000, 200, 300),
+            BinPackingParams([1, 2, 3, 4], [6]),
             True
-        ),
-        (
-            BinPackingParams([1, 2, 3, 4], [6], iters_limit=1100),
-            BinPackingParams([1, 2, 3, 4], [6], 1000, 200, 300),
-            False
-        ),
-        (
-            BinPackingParams([1, 2, 3, 4], [6], print_iters=300),
-            BinPackingParams([1, 2, 3, 4], [6], 1000, 300, 300),
-            True
-        ),
-        (
-            BinPackingParams([1, 2, 3, 4], [6], 1200, 400, 300),
-            BinPackingParams([1, 2, 3, 4], [6], 1000, 300, 300),
-            False
         )
     ]
     for params1, params2, equal in TEST_CASES:
@@ -221,23 +199,9 @@ def test_constructor():
         ([1, 2, 3], 3, {1: {3}, 2: {1, 2}}),
         ([7, 8, 2, 3], 15, {1: {2, 1}, 2: {4, 3}})
     ]
-    ITERS_LIMIT = 1000
-    PRINT_ITERS = 200
-    TIME_LIMIT = 300
     for weights, capacity, expected in TEST_CASES:
-        params = BinPackingParams(
-            weights,
-            capacity,
-            iters_limit=ITERS_LIMIT,
-            print_iters=PRINT_ITERS,
-            time_limit=TIME_LIMIT
-        )
+        params = BinPackingParams(weights, capacity)
         bpp = BinPackingProblem1D(params)
-
-        # check iters_limit, print_iters, and time_limit
-        assert bpp.iters_limit == ITERS_LIMIT
-        assert bpp.print_iters == PRINT_ITERS
-        assert bpp.time_limit == TIME_LIMIT
 
         # check capacity
         assert bpp.capacity == capacity
@@ -264,13 +228,7 @@ def test_is_sol():
         ([1, 2, 3], 3)
     ]
     for weights, capacity in TEST_CASES:
-        params = BinPackingParams(
-            weights,
-            capacity,
-            iters_limit=1000,
-            print_iters=200,
-            time_limit=300
-        )
+        params = BinPackingParams(weights, capacity)
         bpp = BinPackingProblem1D(params)
 
         # check valid solutions
@@ -294,13 +252,7 @@ def test_cost():
         ([1, 2, 3], 3)
     ]
     for weights, capacity in TEST_CASES:
-        params = BinPackingParams(
-            weights,
-            capacity,
-            iters_limit=1000,
-            print_iters=200,
-            time_limit=300
-        )
+        params = BinPackingParams(weights, capacity)
         bpp = BinPackingProblem1D(params)
 
         # check cost
@@ -388,7 +340,7 @@ def test_bnb_binpacking():
         bpp = BinPackingProblem1D(params)
         print('Sorted item weights (w, i):', bpp.sorted_item_weights)
         print('Item weights:', bpp.item_weights)
-        bpp.solve()
+        bpp.solve(1000, 100, 120)
         print('\nItem weight dictionary:', bpp.item_weights)
         print('Final solution:', bpp.best_solution[0])
         print('Score:', bpp.best_cost)

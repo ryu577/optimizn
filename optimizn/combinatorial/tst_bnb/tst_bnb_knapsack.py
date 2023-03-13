@@ -43,9 +43,6 @@ class ZeroOneKnapsackProblem(BnBProblem):
         self.sorted_vw_ratios = sorted(vw_ratios_ixs)
         self.sorted_vw_ratios.reverse()
         self.init_sol = params.init_sol
-        params.iters_limit = 1000
-        params.print_iters = 100
-        params.time_limit = 6000
         super().__init__(params)
 
     def get_candidate(self):
@@ -112,7 +109,7 @@ class ZeroOneKnapsackProblem(BnBProblem):
         return check_length and check_values and check_weight
 
 
-def test_bnb_simplified_knapsack():
+def test_bnb_zeroone_knapsack():
     weights = [
         np.array([1, 25, 12, 12]),
         np.array([10, 10, 15, 1]),
@@ -144,7 +141,7 @@ def test_bnb_simplified_knapsack():
         print(f'TEST CASE {i+1}\n')
         params = KnapsackParams(
             values[i], weights[i], capacity[i], init_sol[i])
-        sol, score = ZeroOneKnapsackProblem(params).solve()
+        sol, score = ZeroOneKnapsackProblem(params).solve(1000, 100, 120)
         print(f'\nScore: {-1 * score}')
         print(f'Solution: {sol[0]}')
         print(f'True solution: {true_sol[i]}')
@@ -153,4 +150,4 @@ def test_bnb_simplified_knapsack():
 
 
 if __name__ == '__main__':
-    test_bnb_simplified_knapsack()
+    test_bnb_zeroone_knapsack()

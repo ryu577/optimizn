@@ -144,24 +144,12 @@ def test_constructor():
         sc = SuitCases(config)
         params = {
             'init_sol': sc,
-            'iters_limit': 1000,
-            'print_iters': 100,
-            'time_limit': 600
         }
         srp = SuitcaseReshuffleProblem(params)
         init_sol = srp.best_solution
         init_config = init_sol[0].config
         init_caps = init_sol[0].capacities
         init_suitcase_num = init_sol[1]
-        assert srp.iters_limit == params['iters_limit'], 'Incorrect '\
-            + f'iters_limit. Expected: {params["iters_limit"]}, '\
-            + f'Actual: {srp.iters_limit}'
-        assert srp.print_iters == params['print_iters'], 'Incorrect '\
-            + f'print_iters. Expected: {params["print_iters"]}, '\
-            + f'Actual: {srp.print_iters}'
-        assert srp.time_limit == params['time_limit'], 'Incorrect '\
-            + f'time_limit. Expected: {params["time_limit"]}, '\
-            + f'Actual: {srp.time_limit}'
         assert init_config == config, 'Initial solution configs do not '\
             + f'match. Expected: {config}, Actual: {init_config}'
         assert init_caps == capacities, 'Initial solution capacities '\
@@ -320,7 +308,7 @@ def test_bnb_suitcasereshuffle():
             'init_sol': sc
         }
         srp = SuitcaseReshuffleProblem(params)
-        srp.solve()
+        srp.solve(1000, 100, 120)
         # srp.persist() # does not work
         print('Best solution: ', srp.best_solution[0].config)
         print(f'Expected cost: {final_cost}, Actual cost: {srp.best_cost}')
