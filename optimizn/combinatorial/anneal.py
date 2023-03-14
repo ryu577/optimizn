@@ -31,6 +31,9 @@ class OptProblem():
         self.init_time = datetime.now()
         self.init_secs = int(self.init_time.timestamp())
 
+    def cost_delta(self, new_cost, curr_cost):
+        return new_cost - curr_cost
+
     def anneal(self, n_iter=100000, reset_p=1/10000):
         """
         See: https://github.com/toddwschneider/shiny-salesman/blob/master/helpers.R
@@ -57,7 +60,7 @@ class OptProblem():
             else:
                 self.new_candidate = self.next_candidate(self.candidate)
                 self.new_cost = self.cost(self.new_candidate)
-            cost_del = (self.new_cost - self.current_cost)
+            cost_del = self.cost_delta(self.new_cost, self.current_cost)
             eps = np.exp(cost_del/ temprature)
 
             if self.new_cost < self.current_cost or eps < uniform() or reset:
