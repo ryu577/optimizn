@@ -2,7 +2,7 @@ import numpy as np
 from optimizn.combinatorial.anneal import OptProblem
 from graphing.special_graphs.neural_trigraph.rand_graph import *
 from graphing.graph import Graph
-from graphing.traversal.clr_traversal import Graph1
+# from graphing.traversal.clr_traversal import Graph1
 from graphing.special_graphs.neural_trigraph.path_cover import\
     complete_paths
 from graphing.special_graphs.neural_trigraph.neural_trigraph import\
