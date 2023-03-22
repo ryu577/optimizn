@@ -76,26 +76,26 @@ class BnBProblem(OptProblem):
             # get feasible solution
             lbound, _, curr_sol = self.queue.get()
 
-            # do not explore current solution if lowest possible cost is higher
-            # than minimum cost
-            if lbound >= self.best_cost:
-                continue
+            # move to next feasible solution if lowest possible cost of
+            # current feasible solution and branched solutions is not
+            # lower then the lower cost already seen
+            if lbound < self.best_cost:
+                # score current solution, update minimum cost and best solution
+                cost = self.cost(curr_sol)
+                if self.best_cost > cost:
+                    self.best_cost = cost
+                    self.best_solution = curr_sol
 
-            # score current solution, update minimum cost and best solution
-            cost = self.cost(curr_sol)
-            if self.best_cost > cost:
-                self.best_cost = cost
-                self.best_solution = curr_sol
-
-            # if lower bound not yet reached, explore other feasible solutions
-            if cost > lbound:
-                next_sols = self.branch(curr_sol)
-                for next_sol in next_sols:
-                    if self.is_sol(next_sol):
-                        lbound = self.lbound(curr_sol)
-                        if lbound < self.best_cost:
-                            sol_count += 1
-                            self.queue.put((lbound, sol_count, next_sol))
+                # if lower bound not yet reached, consider other feasible
+                # solutions
+                if cost > lbound:
+                    next_sols = self.branch(curr_sol)
+                    for next_sol in next_sols:
+                        if self.is_sol(next_sol):
+                            lbound = self.lbound(curr_sol)
+                            if lbound < self.best_cost:
+                                sol_count += 1
+                                self.queue.put((lbound, sol_count, next_sol))
 
             # print best solution and min cost, check if time limit exceeded
             self.iters += 1
