@@ -38,5 +38,5 @@ To use branch and bound for their own optimization problem, users should create 
 #### Continuous Training
 Both the `SimAnnealProblem` and the `BnBProblem` extend a superclass called `OptProblem` that has a `persist` function, which saves optimization problem parameters to three folders: `DailyObj` (the daily problem instance), `DailyOpt` (daily optimal solution), and `GlobalOpt` (optimal solution observed over all time). The user must specify the problem parameters in their subclass through a `params` attribute in order for their problem instances and optimal solutions to be saved by continuous training. 
 
-These saved solutions are loaded back into the problem if the problem instance has not changed, and the algorithms can continue from where they left off in their previous runs. This allows them to find the most optimal solutions they can given the compute time and resources they have, even if they are available in disjoint intervals.
+These saved solutions can be loaded back into the algorithms if the problem instance has not changed, and the algorithms can continue from where they left off in their previous runs. This allows them to find the most optimal solutions they can given the compute time and resources they have, even if they are available in disjoint intervals. Development of this functionality is currently in progress.
 
