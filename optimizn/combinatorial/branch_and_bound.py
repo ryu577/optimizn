@@ -2,6 +2,7 @@ import time
 from queue import PriorityQueue
 from optimizn.combinatorial.opt_problem import OptProblem
 
+
 # References:
 # https://imada.sdu.dk/~jbj/heuristikker/TSPtext.pdf
 class BnBProblem(OptProblem):
@@ -16,25 +17,28 @@ class BnBProblem(OptProblem):
 
     def lbound(self, sol):
         '''
-        Computes lower bound for a solution and the feasible solutions 
-        that can be obtained from it
+        Computes lower bound for a solution and the feasible solutions that
+        can be obtained from it
         '''
-        raise NotImplementedError('Implement a function to compute a lower '
-            + 'bound on a feasible solution')
+        raise NotImplementedError(
+            'Implement a function to compute a lower bound on a feasible '
+            + 'solution')
 
     def branch(self, sol):
         '''
         Generates other potential solutions from an existing feasible solution
         '''
-        raise NotImplementedError('Implement a function to produce other '
-            + 'potential solutions from a single feasible solution')
+        raise NotImplementedError(
+            'Implement a function to produce other potential solutions from a '
+            + 'single feasible solution')
 
     def is_sol(self, sol):
         '''
         Checks if potential solution is feasible solution or not
         '''
-        raise NotImplementedError('Implement a function to check '
-            + 'if a solution is a feasible solution')
+        raise NotImplementedError(
+            'Implement a function to check if a solution is a feasible '
+            + 'solution')
 
     def _print_results(self, ignore_iters=False):
         if (ignore_iters or self.iters == 1 or
@@ -79,21 +83,21 @@ class BnBProblem(OptProblem):
             # move to next feasible solution if lowest possible cost of
             # current feasible solution and branched solutions is not
             # lower then the lower cost already seen
-            if lbound < self.best_cost:
+            if self.cost_delta(self.best_cost, lbound) > 0:
                 # score current solution, update minimum cost and best solution
                 cost = self.cost(curr_sol)
-                if self.best_cost > cost:
+                if self.cost_delta(self.best_cost, cost) > 0:
                     self.best_cost = cost
                     self.best_solution = curr_sol
 
                 # if lower bound not yet reached, consider other feasible
                 # solutions
-                if cost > lbound:
+                if self.cost_delta(cost, lbound) > 0:
                     next_sols = self.branch(curr_sol)
                     for next_sol in next_sols:
                         if self.is_sol(next_sol):
                             lbound = self.lbound(curr_sol)
-                            if lbound < self.best_cost:
+                            if self.cost_delta(self.best_cost, lbound) > 0:
                                 sol_count += 1
                                 self.queue.put((lbound, sol_count, next_sol))
 
