@@ -70,6 +70,7 @@ class BnBProblem(OptProblem):
             queue = PriorityQueue()
             while not self.queue.empty():
                 queue.put(self.queue.get())
+            queue = self.queue
         # otherwise, queue is created as PriorityQueue, so put initial solution
         # onto PriorityQueue
         else:
