@@ -13,7 +13,7 @@ class SimAnnealProblem(OptProblem):
         # the best one sometimes and the best daily one other times.
         self.candidate = self.get_candidate()
         self.current_cost = self.cost(self.candidate)
-        self.best_candidate = make_copy(self.candidate)
+        self.best_solution = make_copy(self.candidate)
         self.best_cost = self.current_cost
         self.init_time = datetime.now()
         self.init_secs = int(self.init_time.timestamp())
@@ -65,7 +65,7 @@ class SimAnnealProblem(OptProblem):
         self.current_cost = cost
 
     def update_best(self, candidate, cost):
-        self.best_candidate = make_copy(candidate)
+        self.best_solution = make_copy(candidate)
         self.best_cost = cost
 
 
