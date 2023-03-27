@@ -1,7 +1,7 @@
 import time
 from queue import PriorityQueue
 from optimizn.combinatorial.opt_problem import OptProblem
-
+from copy import deepcopy
 
 # References:
 # https://imada.sdu.dk/~jbj/heuristikker/TSPtext.pdf
@@ -9,8 +9,8 @@ class BnBProblem(OptProblem):
     def __init__(self, params):
         self.params = params
         self.queue = PriorityQueue()
-        self.iters = 0
-        self.time_elapsed = 0
+        self.total_iters = 0
+        self.total_time_elapsed = 0
         super().__init__()
         if not self.is_sol(self.best_solution):
             raise Exception('Initial solution is infeasible')
@@ -40,14 +40,15 @@ class BnBProblem(OptProblem):
             'Implement a function to check if a solution is a feasible '
             + 'solution')
 
-    def _print_results(self, ignore_iters=False):
-        if (ignore_iters or self.iters == 1 or
-                self.iters % self.print_iters == 0):
-            print(f'\nSolutions explored: {self.iters}')
+    def _print_results(self, iters, print_iters, time_elapsed, force=False):
+        if force or iters == 1 or iters % print_iters == 0:
+            print(f'\nSolutions explored (current run): {iters}')
+            print(f'Solutions explored (total): {self.total_iters}')
             queue = list(self.queue.queue)
             print(f'Queue size: {len(queue)}')
             #  print(f'Queue: {queue}')
-            print(f'Time elapsed: {self.time_elapsed} seconds')
+            print(f'Time elapsed (current run): {time_elapsed} seconds')
+            print(f'Time elapsed (total): {self.total_time_elapsed} seconds')
             print(f'Best solution: {self.best_solution}')
             print(f'Score: {self.best_cost}')
 
@@ -56,10 +57,10 @@ class BnBProblem(OptProblem):
         Executes branch and bound algorithm
         '''
         # initialization
-        self.iters_limit = iters_limit
-        self.print_iters = print_iters
-        self.time_limit = time_limit
         start = time.time()
+        iters = 0
+        time_elapsed = 0
+        original_total_time_elapsed = deepcopy(self.total_time_elapsed)
         sol_count = 1  # breaks ties between solutions with same lower bound
         # solutions generated earlier are given priority in such cases
 
@@ -76,7 +77,8 @@ class BnBProblem(OptProblem):
                             sol_count, self.best_solution))
 
         # explore feasible solutions
-        while not self.queue.empty() and self.iters != self.iters_limit:
+        while not self.queue.empty() and iters != iters_limit and\
+                time_elapsed < time_limit:
             # get feasible solution
             lbound, _, curr_sol = self.queue.get()
 
@@ -102,14 +104,15 @@ class BnBProblem(OptProblem):
                                 self.queue.put((lbound, sol_count, next_sol))
 
             # print best solution and min cost, check if time limit exceeded
-            self.iters += 1
-            self.time_elapsed = time.time() - start
-            self._print_results()
-            if self.time_elapsed > self.time_limit:
-                break
+            iters += 1
+            self.total_iters += 1
+            time_elapsed = time.time() - start
+            self.total_time_elapsed = original_total_time_elapsed +\
+                time_elapsed
+            self._print_results(iters, print_iters, time_elapsed)
 
         # return best solution and cost
-        self._print_results()
+        self._print_results(iters, print_iters, time_elapsed, force=True)
 
         # convert the queue to a list before saving solution
         self.queue = list(self.queue.queue)
