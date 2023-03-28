@@ -11,10 +11,10 @@ from python_tsp.heuristics import solve_tsp_local_search
 
 
 class CityGraph():
-	def __init__(self):
+	def __init__(self, num_cities=50):
 		# Generate x-y coordinates of some cities.
 		# Here, we just draw them from a normal dist.
-		self.xs = np.random.normal(loc=0,scale=5,size=(50,2))
+		self.xs = np.random.normal(loc=0,scale=5,size=(num_cities,2))
 		self.num_cities = len(self.xs)
 		self.dists = np.zeros((len(self.xs), len(self.xs)))
 		# Populate the matrix of euclidean distances.
