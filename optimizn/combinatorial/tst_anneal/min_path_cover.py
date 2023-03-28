@@ -1,7 +1,7 @@
 import numpy as np
-from optimizn.combinatorial.anneal import OptProblem
+from optimizn.combinatorial.anneal import SimAnnealProblem
 from graphing.special_graphs.neural_trigraph.rand_graph import *
-from graphing.graph import Graph
+# from graphing.graph import Graph
 # from graphing.traversal.clr_traversal import Graph1
 from graphing.special_graphs.neural_trigraph.path_cover import\
     complete_paths
@@ -16,7 +16,7 @@ from copy import deepcopy
 # We pick the min path cover problem 
 # where we have an algorithm for computing
 # the optimal solution.
-class MinPathCover_NTG(OptProblem):
+class MinPathCover_NTG(SimAnnealProblem):
     """
     Finding the min path cover of a neural trigraph.
     """
@@ -46,12 +46,12 @@ class MinPathCover_NTG(OptProblem):
         self.candidate = paths
         return paths
 
-    def next_candidate_v2(self, candidate, del_paths=1):
+    def next_candidate_v2(self, candidate, num_del_paths=1):
         self.candidate = deepcopy(candidate)
         paths = self.candidate
         covered = deepcopy(self.covered)
         del_paths = []
-        for i in range(del_paths):
+        for i in range(num_del_paths):
             ix = np.random.choice(range(len(paths)))
             del_paths.append(paths[ix])
             paths = np.delete(paths, ix, 0)
@@ -70,11 +70,11 @@ class MinPathCover_NTG(OptProblem):
                     #breakpoint()
         return paths
 
-    def next_candidate(self, candidate, del_paths=1):
+    def next_candidate(self, candidate, num_del_paths=1):
         if self.swtch == 0:
             return self.get_candidate()
         else:
-            return self.next_candidate_v2(candidate, del_paths)
+            return self.next_candidate_v2(candidate, num_del_paths)
 
     def add_path(self, i):
         path = complete_paths([[i]],
@@ -84,18 +84,18 @@ class MinPathCover_NTG(OptProblem):
                 self.covered[j] += 1
             else:
                 self.covered[j] = 1
-        #self.candidate.append(path)
+        # self.candidate.append(path)
         return path
 
     def cost(self, candidate):
-        ''' 
+        '''
         Gets the cost for candidate solution.
         '''
-        return(len(candidate))
+        return (len(candidate))
 
     def update_candidate(self, candidate, cost):
-        ## TODO: This can be made more efficient
-        ## by updating existing covered set.
+        # TODO: This can be made more efficient by updating existing covered
+        # set.
         self.covered = {}
         for path in candidate:
             for j in path:
@@ -106,25 +106,25 @@ class MinPathCover_NTG(OptProblem):
         super().update_candidate(candidate, cost)
 
 
-# Scipy simulated annealing can't be used 
-# because it expects a 1-d continuous array
+# Scipy simulated annealing can't be used because it expects a 1-d continuous
+# array
 # https://docs.scipy.org/doc/scipy-0.14.0/reference/generated/scipy.optimize.anneal.html
 
 def tst1(edges1=None, edges2=None, n_iter=20000, swtch=1):
-    #edges1, edges2 = neur_trig_edges(8, 10, 14)
+    # edges1, edges2 = neur_trig_edges(8, 10, 14)
     if edges1 is None:
         edges1, edges2 = rep_graph(8, 10, 14, reps=4)
     opt_paths = min_cover_trigraph(edges1, edges2)
     print("Optimal solution: " + str(len(opt_paths)))
     ntg = NeuralTriGraph(edges1, edges2)
-    #print(ntg.g1.adj)
+    # print(ntg.g1.adj)
     mpc = MinPathCover_NTG(ntg, swtch=swtch)
     paths = mpc.get_candidate()
-    #mpc.candidate = np.concatenate((mpc.candidate, mpc.candidate))
+    # mpc.candidate = np.concatenate((mpc.candidate, mpc.candidate))
     print("Current solution: " + str(len(mpc.candidate)))
     mpc.anneal(n_iter)
     print("Best solution: " + str(mpc.best_cost))
-    #Now, can we get the min path cover for this?
+    # Now, can we get the min path cover for this?
     return mpc
 
 
@@ -134,4 +134,3 @@ def tst2(n_iter=20000, swtch=1):
     edges2 = np.loadtxt('edges2.csv')
     edges2 = edges2.astype(int)
     return tst1(edges1, edges2, n_iter, swtch=swtch)
-

@@ -1,8 +1,8 @@
 import numpy as np
 from copy import deepcopy
-from optimizn.combinatorial.anneal import OptProblem
-#from ortools.constraint_solver import routing_enums_pb2
-#from ortools.constraint_solver import pywrapcp
+from optimizn.combinatorial.anneal import SimAnnealProblem
+# from ortools.constraint_solver import routing_enums_pb2
+# from ortools.constraint_solver import pywrapcp
 
 # pip install python-tsp
 # https://github.com/fillipe-gsm/python-tsp
@@ -11,10 +11,10 @@ from python_tsp.heuristics import solve_tsp_local_search
 
 
 class CityGraph():
-	def __init__(self):
+	def __init__(self, num_cities=50):
 		# Generate x-y coordinates of some cities.
 		# Here, we just draw them from a normal dist.
-		self.xs = np.random.normal(loc=0,scale=5,size=(50,2))
+		self.xs = np.random.normal(loc=0,scale=5,size=(num_cities,2))
 		self.num_cities = len(self.xs)
 		self.dists = np.zeros((len(self.xs), len(self.xs)))
 		# Populate the matrix of euclidean distances.
@@ -29,7 +29,7 @@ class CityGraph():
 				self.dists[i,j] = self.dists[j,i]
 
 
-class TravSalsmn(OptProblem):
+class TravSalsmn(SimAnnealProblem):
 	"""
 	Finding the min path cover of a neural trigraph.
 	"""
@@ -44,21 +44,20 @@ class TravSalsmn(OptProblem):
 		representing the order of cities
 		visited.
 		"""
-		self.candidate = np.random.permutation(\
+		self.candidate = np.random.permutation(
 			np.arange(self.params.num_cities))
 		return self.candidate
 
 	def cost(self, candidate):
 		tour_d = 0
 		for i in range(1, len(candidate)):
-			tour_d +=\
-			 self.params.dists[candidate[i], candidate[i-1]]
+			tour_d += self.params.dists[candidate[i], candidate[i-1]]
 		return tour_d
 
 	def next_candidate(self, candidate):
 		nu_candidate = deepcopy(candidate)
-		swaps = np.random.choice(np.arange(len(candidate)),\
-				size=2,replace=False)
+		swaps = np.random.choice(
+			np.arange(len(candidate)), size=2, replace=False)
 		to_swap = nu_candidate[swaps]
 		nu_candidate[swaps[0]] = to_swap[1]
 		nu_candidate[swaps[1]] = to_swap[0]

@@ -1,5 +1,5 @@
 import numpy as np
-from optimizn.combinatorial.anneal import OptProblem
+from optimizn.combinatorial.anneal import SimAnnealProblem
 from copy import deepcopy
 
 
@@ -18,7 +18,7 @@ class SuitCases:
 			self.capacities.append(sum(ar))
 
 
-class SuitCaseReshuffle(OptProblem):
+class SuitCaseReshuffle(SimAnnealProblem):
 	def __init__(self, params):
 		self.params = params
 		self.name = "SuitcaseReshuffling"

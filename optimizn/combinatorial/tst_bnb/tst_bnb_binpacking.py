@@ -20,7 +20,7 @@ class BinPackingParams:
 # References:
 # http://www.or.deis.unibo.it/knapsack.html (See PDF for Chapter 8,
 #   http://www.or.deis.unibo.it/kp/Chapter8.pdf)
-class BinPackingProblem1D(BnBProblem):
+class BinPackingProblem(BnBProblem):
     '''
     Solution format:
     1. Allocation of items up to last allocated item to bins (dict)
@@ -201,7 +201,7 @@ def test_constructor():
     ]
     for weights, capacity, expected in TEST_CASES:
         params = BinPackingParams(weights, capacity)
-        bpp = BinPackingProblem1D(params)
+        bpp = BinPackingProblem(params)
 
         # check capacity
         assert bpp.capacity == capacity
@@ -229,7 +229,7 @@ def test_is_sol():
     ]
     for weights, capacity in TEST_CASES:
         params = BinPackingParams(weights, capacity)
-        bpp = BinPackingProblem1D(params)
+        bpp = BinPackingProblem(params)
 
         # check valid solutions
         assert bpp.is_sol(({1: {1, 2}, 2: {3}}, -1))
@@ -253,7 +253,7 @@ def test_cost():
     ]
     for weights, capacity in TEST_CASES:
         params = BinPackingParams(weights, capacity)
-        bpp = BinPackingProblem1D(params)
+        bpp = BinPackingProblem(params)
 
         # check cost
         assert bpp.cost(({1: {3}, 2: {1, 2}}, -1)) == 2
@@ -273,7 +273,7 @@ def test_lbound():
             weights,
             capacity
         )
-        bpp = BinPackingProblem1D(params)
+        bpp = BinPackingProblem(params)
 
         # check lower bounds
         assert bpp.lbound(({1: {3}, 2: {1, 2}}, -1)) <= 2
@@ -318,7 +318,7 @@ def test_branch():
             weights,
             capacity
         )
-        bpp = BinPackingProblem1D(params)
+        bpp = BinPackingProblem(params)
         new_sols = bpp.branch(init_sol)
         assert new_sols == expected
 
@@ -337,7 +337,7 @@ def test_bnb_binpacking():
     for weights, capacity, min_bins in TEST_CASES:
         print('-----------------')
         params = BinPackingParams(weights, capacity)
-        bpp = BinPackingProblem1D(params)
+        bpp = BinPackingProblem(params)
         print('Sorted item weights (w, i):', bpp.sorted_item_weights)
         print('Item weights:', bpp.item_weights)
         bpp.solve(1000, 100, 120)
