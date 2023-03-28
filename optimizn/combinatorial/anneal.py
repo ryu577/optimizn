@@ -4,7 +4,7 @@ import numpy as np
 from copy import deepcopy
 from datetime import datetime
 from optimizn.combinatorial.opt_problem import OptProblem
-
+import time
 
 class SimAnnealProblem(OptProblem):
     def __init__(self):
@@ -22,14 +22,20 @@ class SimAnnealProblem(OptProblem):
         ''' Switch to the next candidate.'''
         raise Exception("Not implemented")
 
-    def anneal(self, n_iter=100000, reset_p=1/10000):
+    def anneal(self, n_iter=100000, reset_p=1/10000, time_limit=10000):
         """
         See: https://github.com/toddwschneider/shiny-salesman/blob/master/helpers.R
         And: https://toddwschneider.com/posts/traveling-salesman-with-simulated-annealing-r-and-shiny/
         """
         reset = False
         j = -1
+        start = time.time()
         for i in range(n_iter):
+            # check if time limit exceeded
+            if time.time() - start > time_limit:
+                print('Time limit exceeded, terminating algorithm')
+                print('Best solution: ', self.best_cost)
+                break
             j = j + 1
             temprature = current_temperature(j)
             if i % 10000 == 0:
