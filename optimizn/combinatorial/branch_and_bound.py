@@ -68,9 +68,9 @@ class BnBProblem(OptProblem):
         # convert back to PriorityQueue
         if type(self.queue) is not PriorityQueue:
             queue = PriorityQueue()
-            while not self.queue.empty():
-                queue.put(self.queue.get())
-            queue = self.queue
+            for item in self.queue:
+                queue.put(item)
+            self.queue = queue
         # otherwise, queue is created as PriorityQueue, so put initial solution
         # onto PriorityQueue
         else:
@@ -114,8 +114,9 @@ class BnBProblem(OptProblem):
 
         # return best solution and cost
         self._print_results(iters, print_iters, time_elapsed, force=True)
+        return self.best_solution, self.best_cost
 
+    def persist(self):
         # convert the queue to a list before saving solution
         self.queue = list(self.queue.queue)
-        self.persist()
-        return self.best_solution, self.best_cost
+        super().persist()

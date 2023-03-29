@@ -35,7 +35,6 @@ class TravSalsmn(SimAnnealProblem):
 	"""
 	def __init__(self, params):
 		self.params = params
-		self.name = "TravSalesman"
 		super().__init__()
 
 	def get_candidate(self):
