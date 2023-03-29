@@ -7,16 +7,16 @@ import numpy as np
 class TravelingSalesmanProblem(BnBProblem):
     '''
     Solution format:
-    (path, last_vert_idx)
-    path - list of vertices
-    last_vert_idx - index of last confirmed vertex, rest of vertices are added
+    (path, last_city_idx)
+    path - list of cities
+    last_city_idx - index of last confirmed city, rest of cities are added
     to path greedily
 
     Branching strategy:
     From a current solution, branch into x solutions, where
-    x is the number of unconfirmed vertices that are reachable from the last
-    confirmed vertex. Each branched solution corresponds to an extra confirmed
-    vertex, reachable from the last confirmed vertex of the current solution
+    x is the number of uncovered cities that are reachable from the last
+    confirmed city. Each branched solution corresponds to an extra confirmed
+    city, reachable from the last confirmed city of the current solution
     '''
     def __init__(self, params):
         self.input_graph = params['input_graph']
@@ -27,29 +27,29 @@ class TravelingSalesmanProblem(BnBProblem):
             self.input_graph.dists.shape[0]:]
         super().__init__(params)
 
-    def _get_closest_vert(self, vert, visited):
-        # get the unvisited vertex closest to the one provided
-        min_vert = None
+    def _get_closest_city(self, city, visited):
+        # get the unvisited city closest to the one provided
+        min_city = None
         min_dist = float('inf')
-        dists = self.input_graph.dists[vert]
+        dists = self.input_graph.dists[city]
         for i in range(len(dists)):
-            if i != vert and i not in visited and dists[i] < min_dist:
-                min_vert = i
+            if i != city and i not in visited and dists[i] < min_dist:
+                min_city = i
                 min_dist = dists[i]
-        return min_vert
+        return min_city
 
     def _complete_path(self, path):
-        # complete the path greedily, iteratively adding the unvisited vertex
-        # closest to the last vertex in the accmulated path
+        # complete the path greedily, iteratively adding the unvisited city
+        # closest to the last city in the accmulated path
         visited = set(path)
         while len(path) != self.input_graph.dists.shape[0]:
             if len(path) == 0:
-                next_vert = 0
+                next_city = 0
             else:
-                last_vert_idx = 0 if len(path) == 0 else path[-1]
-                next_vert = self._get_closest_vert(last_vert_idx, visited)
-            visited.add(next_vert)
-            path.append(next_vert)
+                last_city_idx = 0 if len(path) == 0 else path[-1]
+                next_city = self._get_closest_city(last_city_idx, visited)
+            visited.add(next_city)
+            path.append(next_city)
         return path
 
     def get_candidate(self):
@@ -57,8 +57,8 @@ class TravelingSalesmanProblem(BnBProblem):
         return (self._complete_path([]), -1)
 
     def cost(self, sol):
-        # sum of distances between adjacent vertices in path, and from last
-        # vertex to first vertex in path
+        # sum of distances between adjacent cities in path, and from last
+        # city to first city in path
         path = sol[0]
         path_cost = 0
         for i in range(len(path) - 1):
@@ -67,34 +67,34 @@ class TravelingSalesmanProblem(BnBProblem):
         return path_cost
 
     def lbound(self, sol):
-        # sum of distances between confirmed vertices and smallest distances
-        # to account for edges between remaining vertices and start vertex
-        path, last_vert_idx = sol
+        # sum of distances between confirmed cities and smallest distances
+        # to account for remaining cities and start city
+        path, last_city_idx = sol
         lb_path_cost = 0
-        num_cov_edges = 0
-        for i in range(last_vert_idx):
+        num_cov_distances = 0
+        for i in range(last_city_idx):
             lb_path_cost += self.input_graph.dists[path[i], path[i + 1]]
-            num_cov_edges += 1
-        lb_path_cost += sum(self.sorted_dists[:len(path) - num_cov_edges])
+            num_cov_distances += 1
+        lb_path_cost += sum(self.sorted_dists[:len(path) - num_cov_distances])
         return lb_path_cost
 
     def is_sol(self, sol):
-        # check path length and all vertices covered once
+        # check path length and all cities covered once
         path = sol[0]
         return len(path) == self.input_graph.num_cities and\
             len(path) == len(set(path))
 
     def branch(self, sol):
-        # build the path from the last confirmed vertex, by creating a new
-        # solution where each uncovered vertex is the next confirmed vertex
-        path, last_vert_idx = sol
-        main_path = path[0:last_vert_idx + 1]
+        # build the path from the last confirmed city, by creating a new
+        # solution where each uncovered city is the next confirmed city
+        path, last_city_idx = sol
+        main_path = path[0:last_city_idx + 1]
         visited = set(main_path)
         new_sols = []
-        for new_vert in range(self.input_graph.dists.shape[0]):
-            if new_vert not in visited:
-                new_path = self._complete_path(main_path + [new_vert])
-                new_sols.append((new_path, last_vert_idx + 1))
+        for new_city in range(self.input_graph.dists.shape[0]):
+            if new_city not in visited:
+                new_path = self._complete_path(main_path + [new_city])
+                new_sols.append((new_path, last_city_idx + 1))
         return new_sols
 
 
@@ -104,7 +104,7 @@ class MockCityGraph:
         self.num_cities = len(dists)
 
 
-def test_get_closest_vert():
+def test_get_closest_city():
     dists = np.array([
         [0, 4, 2, 1],
         [4, 0, 3, 4],
@@ -122,10 +122,10 @@ def test_get_closest_vert():
         (2, {0, 3, 2}, 1),
         (1, {0, 3, 2, 1}, None)
     ]
-    for vert, visited, close_vert in TEST_CASES:
-        edge = tsp._get_closest_vert(vert, visited)
-        assert edge == close_vert, f'Vertex mismatch: {edge} != {close_vert}'
-    print('_get_closest_vert tests passed')
+    for city, visited, close_city in TEST_CASES:
+        edge = tsp._get_closest_city(city, visited)
+        assert edge == close_city, f'Vertex mismatch: {edge} != {close_city}'
+    print('_get_closest_city tests passed')
 
 
 def test_is_sol():
@@ -282,7 +282,7 @@ if __name__ == '__main__':
     # unit tests
     print('Unit tests:')
     test_is_sol()
-    test_get_closest_vert()
+    test_get_closest_city()
     test_complete_path()
     test_cost()
     test_lbound()

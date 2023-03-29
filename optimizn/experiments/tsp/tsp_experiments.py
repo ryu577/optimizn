@@ -23,7 +23,7 @@ def run_tsp_experiments(num_cities=50, compute_time_mins=1, num_trials=3):
     # create traveling salesman problem parameters
     city_graph = CityGraph(num_cities)
 
-    # run simulated annealing
+    # run simulated annealing 1
     tsp_sa = TravSalsmn(city_graph)
     s = time.time()
     tsp_sa.anneal(n_iter=MAX_ITERS, time_limit=compute_time_mins * 60)
@@ -42,18 +42,26 @@ def run_tsp_experiments(num_cities=50, compute_time_mins=1, num_trials=3):
     results['bnb'].append(tsp_bnb.best_cost)
     results['bnb_time'].append(e - s)
 
-    # run solver with local search heuristic
+    # run simulated annealing 2
+    opt_permutation = None
+    opt_dist = float('inf')
     s = time.time()
-    permutation, distance = solve_tsp_simulated_annealing(
-        city_graph.dists, max_processing_time=compute_time_mins * 60,
-        alpha=0.99, perturbation_scheme='ps2')
     e = time.time()
-    results['sa2'].append(distance)
+    while (e - s) < (compute_time_mins * 60):
+        permutation, distance = solve_tsp_simulated_annealing(
+            city_graph.dists,
+            max_processing_time=(compute_time_mins * 60) - (e - s),
+            alpha=0.99, x0=opt_permutation, perturbation_scheme='ps2')
+        if opt_dist > distance:
+            opt_dist = distance
+            opt_permutation = permutation
+        e = time.time()
+    results['sa2'].append(opt_dist)
     results['sa2_time'].append(e - s)
 
     # repeat run from previous solutions, for remaining trials
     for _ in range(num_trials - 1):
-        # run simulated annealing
+        # run simulated annealing 1
         tsp_sa = load_latest_pckl(path1='Data/TravSalsmn/DailyOpt')
         if tsp_sa is None:
             raise Exception('No saved instance for TSP simulated annealing')
@@ -77,13 +85,19 @@ def run_tsp_experiments(num_cities=50, compute_time_mins=1, num_trials=3):
         results['bnb'].append(tsp_bnb.best_cost)
         results['bnb_time'].append(e - s)
 
-        # run solver with local search heuristic, use previous solution
+        # run simulated annealing 2
         s = time.time()
-        permutation, distance = solve_tsp_simulated_annealing(
-            city_graph.dists, max_processing_time=compute_time_mins * 60,
-            x0=permutation, alpha=0.99, perturbation_scheme='ps2')
         e = time.time()
-        results['sa2'].append(distance)
+        while (e - s) < (compute_time_mins * 60):
+            permutation, distance = solve_tsp_simulated_annealing(
+                city_graph.dists,
+                max_processing_time=(compute_time_mins * 60) - (e - s),
+                alpha=0.99, x0=opt_permutation, perturbation_scheme='ps2')
+            if opt_dist > distance:
+                opt_dist = distance
+                opt_permutation = permutation
+            e = time.time()
+        results['sa2'].append(opt_dist)
         results['sa2_time'].append(e - s)
 
     # return results
