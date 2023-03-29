@@ -9,7 +9,7 @@ TEST_DEPS = ['pytest']
 DEV_DEPS = []
 
 setup(name='optimizn',
-      version='0.0.3',
+      version='0.0.4',
       author='Rohit Pandey',
       author_email='rohitpandey576@gmail.com',
       description='Optimization problems.',
