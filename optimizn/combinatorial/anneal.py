@@ -2,7 +2,6 @@ from numpy.random import uniform
 # from numpy import e
 import numpy as np
 from copy import deepcopy
-from datetime import datetime
 from optimizn.combinatorial.opt_problem import OptProblem
 import time
 
@@ -15,8 +14,7 @@ class SimAnnealProblem(OptProblem):
         self.current_cost = self.cost(self.candidate)
         self.best_solution = make_copy(self.candidate)
         self.best_cost = self.current_cost
-        self.init_time = datetime.now()
-        self.init_secs = int(self.init_time.timestamp())
+        super().__init__()
 
     def next_candidate(self):
         ''' Switch to the next candidate.'''
@@ -83,6 +81,6 @@ def s_curve(x, center, width):
     return 1 / (1 + np.exp((x - center) / width))
 
 
-def current_temperature(iter, s_curve_amplitude=4000, 
+def current_temperature(iter, s_curve_amplitude=4000,
                         s_curve_center=0, s_curve_width=3000):
     return s_curve_amplitude * s_curve(iter, s_curve_center, s_curve_width)
