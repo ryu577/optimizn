@@ -72,6 +72,8 @@ def create_folders(name):
 
 
 def load_latest_pckl(path1="Data/DailyObj"):
+    if not os.path.exists(path1):
+        return None
     msh_files = os.listdir(path1)
     msh_files = [i for i in msh_files if not i.startswith('.')]
     msh_files = sorted(msh_files)
