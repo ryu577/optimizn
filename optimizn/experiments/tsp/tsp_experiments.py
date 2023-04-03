@@ -3,12 +3,11 @@ from optimizn.combinatorial.tst_bnb.tst_bnb_tsp import TravelingSalesmanProblem
 from python_tsp.heuristics import solve_tsp_simulated_annealing
 from optimizn.combinatorial.opt_problem import load_latest_pckl
 import time
-import sys
 
 
 def run_tsp_experiments(num_cities=50, compute_time_mins=1, num_trials=3):
     # specify maximum number of iterations
-    MAX_ITERS = sys.maxsize  # int max, highest possible bound on iterations
+    MAX_ITERS = int(1e20)  # very high bound on iterations
     # since algorithms should use up all compute time
 
     # for collecting results
