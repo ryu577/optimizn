@@ -26,10 +26,9 @@ class TravelingSalesmanProblem(BnBProblem):
                 min_dist = dists[i]
         return min_city
 
-    def _complete_path(self, sol):
+    def _complete_path(self, path):
         # complete the path greedily, iteratively adding the unvisited city
         # closest to the last city in the accmulated path
-        path = sol[0]
         visited = set(path)
         complete_path = deepcopy(path)
         while len(complete_path) != self.input_graph.dists.shape[0]:
@@ -66,20 +65,20 @@ class TravelingSalesmanProblem(BnBProblem):
         # sum of distances between confirmed cities and smallest distances
         # to account for remaining cities and start city
         path = sol[0]
-        branch_idx = sol[1]
+        last_branch_idx = sol[1]
         lb_path_cost = 0
-        for i in range(branch_idx):
+        for i in range(last_branch_idx):
             lb_path_cost += self.input_graph.dists[path[i], path[i + 1]]
-        if branch_idx + 1 == self.input_graph.num_cities:
+        if last_branch_idx + 1 == self.input_graph.num_cities:
             lb_path_cost += self.input_graph.dists[
-                path[branch_idx], path[0]]
+                path[last_branch_idx], path[0]]
         else:
             lb_path_cost += sum(self.sorted_dists[
-                :self.input_graph.num_cities - (branch_idx + 1)])
+                :self.input_graph.num_cities - last_branch_idx])
         return lb_path_cost
 
     def is_complete(self, sol):
-        # check that all cities covered once and path length is equal to the
+        # check that all cities covered once, path length is equal to the
         # number of cities
         path = sol[0]
         return len(path) == self.input_graph.num_cities and\
@@ -87,23 +86,26 @@ class TravelingSalesmanProblem(BnBProblem):
 
     def is_feasible(self, sol):
         # check that all cities are covered once, path length is less than
-        # or equal to the number of cities, and branch index is valid
+        # or equal to the number of cities, and last branch index is valid
         path = sol[0]
-        branch_idx = sol[1]
+        last_branch_idx = sol[1]
         return len(path) <= self.input_graph.num_cities and\
-            len(path) == len(set(path)) and branch_idx < len(path)\
-            and branch_idx >= -1
+            len(path) == len(set(path)) and last_branch_idx < len(path)\
+            and last_branch_idx >= -1
 
     def branch(self, sol):
         # build the path from the last confirmed city, by creating a new
         # solution where each uncovered city is the next confirmed city
         path = sol[0]
-        branch_idx = sol[1]
-        visited = set(path)
+        last_branch_idx = sol[1]
+        if last_branch_idx >= self.input_graph.num_cities - 1:
+            return []
+        visited = set(path[:last_branch_idx + 1])
         new_sols = []
         for new_city in range(self.input_graph.dists.shape[0]):
             if new_city not in visited:
-                new_sols.append((path + [new_city], branch_idx + 1))
+                new_sols.append((path[:last_branch_idx + 1] + [new_city],
+                                 last_branch_idx + 1))
         return new_sols
 
 
@@ -151,15 +153,16 @@ def test_is_feasible():
     }
     tsp = TravelingSalesmanProblem(params)
     TEST_CASES = [
-        ([0, 1, 2, 3], True),
-        ([1, 0, 2, 3], True),
-        ([1, 2, 2], False),
-        ([1, 2, 3], True),
-        ([1, 2, 3, 3], False),
-        ([1, 2, 3, 0, 1], False)
+        (([0, 1, 2, 3], 3), True),
+        (([1, 0, 2, 3], 2), True),
+        (([1, 0, 2, 3], 4), False),
+        (([1, 2, 2], 2), False),
+        (([1, 2, 3], 2), True),
+        (([1, 2, 3, 3], 2), False),
+        (([1, 2, 3, 0, 1], 3), False)
     ]
     for sol, valid_sol in TEST_CASES:
-        assert valid_sol == tsp.is_feasible(sol), f'{sol} is solution: '\
+        assert valid_sol == tsp.is_feasible(sol), f'{sol} is feasible: '\
             + f'{valid_sol}'
     print('is_feasible tests passed')
 
@@ -177,15 +180,17 @@ def test_is_complete():
     }
     tsp = TravelingSalesmanProblem(params)
     TEST_CASES = [
-        ([0, 1, 2, 3], True),
-        ([1, 0, 2, 3], True),
-        ([1, 2, 2], False),
-        ([1, 2, 3], False),
-        ([1, 2, 3, 3], False),
-        ([1, 2, 3, 0, 1], False)
+        (([0, 1, 2, 3], 3), True),
+        (([0, 1, 2, 3], 2), True),
+        (([1, 0, 2, 3], 3), True),
+        (([1, 0, 2, 3], 2), True),
+        (([1, 2], 1), False),
+        (([1, 2, 3], 2), False),
+        (([1, 2, 3, 0], 3), True),
+        (([1, 2, 3, 0, 1], 3), False)
     ]
     for sol, valid_sol in TEST_CASES:
-        assert valid_sol == tsp.is_complete(sol), f'{sol} is solution: '\
+        assert valid_sol == tsp.is_complete(sol), f'{sol} is complete: '\
             + f'{valid_sol}'
     print('is_complete tests passed')
 
@@ -228,7 +233,7 @@ def test_get_candidate():
         'input_graph': mcg,
     }
     tsp = TravelingSalesmanProblem(params)
-    exp_init_sol = [0, 3, 2, 1]
+    exp_init_sol = ([0, 3, 2, 1], -1)
     assert tsp.best_solution == exp_init_sol, 'Invalid initial solution. '\
         + f'Expected: {exp_init_sol}. Actual: {tsp.best_solution}'
     print('get_candidate tests passed')
@@ -247,11 +252,11 @@ def test_complete_solution():
     }
     tsp = TravelingSalesmanProblem(params)
     TEST_CASES = [
-        ([], [0, 3, 2, 1]),
-        ([0], [0, 3, 2, 1]),
-        ([0, 1], [0, 1, 2, 3]),
-        ([1, 3], [1, 3, 0, 2]),
-        ([0, 3, 2, 1], [0, 3, 2, 1])
+        (([], -1), ([0, 3, 2, 1], -1)),
+        (([0], 0), ([0, 3, 2, 1], 0)),
+        (([0, 1], 1), ([0, 1, 2, 3], 1)),
+        (([1, 3], 1), ([1, 3, 0, 2], 1)),
+        (([0, 3, 2, 1], 3), ([0, 3, 2, 1], 3))
     ]
     for path, complete_path in TEST_CASES:
         comp_path = tsp.complete_solution(path)
@@ -273,14 +278,15 @@ def test_cost():
     }
     tsp = TravelingSalesmanProblem(params)
     TEST_CASES = [
-        ([0, 3, 2, 1], 10),
-        ([0, 1, 2, 3], 10),
-        ([0, 1, 3, 2], 12)
+        (([0, 3, 2, 1], 2), 10),
+        (([0, 3, 2, 1], 3), 10),
+        (([0, 1, 2, 3], 1), 10),
+        (([0, 1, 3, 2], 0), 12)
     ]
     for sol, cost in TEST_CASES:
         sol_cost = tsp.cost(sol)
-        assert sol_cost == cost, f'Incorrect cost. Expected: {cost}, '\
-            + f'Actual: {sol_cost}'
+        assert sol_cost == cost, f'Incorrect cost for solution {sol}. '\
+            + f'Expected: {cost}. Actual: {sol_cost}'
     print('cost tests passed')
 
 
@@ -297,17 +303,19 @@ def test_lbound():
     }
     tsp = TravelingSalesmanProblem(params)
     TEST_CASES = [
-        ([0, 3, 2, 1], 10),
-        ([0, 1, 2, 3], 10),
-        ([0, 1, 3, 2], 12),
-        ([0, 3], 5),
-        ([0, 3, 2], 5),
-        ([0], 6)
+        (([0, 3, 2, 1], 3), 10),
+        (([0, 3, 2, 1], 1), 5),
+        (([0, 3, 2, 1], 2), 5),
+        (([0, 1, 2, 3], 3), 10),
+        (([0, 1, 3, 2], 3), 12),
+        (([0, 3], 1), 5),
+        (([0, 3, 2], 2), 5),
+        (([0], 0), 6)
     ]
     for sol, lower_bound in TEST_CASES:
         lb = tsp.lbound(sol)
-        assert lb == lower_bound, 'Incorrect lower bound. Expected: '\
-            + f'{lower_bound}, Actual: {lb}'
+        assert lb == lower_bound, 'Incorrect lower bound for solution '\
+            + f'{sol}. Expected: {lower_bound}. Actual: {lb}'
     print('lbound tests passed')
 
 
@@ -324,11 +332,13 @@ def test_branch():
     }
     tsp = TravelingSalesmanProblem(params)
     TEST_CASES = [
-        ([0, 3, 2, 1], []),
-        ([0, 2, 1, 3], []),
-        ([0, 1], [[0, 1, 2], [0, 1, 3]]),
-        ([0, 1, 2], [[0, 1, 2, 3]]),
-        ([1], [[1, 0], [1, 2], [1, 3]])
+        (([0, 3, 2, 1], -1), [([0], 0), ([1], 0), ([2], 0), ([3], 0)]),
+        (([0, 3, 2, 1], 3), []),
+        (([0, 2, 1, 3], 4), []),
+        (([0, 2, 1, 3], 1), [([0, 2, 1], 2), ([0, 2, 3], 2)]),
+        (([0, 1], 1), [([0, 1, 2], 2), ([0, 1, 3], 2)]),
+        (([0, 1, 2], 2), [([0, 1, 2, 3], 3)]),
+        (([1], 0), [([1, 0], 1), ([1, 2], 1), ([1, 3], 1)])
     ]
     for sol, branch_sols in TEST_CASES:
         new_sols = tsp.branch(sol)

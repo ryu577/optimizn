@@ -15,7 +15,10 @@ class BnBProblem(OptProblem):
         super().__init__()
         if not self.is_feasible(self.best_solution) or not self.is_complete(
                 self.best_solution):
-            raise Exception('Initial solution is infeasible')
+            raise Exception('Initial solution is infeasible or incomplete: '
+                            + f'{self.best_solution}')
+        print(f'Initial solution: {self.best_solution}')
+        print(f'Initial solution cost: {self.best_cost}')
 
     def lbound(self, sol):
         '''
@@ -61,8 +64,8 @@ class BnBProblem(OptProblem):
 
     def _print_results(self, iters, print_iters, time_elapsed, force=False):
         if force or iters == 1 or iters % print_iters == 0:
-            print(f'\nSolutions explored (current run): {iters}')
-            print(f'Solutions explored (total): {self.total_iters}')
+            print(f'\nIterations (current run): {iters}')
+            print(f'Iterations (total): {self.total_iters}')
             queue = list(self.queue.queue)
             print(f'Queue size: {len(queue)}')
             print(f'Time elapsed (current run): {time_elapsed} seconds')
@@ -102,7 +105,8 @@ class BnBProblem(OptProblem):
         # otherwise, queue is created as PriorityQueue, so put initial solution
         # onto PriorityQueue
         else:
-            self.queue.put((self.lbound([]), sol_count, []))
+            self.queue.put((self.lbound(self.best_solution), sol_count,
+                            self.best_solution))
 
         # explore solutions
         while not self.queue.empty() and iters != iters_limit and\
