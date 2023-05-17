@@ -22,6 +22,10 @@ def run_tsp_experiments(num_cities=50, compute_time_mins=1, num_trials=3):
     results['trad_bnb_time'] = []
     results['mod_bnb'] = []
     results['mod_bnb_time'] = []
+    results['sa1_init_sol'] = None
+    results['sa1_init_sol_cost'] = None
+    results['sa2_init_sol'] = None
+    results['sa2_init_sol_cost'] = None
     results['trad_bnb_init_sol'] = None
     results['trad_bnb_init_sol_cost'] = None
     results['mod_bnb_init_sol'] = None
@@ -36,6 +40,8 @@ def run_tsp_experiments(num_cities=50, compute_time_mins=1, num_trials=3):
 
     # run simulated annealing 1
     tsp_sa = TravSalsmn(city_graph)
+    results['sa1_init_sol'] = tsp_sa.best_solution
+    results['sa1_init_sol_cost'] = tsp_sa.best_cost
     s = time.time()
     tsp_sa.anneal(n_iter=MAX_ITERS, time_limit=compute_time_mins * 60)
     e = time.time()
@@ -54,8 +60,10 @@ def run_tsp_experiments(num_cities=50, compute_time_mins=1, num_trials=3):
         results['sa1_time'].append(e - s)
 
     # run simulated annealing 2
-    opt_permutation = None
-    opt_dist = float('inf')
+    opt_permutation = list(results['sa1_init_sol'])
+    opt_dist = results['sa1_init_sol_cost']
+    results['sa2_init_sol'] = opt_permutation
+    results['sa2_init_sol_cost'] = opt_dist
     s = time.time()
     e = time.time()
     while (e - s) < (compute_time_mins * 60):

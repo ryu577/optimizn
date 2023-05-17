@@ -5,6 +5,7 @@ from copy import deepcopy
 from optimizn.combinatorial.opt_problem import OptProblem
 import time
 
+
 class SimAnnealProblem(OptProblem):
     def __init__(self):
         ''' Initialize the problem '''
@@ -19,6 +20,13 @@ class SimAnnealProblem(OptProblem):
     def next_candidate(self):
         ''' Switch to the next candidate.'''
         raise Exception("Not implemented")
+
+    def reset_candidate(self):
+        '''
+        Reset candidate solution. Defaults to get_candidate but can be
+        overridden if needed
+        '''
+        return self.get_candidate()
 
     def anneal(self, n_iter=100000, reset_p=1/10000, time_limit=10000):
         """
@@ -42,7 +50,7 @@ class SimAnnealProblem(OptProblem):
             # eps = 0.3 * e**(-i/n_iter)
             if np.random.uniform() < reset_p:
                 print("Switching to a completely random solution.")
-                self.new_candidate = self.get_candidate()
+                self.new_candidate = self.reset_candidate()
                 self.new_cost = self.cost(self.new_candidate)
                 self.update_candidate(self.new_candidate,
                                       self.new_cost)

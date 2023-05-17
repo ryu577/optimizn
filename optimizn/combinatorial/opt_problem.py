@@ -10,6 +10,8 @@ class OptProblem():
         self.init_secs = int(self.init_time.timestamp())
         self.best_solution = self.get_candidate()
         self.best_cost = self.cost(self.best_solution)
+        print(f'Initial solution: {self.best_solution}')
+        print(f'Initial solution cost: {self.best_cost}')
         self.name = self.__class__.__name__
         if not hasattr(self, 'params'):
             raise Exception(

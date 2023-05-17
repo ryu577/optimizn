@@ -17,8 +17,6 @@ class BnBProblem(OptProblem):
                 self.best_solution):
             raise Exception('Initial solution is infeasible or incomplete: '
                             + f'{self.best_solution}')
-        print(f'Initial solution: {self.best_solution}')
-        print(f'Initial solution cost: {self.best_cost}')
 
     def lbound(self, sol):
         '''
@@ -59,8 +57,8 @@ class BnBProblem(OptProblem):
         of optimal/close-to-optimal solutions (returns None) by default
         '''
         raise NotImplementedError(
-            'Implement a function to complete an incomplete solution using a'\
-            + ' heuristic')
+            'Implement a function to complete an incomplete solution using a '
+            + 'heuristic')
 
     def _print_results(self, iters, print_iters, time_elapsed, force=False):
         if force or iters == 1 or iters % print_iters == 0:
@@ -111,8 +109,11 @@ class BnBProblem(OptProblem):
         # explore solutions
         while not self.queue.empty() and iters != iters_limit and\
                 time_elapsed < time_limit:
-            # get solution
+            # get solution, skip if lower bound is not less than best solution
+            # cost
             lbound, _, curr_sol = self.queue.get()
+            if self.cost_delta(self.best_cost, lbound) <= 0:
+                continue
 
             # get and process branched solutions
             next_sols = self.branch(curr_sol)
@@ -120,9 +121,6 @@ class BnBProblem(OptProblem):
                 # skip infeasible solutions
                 if not self.is_feasible(next_sol):
                     continue
-
-                # compute lower bound of branched solution
-                lbound = self.lbound(next_sol)
 
                 # process branched solution
                 if self.is_complete(next_sol):
@@ -139,11 +137,13 @@ class BnBProblem(OptProblem):
 
                     # if lower bound is less than best solution cost, put
                     # incomplete, feasible solution into queue
+                    lbound = self.lbound(next_sol)
                     if self.cost_delta(self.best_cost, lbound) > 0:
                         sol_count += 1
                         self.queue.put((lbound, sol_count, next_sol))
 
-            # print best solution and min cost, check if time limit exceeded
+            # print best solution and min cost, update iterations count and
+            # time elapsed
             iters += 1
             self.total_iters += 1
             time_elapsed = time.time() - start
