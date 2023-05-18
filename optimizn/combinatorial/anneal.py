@@ -23,8 +23,8 @@ class SimAnnealProblem(OptProblem):
 
     def reset_candidate(self):
         '''
-        Reset candidate solution. Defaults to get_candidate but can be
-        overridden if needed
+        Returns a new solution for when the candidate solution is reset.
+        Defaults to get_candidate but can be overridden if needed
         '''
         return self.get_candidate()
 
@@ -49,7 +49,7 @@ class SimAnnealProblem(OptProblem):
                       + str(self.best_cost))
             # eps = 0.3 * e**(-i/n_iter)
             if np.random.uniform() < reset_p:
-                print("Switching to a completely random solution.")
+                print("Resetting candidate solution.")
                 self.new_candidate = self.reset_candidate()
                 self.new_cost = self.cost(self.new_candidate)
                 self.update_candidate(self.new_candidate,

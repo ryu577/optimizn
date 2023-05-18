@@ -9,10 +9,11 @@ class TravelingSalesmanProblem(BnBProblem):
     def __init__(self, params):
         self.input_graph = params['input_graph']
         # sort all distance values, for computing lower bounds
-        self.sorted_dists = list(self.input_graph.dists.flatten())
+        self.sorted_dists = []
+        for i in range(self.input_graph.dists.shape[0]):
+            for j in range(0, i):
+                self.sorted_dists.append(self.input_graph.dists[i, j])
         self.sorted_dists.sort()
-        self.sorted_dists = self.sorted_dists[
-            self.input_graph.dists.shape[0]:]
         super().__init__(params)
 
     def _get_closest_city(self, city, visited):
@@ -234,7 +235,7 @@ def test_complete_path():
     print('_complete_path tests passed')
 
 
-def test_get_candidate():
+def test_get_candidate_sorted_dists():
     dists = np.array([
         [0, 4, 2, 1],
         [4, 0, 3, 4],
@@ -247,8 +248,11 @@ def test_get_candidate():
     }
     tsp = TravelingSalesmanProblem(params)
     exp_init_sol = ([0, 3, 2, 1], -1)
+    exp_sorted_dists = [1, 2, 2, 3, 4, 4]
     assert tsp.best_solution == exp_init_sol, 'Invalid initial solution. '\
         + f'Expected: {exp_init_sol}. Actual: {tsp.best_solution}'
+    assert tsp.sorted_dists == exp_sorted_dists, 'Invalid sorted distances. '\
+        + f'Expected: {tsp.sorted_dists}. Actual: {exp_sorted_dists}'
     print('get_candidate tests passed')
 
 
@@ -317,13 +321,13 @@ def test_lbound():
     tsp = TravelingSalesmanProblem(params)
     TEST_CASES = [
         (([0, 3, 2, 1], 3), 10),
-        (([0, 3, 2, 1], 1), 5),
-        (([0, 3, 2, 1], 2), 5),
+        (([0, 3, 2, 1], 1), 6),
+        (([0, 3, 2, 1], 2), 6),
         (([0, 1, 2, 3], 3), 10),
         (([0, 1, 3, 2], 3), 12),
-        (([0, 3], 1), 5),
-        (([0, 3, 2], 2), 5),
-        (([0], 0), 6)
+        (([0, 3], 1), 6),
+        (([0, 3, 2], 2), 6),
+        (([0], 0), 8)
     ]
     for sol, lower_bound in TEST_CASES:
         lb = tsp.lbound(sol)
@@ -385,7 +389,7 @@ def test_bnb_tsp():
 if __name__ == '__main__':
     # unit tests
     print('Unit tests:')
-    test_get_candidate()
+    test_get_candidate_sorted_dists()
     test_is_complete()
     test_is_feasible()
     test_get_closest_city()

@@ -54,7 +54,8 @@ class BnBProblem(OptProblem):
     def complete_solution(self, sol):
         '''
         Completes an incomplete solution using a heuristic for early detection
-        of optimal/close-to-optimal solutions (returns None) by default
+        of decently optimal solutions (only needed for modified branch and
+        bound algorithm)
         '''
         raise NotImplementedError(
             'Implement a function to complete an incomplete solution using a '
