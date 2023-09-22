@@ -1,5 +1,5 @@
 import numpy as np
-from optimizn.combinatorial.anneal import SimAnnealProblem
+from optimizn.combinatorial.simulated_annealing import SimAnnealProblem
 from copy import deepcopy
 
 

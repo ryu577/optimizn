@@ -1,5 +1,6 @@
 from copy import deepcopy
-from optimizn.combinatorial.tst_anneal.trav_salsmn import CityGraph
+from optimizn.combinatorial.algorithms.travelling_salesman.city_graph\
+    import CityGraph
 from optimizn.combinatorial.branch_and_bound import BnBProblem
 from python_tsp.heuristics import solve_tsp_simulated_annealing
 import numpy as np

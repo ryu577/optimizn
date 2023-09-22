@@ -1,5 +1,9 @@
-from optimizn.combinatorial.tst_anneal.trav_salsmn import CityGraph, TravSalsmn
-from optimizn.combinatorial.tst_bnb.tst_bnb_tsp import TravelingSalesmanProblem
+from optimizn.combinatorial.algorithms.travelling_salesman.city_graph\
+    import CityGraph
+from optimizn.combinatorial.algorithms.travelling_salesman.sim_anneal_tsp\
+    import TravSalsmn
+from optimizn.combinatorial.algorithms.travelling_salesman.bnb_tsp\
+    import TravelingSalesmanProblem
 from python_tsp.heuristics import solve_tsp_simulated_annealing
 from optimizn.combinatorial.opt_problem import load_latest_pckl
 import time

@@ -1,32 +1,15 @@
 import numpy as np
 from copy import deepcopy
-from optimizn.combinatorial.anneal import SimAnnealProblem
+from optimizn.combinatorial.simulated_annealing import SimAnnealProblem
 # from ortools.constraint_solver import routing_enums_pb2
 # from ortools.constraint_solver import pywrapcp
+from optimizn.combinatorial.algorithms.travelling_salesman.city_graph\
+    import CityGraph
 
 # pip install python-tsp
 # https://github.com/fillipe-gsm/python-tsp
 from python_tsp.exact import solve_tsp_dynamic_programming
 from python_tsp.heuristics import solve_tsp_local_search
-
-
-class CityGraph():
-    def __init__(self, num_cities=50):
-        # Generate x-y coordinates of some cities.
-        # Here, we just draw them from a normal dist.
-        self.xs = np.random.normal(loc=0,scale=5,size=(num_cities,2))
-        self.num_cities = len(self.xs)
-        self.dists = np.zeros((len(self.xs), len(self.xs)))
-        # Populate the matrix of euclidean distances.
-        for i in range(len(self.xs)):
-            for j in range(i+1, len(self.xs)):
-                dist = (self.xs[i][0]-self.xs[j][0])**2
-                dist += (self.xs[i][1]-self.xs[j][1])**2
-                dist = np.sqrt(dist)
-                self.dists[i,j] = dist
-        for i in range(len(self.xs)):
-            for j in range(i):
-                self.dists[i,j] = self.dists[j,i]
 
 
 class TravSalsmn(SimAnnealProblem):

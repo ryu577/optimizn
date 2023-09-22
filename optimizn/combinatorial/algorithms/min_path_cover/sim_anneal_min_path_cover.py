@@ -1,5 +1,6 @@
 import numpy as np
-from optimizn.combinatorial.anneal import SimAnnealProblem
+import os
+from optimizn.combinatorial.simulated_annealing import SimAnnealProblem
 from graphing.special_graphs.neural_trigraph.rand_graph import *
 # from graphing.graph import Graph
 # from graphing.traversal.clr_traversal import Graph1
@@ -129,8 +130,11 @@ def tst1(edges1=None, edges2=None, n_iter=20000, swtch=1):
 
 
 def tst2(n_iter=20000, swtch=1):
-    edges1 = np.loadtxt('edges1.csv')
+    dirname = os.path.dirname(__file__)
+    edges1_path = os.path.join(dirname, './edges1.csv')
+    edges2_path = os.path.join(dirname, './edges2.csv')
+    edges1 = np.loadtxt(edges1_path)
     edges1 = edges1.astype(int)
-    edges2 = np.loadtxt('edges2.csv')
+    edges2 = np.loadtxt(edges2_path)
     edges2 = edges2.astype(int)
     return tst1(edges1, edges2, n_iter, swtch=swtch)
