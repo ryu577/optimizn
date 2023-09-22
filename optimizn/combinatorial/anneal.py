@@ -5,22 +5,28 @@ from copy import deepcopy
 from optimizn.combinatorial.opt_problem import OptProblem
 import time
 
+
 class SimAnnealProblem(OptProblem):
     def __init__(self):
         ''' Initialize the problem '''
         # Instead of always stopping at a random solution, pick
         # the best one sometimes and the best daily one other times.
-        self.candidate = self.get_candidate()
-        self.current_cost = self.cost(self.candidate)
-        self.best_solution = make_copy(self.candidate)
-        self.best_cost = self.current_cost
         super().__init__()
+        self.candidate = make_copy(self.best_solution)
+        self.current_cost = self.best_cost
 
     def next_candidate(self):
         ''' Switch to the next candidate.'''
         raise Exception("Not implemented")
 
-    def anneal(self, n_iter=100000, reset_p=1/10000, time_limit=10000):
+    def reset_candidate(self):
+        '''
+        Returns a new solution for when the candidate solution is reset.
+        Defaults to get_candidate but can be overridden if needed
+        '''
+        return self.get_candidate()
+
+    def anneal(self, n_iter=100000, reset_p=1/10000, time_limit=3600):
         """
         See: https://github.com/toddwschneider/shiny-salesman/blob/master/helpers.R
         And: https://toddwschneider.com/posts/traveling-salesman-with-simulated-annealing-r-and-shiny/
@@ -41,12 +47,10 @@ class SimAnnealProblem(OptProblem):
                       + str(self.best_cost))
             # eps = 0.3 * e**(-i/n_iter)
             if np.random.uniform() < reset_p:
-                print("Switching to a completely random solution.")
-                self.new_candidate = self.get_candidate()
+                print("Resetting candidate solution.")
+                self.new_candidate = self.reset_candidate()
                 self.new_cost = self.cost(self.new_candidate)
-                self.update_candidate(self.new_candidate,
-                                      self.new_cost)
-                print("with cost: " + str(self.current_cost))
+                print("with cost: " + str(self.new_cost))
                 j = 0
                 reset = True
             else:

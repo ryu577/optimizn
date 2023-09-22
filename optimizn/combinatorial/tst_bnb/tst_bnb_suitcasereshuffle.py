@@ -57,8 +57,8 @@ class SuitcaseReshuffleProblem(BnBProblem):
         for suitcase in suitcases.config:
             empty_space += suitcase[-1]
         return -1 * empty_space
-
-    def is_sol(self, sol):
+    
+    def is_feasible(self, sol):
         suitcases = sol[0]
         for i in range(len(suitcases.config)):
             suitcase = suitcases.config[i]
@@ -73,6 +73,14 @@ class SuitcaseReshuffleProblem(BnBProblem):
             if suitcase_sum != capacity:
                 return False
         return True
+
+    def is_complete(self, sol):
+        # return True, since all solutions are complete by design
+        return True
+
+    def complete_solution(self, sol):
+        # return solution, since all solutions are complete by design
+        return sol
 
     def branch(self, sol):
         suitcases = sol[0]
@@ -197,7 +205,7 @@ def test_lbound():
     print('lbound tests passed')
 
 
-def test_is_sol():
+def test_is_feasible():
     TEST_CASES = [
         ([[7, 5, 1], [4, 6, 1]], 0, True),
         ([[7, 5, 1], [4, 6, 1], [12, 12, 4], [11, 10, 2]], 1, True),
@@ -215,9 +223,9 @@ def test_is_sol():
             }
             srp = SuitcaseReshuffleProblem(params)
             sol = (sc, suitcase_num)
-            is_sol = srp.is_sol((sc, suitcase_num))
-            assert valid_sol == is_sol, f'Validation of solution {sol} '\
-                + f'failed. Expected {v_sol}, Actual: {is_sol}'
+            is_feasible = srp.is_feasible((sc, suitcase_num))
+            assert valid_sol == is_feasible, f'Validation of solution {sol} '\
+                + f'failed. Expected {v_sol}, Actual: {is_feasible}'
     OTHER_TEST_CASES = [
         ([[7, 5, 1], [4, 6, 1]], [[7, 5, -1], [4, 6, 1]], 0, False),
         ([[7, 5, 1], [4, 6, 1], [12, 12, 4], [11, 10, 2]],
@@ -233,10 +241,10 @@ def test_is_sol():
         }
         srp = SuitcaseReshuffleProblem(params)
         sol = (sc, suitcase_num)
-        is_sol = srp.is_sol((sc, suitcase_num))
-        assert valid_sol == is_sol, f'Validation of solution {sol} '\
-            + f'failed. Expected {v_sol}, Actual: {is_sol}'
-    print('is_sol tests passed')
+        is_feasible = srp.is_feasible((sc, suitcase_num))
+        assert valid_sol == is_feasible, f'Validation of solution {sol} '\
+            + f'failed. Expected {v_sol}, Actual: {is_feasible}'
+    print('is_feasible tests passed')
 
 
 def test_branch():
@@ -294,24 +302,25 @@ def test_branch():
 def test_bnb_suitcasereshuffle():
     TEST_CASES = [
         ([[7, 5, 1], [4, 6, 1]], -2),
-        # ([[7, 5, 4], [4, 6, 1], [5, 5, 1]], -6),
-        # ([[1, 4, 3, 6, 4, 2], [2, 4, 7, 1, 0], [1, 7, 3, 8, 3, 4]], -6),
-        # ([
-        #     [12, 52, 34, 23, 17, 18, 22, 10],
-        #     [100, 21, 36, 77, 82, 44, 40],
-        #     [1, 5, 2, 8, 22, 34, 50]
-        # ], -100)
+        ([[7, 5, 4], [4, 6, 1], [5, 5, 1]], -6),
+        ([[1, 4, 3, 6, 4, 2], [2, 4, 7, 1, 0], [1, 7, 3, 8, 3, 4]], -6),
+        ([
+            [12, 52, 34, 23, 17, 18, 22, 10],
+            [100, 21, 36, 77, 82, 44, 40],
+            [1, 5, 2, 8, 22, 34, 50]
+        ], -100)
     ]
     for config, final_cost in TEST_CASES:
-        sc = SuitCases(config)
-        params = {
-            'init_sol': sc
-        }
-        srp = SuitcaseReshuffleProblem(params)
-        srp.solve(1000, 100, 120)
-        # srp.persist() # does not work
-        print('Best solution: ', srp.best_solution[0].config)
-        print(f'Expected cost: {final_cost}, Actual cost: {srp.best_cost}')
+        for bnb_type in [0, 1]:
+            sc = SuitCases(config)
+            params = {
+                'init_sol': sc
+            }
+            srp = SuitcaseReshuffleProblem(params)
+            srp.solve(1000, 100, 120, bnb_type)
+            # srp.persist() # does not work
+            print('Best solution: ', srp.best_solution[0].config)
+            print(f'Expected cost: {final_cost}, Actual cost: {srp.best_cost}')
 
 
 if __name__ == '__main__':
@@ -319,7 +328,7 @@ if __name__ == '__main__':
     test_constructor()
     test_cost()
     test_lbound()
-    test_is_sol()
+    test_is_feasible()
     test_branch()
     print('-----------------\n')
 

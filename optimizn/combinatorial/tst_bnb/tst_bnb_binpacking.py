@@ -23,15 +23,20 @@ class BinPackingParams:
 class BinPackingProblem(BnBProblem):
     '''
     Solution format:
-    1. Allocation of items up to last allocated item to bins (dict)
-    2. Last allocated item (int)
+    1. Allocation of items to bins (dict, keys are integers representing bins
+    (starting from 1, so 1 represents the first bin, 2 is the second bin, etc.)
+    and values are sets of integers that represent the items (1 represents
+    first item in weights list, 2 represents second item in weights list, and
+    so on))
+    2. Index of last allocated item in sorted-by-decreasing-weight list of
+    items (int)
 
     Branching strategy:
-    Each level of the solution space tree corresponds to an item. Each
-    solution in a level corresponds to the item being placed in a bin
-    that it can fit in. The remaining items can be put in bins in
-    decreasing order of weight, into the first bin that can fit it.
-    New bins created as needed
+    Each level of the solution space tree corresponds to an item. Items are
+    considered in order of decreasing weight. Each solution in a level 
+    corresponds to the item being placed in a bin that it can fit in. The
+    remaining items can be put in bins in decreasing order of weight, into
+    the first bin that can fit it. New bins created as needed
     '''
     def __init__(self, params):
         self.item_weights = {}  # mapping of items to weights
@@ -44,7 +49,7 @@ class BinPackingProblem(BnBProblem):
         super().__init__(params)
     
     def get_candidate(self):
-        return (self._pack_rem_items({}, -1), -1)
+        return (self._pack_rem_items(dict(), -1), -1)
 
     def _pack_rem_items(self, bin_packing, last_item_idx):
         next_item_idx = last_item_idx + 1
@@ -96,13 +101,21 @@ class BinPackingProblem(BnBProblem):
         bin_packing = self._filter_items(bin_packing, last_item_idx)
         curr_bin_ct = len(bin_packing.keys())
 
+        # get free capacity in bin packing
+        curr_weight = sum(list(map(
+            lambda x: self.sorted_item_weights[x][0],
+            list(range(last_item_idx + 1))
+        )))
+        free_capacity = self.capacity * curr_bin_ct - curr_weight
+
         # get weights of remaining items
         rem_weight = sum(list(map(
             lambda x: self.sorted_item_weights[x][0],
             list(range(last_item_idx + 1, len(self.sorted_item_weights)))
         )))        
 
-        return curr_bin_ct + math.ceil(rem_weight / self.capacity)
+        return curr_bin_ct + math.ceil(
+            (rem_weight - free_capacity) / self.capacity)
 
     def cost(self, sol):
         bin_packing = sol[0]
@@ -121,6 +134,7 @@ class BinPackingProblem(BnBProblem):
         # remove items that have not been considered yet
         bin_packing = self._filter_items(bin_packing, last_item_idx)
 
+        # pack items in bins
         new_sols = []
         extra_bin = 1
         if len(bin_packing.keys()) != 0:
@@ -143,12 +157,30 @@ class BinPackingProblem(BnBProblem):
 
             # pack item in bin
             new_bin_packing[bin].add(next_item)
-            new_bin_packing = self._pack_rem_items(
-                new_bin_packing, next_item_idx)
             new_sols.append((new_bin_packing, next_item_idx))
         return new_sols
 
-    def is_sol(self, sol):
+    def is_feasible(self, sol):
+        bin_packing = sol[0]
+
+        # check that packed items are valid
+        items = set(reduce(
+            (lambda s1, s2: s1.union(s2)),
+            list(map(lambda b: bin_packing[b], bin_packing.keys()))
+        ))
+        if len(items.difference(set(range(1, len(self.item_weights)+1)))) != 0:
+            return False
+
+        # check that for each bin, the weight is not exceeded
+        for bin in bin_packing.keys():
+            bin_weight = sum(
+                list(map(lambda x: self.item_weights[x], bin_packing[bin])))
+            if bin_weight > self.capacity:
+                return False
+
+        return True
+
+    def is_complete(self, sol):
         bin_packing = sol[0]
 
         # check that all items are packed
@@ -162,14 +194,14 @@ class BinPackingProblem(BnBProblem):
         # check that for each bin, the weight is not exceeded
         for bin in bin_packing.keys():
             bin_weight = sum(
-                list(map(
-                    lambda x: self.item_weights[x],
-                    bin_packing[bin]
-                )))
+                list(map(lambda x: self.item_weights[x], bin_packing[bin])))
             if bin_weight > self.capacity:
                 return False
 
         return True
+
+    def complete_solution(self, sol):
+        return (self._pack_rem_items(copy.deepcopy(sol[0]), sol[1]), sol[1])
 
 
 def test_param_equality():
@@ -223,6 +255,38 @@ def test_constructor():
     print('Constructor tests passed')
 
 
+def test_is_feasible():
+    TEST_CASES = [
+        ([1, 2, 3], 3, ({1: {3}, 2: {1, 2}}, -1), True),
+        ([1, 2, 3], 3, ({1: {3}, 2: {2}, 3: {1}}, 1), True),
+        ([1, 2, 3], 3, ({1: {3}, 2: {2}}, 1), True),
+        ([1, 2, 3], 3, ({1: {1, 2, 3}}, -1), False),
+        ([1, 2, 3], 3, ({1: {3, 1}, 2: {2}}, -1), False),
+        ([1, 2, 3], 3, ({1: {3, 2}, 2: {1}}, 1), False),
+        ([1, 2, 3], 3, ({1: {3, 2}, 2: {1}}, 1), False)
+    ]
+    for weights, capacity, sol, feasible in TEST_CASES:
+        params = BinPackingParams(weights, capacity)
+        bpp = BinPackingProblem(params)
+
+        assert bpp.is_feasible(sol) == feasible
+
+
+def test_is_complete():
+    TEST_CASES = [
+        ([1, 2, 3], 3, ({1: {3}, 2: {1, 2}}, -1), True),
+        ([1, 2, 3], 3, ({1: {3}, 2: {2}, 3: {1}}, 1), True),
+        ([1, 2, 3], 3, ({1: {3}, 2: {2}}, 1), False),
+        ([1, 2, 3], 3, ({1: {3}, 2: {1}}, 1), False),
+        ([1, 2, 3], 3, ({1: {2}, 2: {1}}, 1), False)
+    ]
+    for weights, capacity, sol, complete in TEST_CASES:
+        params = BinPackingParams(weights, capacity)
+        bpp = BinPackingProblem(params)
+
+        assert bpp.is_complete(sol) == complete
+
+
 def test_is_sol():
     TEST_CASES = [
         ([1, 2, 3], 3)
@@ -249,38 +313,33 @@ def test_is_sol():
 
 def test_cost():
     TEST_CASES = [
-        ([1, 2, 3], 3)
+        ([1, 2, 3], 3, ({1: {3}, 2: {1, 2}}, -1), 2),
+        ([1, 2, 3], 3, ({1: {1, 2}, 2: {3}}, -1), 2),
+        ([1, 2, 3], 3, ({1: {2}, 2: {3}, 3: {1}}, 2), 3),
+        ([1, 2, 3], 3, ({1: {3}, 2: {2}, 3: {1}}, 2), 3)
     ]
-    for weights, capacity in TEST_CASES:
+    for weights, capacity, sol, cost in TEST_CASES:
         params = BinPackingParams(weights, capacity)
         bpp = BinPackingProblem(params)
 
         # check cost
-        assert bpp.cost(({1: {3}, 2: {1, 2}}, -1)) == 2
-        assert bpp.cost(({1: {1, 2}, 2: {3}}, -1)) == 2
-        assert bpp.cost(({1: {2}, 2: {3}, 3: {1}}, 1)) == 3
-        assert bpp.cost(({1: {3}, 2: {2}, 3: {1}}, 1)) == 3
-
+        assert bpp.cost(sol) == cost
     print('Cost tests passed')
 
 
 def test_lbound():
     TEST_CASES = [
-        ([1, 2, 3], 3)
+        ([1, 2, 3], 3, ({1: {3}, 2: {1, 2}}, -1), 2),
+        ([1, 2, 3], 3, ({1: {3}}, 0), 2),
+        ([1, 2, 3], 3, ({1: {3}, 2: {2}}, 1), 2),
+        ([1, 2, 3], 3, ({1: {3}, 2: {2, 1}}, 2), 2),
     ]
-    for weights, capacity in TEST_CASES:
-        params = BinPackingParams(
-            weights,
-            capacity
-        )
+    for weights, capacity, sol, lb in TEST_CASES:
+        params = BinPackingParams(weights, capacity)
         bpp = BinPackingProblem(params)
 
         # check lower bounds
-        assert bpp.lbound(({1: {3}, 2: {1, 2}}, -1)) <= 2
-        assert bpp.lbound(({1: {3}, 2: {1, 2}}, 0)) <= 2
-        assert bpp.lbound(({1: {3}, 2: {1}, 3: {2}}, 0)) <= 2
-        assert bpp.lbound(({1: {3}, 2: {1}, 3: {2}}, 1)) <= 3
-        assert bpp.lbound(({1: {3}, 2: {1}, 3: {2}}, 2)) <= 3
+        assert bpp.lbound(sol) == lb
 
     print('Lower bound tests passed')
 
@@ -288,29 +347,23 @@ def test_lbound():
 def test_branch():
     TEST_CASES = [
         ([1, 2, 3], 3, [
-                ({1: {3}, 2: {2, 1}}, 2),
-                ({1: {3}, 2: {2}, 3: {1}}, 2),
-            ],
-            ({1: {3}, 2: {2, 1}}, 1)),
+            ({1: {3}, 2: {2}}, 1),
+        ], ({1: {3}}, 0)),
         ([7, 8, 2, 3], 15, [
-                ({1: {2, 1}, 2: {4, 3}}, 1),
-                ({1: {2, 4, 3}, 2: {1}}, 1),
-            ],
-            ({1: {2, 1}, 2: {4, 3}}, 0)),
-        ([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 12, [
-                ({1: {10, 2}, 2: {9, 3}, 3: {8, 4}, 4: {7, 5}, 5: {6, 1}}, 5),
-                ({1: {10, 2}, 2: {9, 3}, 3: {8, 4}, 4: {7, 1}, 5: {6, 5}}, 5),
-                ({1: {10, 2}, 2: {9, 3}, 3: {8, 4}, 4: {7, 1}, 5: {6}, 6: {5}}, 5)
-            ],
-            ({1: {10}, 2: {9}, 3: {8}, 4: {7}, 5: {6}, 6: {5, 4}, 7: {2, 1}}, 4)),
-        ([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 12, [
-                ({1: {10, 2}, 2: {9, 3}, 3: {8, 4}, 4: {7, 1}, 5: {6}, 6: {5}}, 6),
-                ({1: {10, 2}, 2: {9, 3}, 3: {8, 1}, 4: {7, 4}, 5: {6}, 6: {5}}, 6),
-                ({1: {10, 2}, 2: {9, 3}, 3: {8, 1}, 4: {7}, 5: {6, 4}, 6: {5}}, 6),
-                ({1: {10, 2}, 2: {9, 3}, 3: {8, 1}, 4: {7}, 5: {6}, 6: {5, 4}}, 6),
-                ({1: {10, 2}, 2: {9, 3}, 3: {8, 1}, 4: {7}, 5: {6}, 6: {5}, 7: {4}}, 6)
-            ],
-            ({1: {10}, 2: {9}, 3: {8}, 4: {7}, 5: {6}, 6: {5, 4}, 7: {2, 1}}, 5))
+            ({1: {1, 2}}, 1),
+            ({1: {2}, 2: {1}}, 1),
+        ], ({1: {2}}, 0)),
+        ([1, 2, 3, 8, 9, 10, 4, 5, 6, 7], 16, [
+            ({1: {6}, 2: {5, 10}, 3: {4}}, 3),
+            ({1: {6}, 2: {5}, 3: {4, 10}}, 3),
+            ({1: {6}, 2: {5}, 3: {4}, 4: {10}}, 3)
+        ], ({1: {6}, 2: {5}, 3: {4}}, 2)),
+        ([1, 2, 3, 8, 9, 10, 4, 5, 6, 7], 16, [
+            ({1: {6}}, 0)
+        ], ({1: {6, 9}, 2: {5, 10}, 3: {4, 8, 3}, 4: {7, 2, 1}}, -1)),
+        ([1, 2, 3, 8, 9, 10, 4, 5, 6, 7], 16, [
+            ({1: {6}, 2: {5}}, 1)
+        ], ({1: {6, 9}, 2: {5, 10}, 3: {4, 8, 3}, 4: {7, 2, 1}}, 0))
     ]
     for weights, capacity, expected, init_sol in TEST_CASES:
         # check branch
@@ -320,10 +373,34 @@ def test_branch():
         )
         bpp = BinPackingProblem(params)
         new_sols = bpp.branch(init_sol)
-        assert new_sols == expected
+        for new_sol in new_sols:
+            assert new_sol in expected
+        for exp_sol in expected:
+            assert exp_sol in new_sols
 
     print('Branch tests passed')
 
+
+def test_complete_solution():
+    TEST_CASES = [
+        ([1, 2, 3], 3, ({1: {3}}, 0), ({1: {3}, 2: {1, 2}}, 0)),
+        ([7, 8, 2, 3], 15, ({1: {2}}, 0), ({1: {2, 1}, 2: {3, 4}}, 0)),
+        ([1, 2, 3, 8, 9, 10, 4, 5, 6, 7], 16,
+         ({1: {6}, 2: {5}, 3: {4}}, 2),
+         ({1: {6, 9}, 2: {5, 10}, 3: {4, 8, 3}, 4: {7, 2, 1}}, 2)),
+        ([1, 2, 3, 8, 9, 10, 4, 5, 6, 7], 16,
+         (dict(), -1),
+         ({1: {6, 9}, 2: {5, 10}, 3: {4, 8, 3}, 4: {7, 2, 1}}, -1))
+    ]
+    for weights, capacity, incomplete_sol, complete_sol in TEST_CASES:
+        # check branch
+        params = BinPackingParams(
+            weights,
+            capacity
+        )
+        bpp = BinPackingProblem(params)
+        sol = bpp.complete_solution(incomplete_sol)
+        assert sol == complete_sol
 
 def test_bnb_binpacking():
     # weights, capacity, min bins (optimal solution)
@@ -335,17 +412,18 @@ def test_bnb_binpacking():
         ([49, 41, 34, 33, 29, 26, 26, 22, 20, 19] * 2, 100, 6)
     ]
     for weights, capacity, min_bins in TEST_CASES:
-        print('-----------------')
-        params = BinPackingParams(weights, capacity)
-        bpp = BinPackingProblem(params)
-        print('Sorted item weights (w, i):', bpp.sorted_item_weights)
-        print('Item weights:', bpp.item_weights)
-        bpp.solve(1000, 100, 120)
-        print('\nItem weight dictionary:', bpp.item_weights)
-        print('Final solution:', bpp.best_solution[0])
-        print('Score:', bpp.best_cost)
-        print('Optimal solution reached: ', min_bins == bpp.best_cost)
-        print('-----------------')
+        for bnb_type in [0, 1]:
+            print('-----------------')
+            params = BinPackingParams(weights, capacity)
+            bpp = BinPackingProblem(params)
+            print('Sorted item weights (w, i):', bpp.sorted_item_weights)
+            print('Item weights:', bpp.item_weights)
+            bpp.solve(1000, 100, 120, bnb_type)
+            print('\nItem weight dictionary:', bpp.item_weights)
+            print('Final solution:', bpp.best_solution[0])
+            print('Score:', bpp.best_cost)
+            print('Optimal solution reached: ', min_bins == bpp.best_cost)
+            print('-----------------')
 
 
 if __name__ == '__main__':
@@ -353,7 +431,9 @@ if __name__ == '__main__':
     print('Unit Tests:')
     print('==============')
     test_constructor()
-    test_is_sol()
+    test_is_feasible()
+    test_is_complete()
+    test_complete_solution()
     test_cost()
     test_lbound()
     test_branch()
