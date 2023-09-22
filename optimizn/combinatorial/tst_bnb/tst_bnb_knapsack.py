@@ -100,13 +100,53 @@ class ZeroOneKnapsackProblem(BnBProblem):
             new_sols.append((new_sol, exp_idx))
         return new_sols
 
-    def is_sol(self, sol):
+    def is_feasible(self, sol):
+        # check that array is not longer than the number of weights/values
+        check_length1 = len(sol[0]) <= len(self.weights)
+        check_length2 = len(sol[0]) <= len(self.values)
+        check_length = check_length1 and check_length2
+
+        # check that the only values in the array are 0 and 1
+        check_values = len(set(sol[0].tolist()).difference({0, 1})) == 0
+
+        # check that the weight of the values in the array is not greater
+        # than the capacity
+        check_weight = np.sum(sol[0] * self.weights) <= self.capacity
+
+        return check_length and check_values and check_weight
+
+    def is_complete(self, sol):
+        # check that array length is the same as the number of weights/values
         check_length1 = len(sol[0]) == len(self.weights)
         check_length2 = len(sol[0]) == len(self.values)
         check_length = check_length1 and check_length2
-        check_values = len(set(sol[0].tolist()).difference({0, 1})) == 0
-        check_weight = np.sum(sol[0] * self.weights) <= self.capacity
-        return check_length and check_values and check_weight
+
+        return check_length
+
+    def complete_solution(self, sol):
+        # greedily add other items to array
+        knapsack = list(sol[0])
+        value = 0
+        weight = 0
+        for i in range(len(knapsack)):
+            if knapsack[i] == 1:
+                value += self.values[i]
+                weight += self.weights[i]
+
+        # greedily take other items
+        for _, ix in self.sorted_vw_ratios:
+            if ix < sol[1] + 1:
+                knapsack.append(0)
+                continue
+            rem_cap = self.capacity - weight
+            if rem_cap < self.weights[ix]:
+                knapsack.append(0)
+                continue
+            value += self.values[ix]
+            weight += self.weights[ix]
+            knapsack.append(1)
+        
+        return (np.array(knapsack), sol[1])
 
 
 def test_bnb_zeroone_knapsack():
@@ -137,16 +177,18 @@ def test_bnb_zeroone_knapsack():
     ]
 
     for i in range(len(init_sol)):
-        print('\n=====================')
-        print(f'TEST CASE {i+1}\n')
-        params = KnapsackParams(
-            values[i], weights[i], capacity[i], init_sol[i])
-        sol, score = ZeroOneKnapsackProblem(params).solve(1000, 100, 120)
-        print(f'\nScore: {-1 * score}')
-        print(f'Solution: {sol[0]}')
-        print(f'True solution: {true_sol[i]}')
-        assert list(sol[0]) == list(true_sol[i]), f'Test case {i} failed'
-        print('=====================\n')
+        for bnb_type in [0, 1]:
+            print('\n=====================')
+            print(f'TEST CASE {i+1}\n')
+            params = KnapsackParams(
+                values[i], weights[i], capacity[i], init_sol[i])
+            sol, score = ZeroOneKnapsackProblem(params).solve(
+                1000, 100, 120, bnb_type)
+            print(f'\nScore: {-1 * score}')
+            print(f'Solution: {sol[0]}')
+            print(f'True solution: {true_sol[i]}')
+            assert list(sol[0]) == list(true_sol[i]), f'Test case {i} failed'
+            print('=====================\n')
 
 
 if __name__ == '__main__':

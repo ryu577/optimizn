@@ -9,9 +9,9 @@ TEST_DEPS = ['pytest']
 DEV_DEPS = []
 
 setup(name='optimizn',
-      version='0.0.7',
-      author='Rohit Pandey',
-      author_email='rohitpandey576@gmail.com',
+      version='0.0.8',
+      author='Rohit Pandey, Akshay Sathiya',
+      author_email='rohitpandey576@gmail.com, akshay.sathiya@gmail.com',
       description='Optimization problems.',
       packages=find_packages(exclude=['tests', 'Images']),
       long_description="Optimal settings such as optimal timeouts, retry thresholds, stripings required for desired results, etc.",
