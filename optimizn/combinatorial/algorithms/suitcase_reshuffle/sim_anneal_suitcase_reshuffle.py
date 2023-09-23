@@ -3,21 +3,6 @@ from optimizn.combinatorial.simulated_annealing import SimAnnealProblem
 from copy import deepcopy
 
 
-class SuitCases:
-	def __init__(self, config):
-		"""
-		The configuration of the suitcases
-		is an array of arrays. The last element
-		of each array must be the amount of empty space.
-		This means that the sum of each array is the 
-		capacity of that suitcase.
-		"""
-		self.config = config
-		self.capacities = []
-		for ar in config:
-			self.capacities.append(sum(ar))
-
-
 class SuitCaseReshuffle(SimAnnealProblem):
 	def __init__(self, params):
 		self.params = params
@@ -61,20 +46,3 @@ class SuitCaseReshuffle(SimAnnealProblem):
 				arr2[len(arr2)-1] = caps[cases[1]]\
 									- sum(arr2[:len(arr2)-1])
 		return candidate1
-
-
-def tst1():
-	config = [[7,5,1],[4,6,1]]
-	sc = SuitCases(config)
-	scr = SuitCaseReshuffle(params=sc)
-
-def tst2():
-	# from optimizn.combinatorial.tst_anneal.suitcase_reshuffle import *
-
-	config = [[7,5,1],[4,6,1]]
-	sc = SuitCases(config)
-	scr = SuitCaseReshuffle(params=sc)
-	candidate = scr.get_candidate()
-	scr.anneal()
-
-

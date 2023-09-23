@@ -3,13 +3,6 @@ from copy import deepcopy
 from optimizn.combinatorial.simulated_annealing import SimAnnealProblem
 # from ortools.constraint_solver import routing_enums_pb2
 # from ortools.constraint_solver import pywrapcp
-from optimizn.combinatorial.algorithms.travelling_salesman.city_graph\
-    import CityGraph
-
-# pip install python-tsp
-# https://github.com/fillipe-gsm/python-tsp
-from python_tsp.exact import solve_tsp_dynamic_programming
-from python_tsp.heuristics import solve_tsp_local_search
 
 
 class TravSalsmn(SimAnnealProblem):
@@ -93,22 +86,3 @@ def dist_from_lat_long(lat1, long1, lat2, long2):
     d = np.arcsin(d)
     dist = 2*r*d
     return d
-
-
-def tst1():
-    # import optimizn.combinatorial.tst_anneal.trav_salsmn as ts
-    tt = CityGraph()
-    ts1 = TravSalsmn(tt)
-    print("Best solution with external library: ")
-    #permutation, distance = solve_tsp_dynamic_programming(tt.dists)
-    permutation, distance = solve_tsp_local_search(tt.dists)
-    print(distance)
-    ts1.anneal()
-    print("Best solution: " + str(ts1.best_cost))
-    return ts1
-
-
-## https://developers.google.com/optimization/routing/tsp
-# Their solution didn't work, some cpp error.
-
-
