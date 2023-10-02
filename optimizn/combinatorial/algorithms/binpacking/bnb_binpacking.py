@@ -15,6 +15,10 @@ class BinPackingParams:
             and self.weights == other.weights
             and self.capacity == other.capacity
         )
+    
+    def __str__(self):
+        return f'BinPackingParams - weights: {self.weights}, capacity: '\
+            + f'{self.capacity}'
 
 
 # References:
