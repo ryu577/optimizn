@@ -212,10 +212,6 @@ def test_bnb_binpacking():
             bpp = BinPackingProblem(params)
             init_cost = bpp.best_cost
             bpp.solve(1000, 100, 120, bnb_type)
-            print('Final solution:', bpp.best_solution[0])
-            print('Score:', bpp.best_cost)
-            print('Optimal solution reached: ', min_bins == bpp.best_cost)
-            print('-----------------')
 
             # check that final solution is complete and feasible
             assert bpp.is_complete(bpp.best_solution), 'Final solution '\
