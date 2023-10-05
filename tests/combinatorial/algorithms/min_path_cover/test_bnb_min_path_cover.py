@@ -1,11 +1,13 @@
 import sys
-print(sys.path)
 import numpy as np
 from graphing.special_graphs.neural_trigraph.rand_graph import rep_graph
 from graphing.special_graphs.neural_trigraph.path_cover import \
     min_cover_trigraph
 from optimizn.combinatorial.algorithms.min_path_cover.bnb_min_path_cover\
     import MinPathCoverParams, MinPathCoverProblem1, MinPathCoverProblem2
+from tests.combinatorial.algorithms.check_sol_utils import check_bnb_sol,\
+    check_sol_optimality
+
 
 def test_bnb_minpathcover():
     EDGES = [
@@ -14,68 +16,31 @@ def test_bnb_minpathcover():
             np.array([[4, 6], [4, 7], [5, 8]])
         ),
         rep_graph(8, 10, 14, reps=4),
-        # NOTE: uncomment to run below test cases
-        # rep_graph(10, 14, 10, reps=4),
-        # rep_graph(20, 40, 20, reps=4),
-        # rep_graph(20, 40, 20, reps=8),
-        # rep_graph(40, 50, 60, reps=10)
+        rep_graph(10, 14, 10, reps=4)
     ]
-    LENGTHS = [
-        3,
-        len(min_cover_trigraph(EDGES[1][0], EDGES[1][1])),
-        # NOTE: uncomment to run below test cases
-        # len(min_cover_trigraph(EDGES[2][0], EDGES[2][1])),
-        # len(min_cover_trigraph(EDGES[3][0], EDGES[3][1])),
-        # len(min_cover_trigraph(EDGES[4][0], EDGES[4][1])),
-        # len(min_cover_trigraph(EDGES[5][0], EDGES[5][1])),
+    TEST_CASES = [
+        # test case: (edges, length of min path cover)
+        (EDGES[0], 3),
+        (EDGES[1], len(min_cover_trigraph(EDGES[1][0], EDGES[1][1]))),
+        (EDGES[2], len(min_cover_trigraph(EDGES[2][0], EDGES[2][1])))
     ]
-    for i in range(len(EDGES)):
+    for edges, mpc_len in TEST_CASES:
         for bnb_type in [0, 1]:
-            print('\n=============================')
-            print(f'TEST CASE {i}')
-            edges1 = EDGES[i][0]
-            edges2 = EDGES[i][1]
+            edges1 = edges[0]
+            edges2 = edges[1]
 
-            # first approach
+            # test min path cover algorithms
             params = MinPathCoverParams(edges1, edges2)
             mpc1 = MinPathCoverProblem1(params)
-            sol1, scr1 = mpc1.solve(1000, 100, 120, bnb_type)
-
-            # second approach
             mpc2 = MinPathCoverProblem2(params)
-            sol2, scr2 = mpc2.solve(1000, 100, 120, bnb_type)
+            for mpc in [mpc1, mpc2]:
+                init_cost = mpc.best_cost
+                mpc.solve(1000, 100, 120, bnb_type)
 
-            if bnb_type == 0:
-                print('\nFirst Approach (Traditional BnB):')
-            else:
-                print('\nFirst Approach (Modified BnB):')
-            solution1 = []
-            for j in range(len(sol1[0].astype(int))):
-                if sol1[0][j] == 1:
-                    solution1.append(mpc1.all_paths[j])
-            solution1 = np.array(solution1)
-            print(f'Score: {scr1}\nSolution: {solution1}')
-            if len(solution1) != LENGTHS[i]:
-                print(f'Paths: {len(solution1)} '
-                    + f'Optimal number of paths: {LENGTHS[i]}')
-            else:
-                print(f'Optimal number of paths reached: {len(solution1)}')
-            assert set(solution1.flatten()) == mpc1.vertices, \
-                'Not all vertices covered'
-            print('All vertices covered')
+                # check final solutoin solution 
+                check_bnb_sol(mpc, init_cost, bnb_type, params)
 
-            if bnb_type == 0:
-                print('\nSecond Approach (Traditional BnB):')
-            else:
-                print('\nSecond Approach (Modified BnB):')
-            solution2 = np.concatenate((sol2[0], sol2[1]), axis=0)
-            print(f'Score: {scr2}\nSolution: {solution2}')
-            if len(solution2) != LENGTHS[i]:
-                print(f'Paths: {len(solution2)} '
-                      + f'Optimal number of paths: {LENGTHS[i]}')
-            else:
-                print(f'Optimal number of paths reached: {len(solution2)}')
-            assert set(solution2.flatten()) == mpc2.vertices, \
-                'Not all vertices covered'
-            print('All vertices covered')
-            print('=============================\n')
+                # check final solution optimality if modified branch and bound
+                # is used
+                if bnb_type == 1:
+                    check_sol_optimality(mpc.best_cost, mpc_len, 1.1)

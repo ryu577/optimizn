@@ -1,5 +1,7 @@
 from optimizn.combinatorial.algorithms.binpacking.bnb_binpacking import\
     BinPackingParams, BinPackingProblem
+from tests.combinatorial.algorithms.check_sol_utils import check_bnb_sol,\
+    check_sol_optimality
 
 
 def test_param_equality():
@@ -171,6 +173,7 @@ def test_branch():
             assert exp_sol in new_sols, f'Expected solution {exp_sol} was '\
                 + f'not produced by branching on solution {init_sol}'
 
+
 def test_complete_solution():
     TEST_CASES = [
         # test case: (weights, capacity, incomplete solution, completed
@@ -197,6 +200,7 @@ def test_complete_solution():
             + f'from incomplete solution {incomplete_sol}. Expected: '\
             + f'{complete_sol}. Actual: {sol}'
 
+
 def test_bnb_binpacking():
     # weights, capacity, min bins (optimal solution)
     TEST_CASES = [
@@ -213,13 +217,8 @@ def test_bnb_binpacking():
             init_cost = bpp.best_cost
             bpp.solve(1000, 100, 120, bnb_type)
 
-            # check that final solution is complete and feasible
-            assert bpp.is_complete(bpp.best_solution), 'Final solution '\
-                + f'({bpp.best_solution}) is not complete'
-            assert bpp.is_feasible(bpp.best_solution), 'Final solution '\
-                + f'({bpp.best_solution}) is not feasible'
+            # check final solution
+            check_bnb_sol(bpp, init_cost, bnb_type, params)
 
-            # check that final solution is not worse than initial solution
-            assert bpp.best_cost <= init_cost, 'Final solution is less '\
-                + f'optimal than initial solution. Cost of initial solution: '\
-                + f'{init_cost}. Cost of final solution: {bpp.best_cost}'
+            # check if final solution was within 1.5 * optimal solution cost
+            check_sol_optimality(bpp.best_cost, min_bins, 1.5)

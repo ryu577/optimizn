@@ -2,7 +2,7 @@ from copy import deepcopy
 from optimizn.combinatorial.branch_and_bound import BnBProblem
 
 
-class TravelingSalesmanProblem(BnBProblem):
+class TravellingSalesmanProblem(BnBProblem):
     def __init__(self, params):
         self.input_graph = params['input_graph']
         # sort all distance values, for computing lower bounds

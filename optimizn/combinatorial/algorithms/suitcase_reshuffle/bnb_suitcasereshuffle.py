@@ -1,5 +1,8 @@
 from optimizn.combinatorial.branch_and_bound import BnBProblem
 from copy import deepcopy
+from functools import reduce
+from optimizn.combinatorial.algorithms.suitcase_reshuffle.suitcases import\
+    SuitCases
 
 
 class SuitcaseReshuffleProblem(BnBProblem):
@@ -7,21 +10,39 @@ class SuitcaseReshuffleProblem(BnBProblem):
     Solution Format:
     2-tuple
     1. SuitCases object containing suitcases, weights, and empty space
-    2. Suitcase number - for branching, determines which suitcase to start the
-    swaps from (0-indexed)
+    2. Index of last item (in list of sorted item weights) put in suitcase
 
     Branching strategy:
-    For suitcase number i, create a new solution for each swap between an item 
-    in suitcase i and an item in suitcase i + 1. Stop once i is two less than 
-    the number of suitcases
+    Consider items in decreasing order of weight. Put item in each suitcase
+    that can fit it
     '''
 
-    def __init__(self, params):
-        self.init_sol = params['init_sol']
-        super().__init__(params)
+    def __init__(self, suitcases):
+        self.config = suitcases.config
+        self.capacities = suitcases.capacities
+        self.suitcases = suitcases
+        self.sorted_weights = self._get_weights(self.config, True)
+        self.weight_counts = self._get_weight_counts(self.sorted_weights)
+        super().__init__(suitcases)
+
+    def _get_weights(self, suitcases, sort=False):
+        weights = list(reduce(
+            lambda l1, l2: l1 + l2[:-1], suitcases[1:], suitcases[0][:-1]))
+        if sort:
+            weights = sorted(weights, reverse=True)
+        return weights
+
+    def _get_weight_counts(self, weights):
+        weight_counts = dict()
+        for weight in weights:
+            if weight not in weight_counts.keys():
+                weight_counts[weight] = 1
+            else:
+                weight_counts[weight] += 1
+        return weight_counts
 
     def get_candidate(self):
-        return (self.init_sol, 0)
+        return (deepcopy(self.suitcases), -1)
 
     def cost(self, sol):
         suitcases = sol[0]
@@ -38,86 +59,117 @@ class SuitcaseReshuffleProblem(BnBProblem):
         return -1 * empty_space
     
     def is_feasible(self, sol):
-        suitcases = sol[0]
-        for i in range(len(suitcases.config)):
-            suitcase = suitcases.config[i]
-            # weights and extra space must be non-negative
+        suitcases = sol[0].config
+
+        # check if suitcase number is valid index
+        if sol[1] < -1 or sol[1] > len(self.sorted_weights) - 1:
+            return False
+
+        # for each suitcase, weights and extra space must be non-negative
+        for i in range(len(suitcases)):
+            suitcase = suitcases[i]
             suitcase_sum = 0
             for item in suitcase:
                 suitcase_sum += item
                 if item < 0:
                     return False
-            # weights and extra space must equal original capacity
-            capacity = suitcases.capacities[i]
-            if suitcase_sum != capacity:
+
+        # weights should not appear more often than in the original suitcase
+        # configuration
+        weight_counts = self._get_weight_counts(self._get_weights(suitcases))
+        for weight, count in weight_counts.items():
+            if weight not in self.weight_counts.keys():
                 return False
+            elif count > self.weight_counts[weight]:
+                return False
+            
+        # check if solution can be completed (remaining items can be packed
+        # into the suitcases)
+        completed_sol = self.complete_solution(sol)
+        if completed_sol is None:
+            return False
+        
         return True
+        
 
     def is_complete(self, sol):
-        # return True, since all solutions are complete by design
+        suitcases = sol[0].config
+
+        # for each suitcase, weights and extra space must equal original
+        # capacity
+        for i in range(len(suitcases)):
+            if sum(suitcases[i]) != self.capacities[i]:
+                return False
+        
+        # weights should appear exactly the same number of times as in
+        # the original suitcase configs
+        weight_counts = self._get_weight_counts(self._get_weights(suitcases))
+        if weight_counts != self.weight_counts:
+            return False
+    
         return True
 
     def complete_solution(self, sol):
-        # return solution, since all solutions are complete by design
-        return sol
+        suitcases = deepcopy(sol[0].config)
+
+        # get remaining items to pack
+        num_packed = len(list(reduce(
+            lambda l1, l2: l1 + l2[:-1], suitcases[1:], suitcases[0][:-1])))
+        items_to_pack = self.sorted_weights[num_packed:]
+
+        # put each item in the suitcase with the least extra space that
+        # can hold it
+        for weight in items_to_pack:
+            # find suitcase to pack item in
+            min_space = None
+            min_suitcase = None
+            for i in range(len(suitcases)):
+                extra_space = suitcases[i][-1]
+                if extra_space >= weight:
+                    if min_space is None and min_suitcase is None:
+                        min_space = extra_space
+                        min_suitcase = i
+                    elif min_space > extra_space:
+                        min_space = extra_space
+                        min_suitcase = i
+            
+            # if item cannot be packed, solution cannot be completed
+            if min_space is None and min_suitcase is None:
+                return None
+            
+            # pack item in suitcase
+            suitcases[min_suitcase] = suitcases[min_suitcase][:-1] + [weight]\
+                + [suitcases[min_suitcase][-1] - weight]
+        
+        return (SuitCases(suitcases), sol[1])
+
 
     def branch(self, sol):
-        suitcases = sol[0]
-        curr = sol[1]
-        if curr > len(suitcases.config) - 2:
+        last_item_idx = sol[1]
+        if last_item_idx == -1:
+            # if last item index is 0 (initial solution), start from empty
+            # suitcases
+            suitcases = []
+            for capacity in self.capacities:
+                suitcases.append([capacity])
+        elif last_item_idx == len(self.sorted_weights) - 1:
+            # if last item has been packed, no further branching can be done
             return []
+        else:
+            suitcases = sol[0].config
 
-        # produce a solution where no items are swapped or moved between
-        # suitcases curr and curr + 1
+        # get next item weight
+        next_item_idx = last_item_idx + 1
+        next_item_weight = self.sorted_weights[next_item_idx]
+
+        # pack next item in each suitcase that can fit it
         new_sols = []
-        new_sols.append((suitcases, curr + 1))
-
-        # produce solutions where only one item is moved from suitcase
-        # swap_from to suitcase swap_from + 1, and vice versa
-        for from_ix, to_ix in [
-                (curr, curr + 1), (curr + 1, curr)]:
-            for i in range(len(suitcases.config[from_ix]) - 1):
+        for i in range(len(suitcases)):
+            extra_space = suitcases[i][-1]
+            if extra_space >= next_item_weight:
                 new_suitcases = deepcopy(suitcases)
+                new_suitcases[i] = new_suitcases[i][:-1] + [next_item_weight]\
+                    + [new_suitcases[i][-1] - next_item_weight]
+                new_sols.append((SuitCases(new_suitcases), next_item_idx))
 
-                # compute empty space change, see if move is possible
-                empty_space_change = new_suitcases.config[from_ix][i]
-                new_suitcases.config[from_ix][-1] += empty_space_change
-                new_suitcases.config[to_ix][-1] -= empty_space_change
-                if (new_suitcases.config[from_ix][-1] < 0 or
-                        new_suitcases.config[to_ix][-1] < 0):
-                    continue
-
-                # move item
-                new_suitcases.config[to_ix].insert(
-                    -1, new_suitcases.config[from_ix][i])
-                del new_suitcases.config[from_ix][i]
-
-                # create new solution
-                new_sol = (new_suitcases, curr + 1)
-                new_sols.append(new_sol)
-
-        # produce a new solution for each swap between suitcases
-        # swap_from and swap_from + 1
-        for i1 in range(len(suitcases.config[curr]) - 1):
-            for i2 in range(len(suitcases.config[curr + 1]) - 1):
-                new_suitcases = deepcopy(suitcases)
-
-                # compute empty space change, see if swap is possible
-                empty_space_change = new_suitcases.config[curr + 1][i2] \
-                    - new_suitcases.config[curr][i1]
-                new_suitcases.config[curr][-1] -= empty_space_change
-                new_suitcases.config[curr + 1][-1] += empty_space_change
-                if (new_suitcases.config[curr][-1] < 0 or
-                        new_suitcases.config[curr + 1][-1] < 0):
-                    continue
-
-                # swap items
-                temp = new_suitcases.config[curr][i1]
-                new_suitcases.config[curr][i1] = new_suitcases.config[
-                    curr + 1][i2]
-                new_suitcases.config[curr + 1][i2] = temp
-
-                # create new solution
-                new_sol = (new_suitcases, curr + 1)
-                new_sols.append(new_sol)
         return new_sols

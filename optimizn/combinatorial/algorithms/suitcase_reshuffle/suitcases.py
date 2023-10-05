@@ -17,3 +17,10 @@ class SuitCases():
             self.config == other.config
             and self.capacities == other.capacities
         )
+
+    def __str__(self):
+        return f'<SuitCases - config: {self.config}, capacities: '\
+            + f'{self.capacities}>'
+    
+    def __repr__(self):
+        return self.__str__()
