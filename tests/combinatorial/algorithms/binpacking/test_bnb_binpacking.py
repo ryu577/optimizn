@@ -1,7 +1,7 @@
 from optimizn.combinatorial.algorithms.binpacking.bnb_binpacking import\
     BinPackingParams, BinPackingProblem
 from tests.combinatorial.algorithms.check_sol_utils import check_bnb_sol,\
-    check_sol_optimality
+    check_sol_optimality, check_sol_vs_init_sol
 
 
 def test_param_equality():
@@ -218,7 +218,8 @@ def test_bnb_binpacking():
             bpp.solve(1000, 100, 120, bnb_type)
 
             # check final solution
-            check_bnb_sol(bpp, init_cost, bnb_type, params)
+            check_bnb_sol(bpp, bnb_type, params)
+            check_sol_vs_init_sol(bpp.best_cost, init_cost)
 
             # check if final solution was within 1.5 * optimal solution cost
             check_sol_optimality(bpp.best_cost, min_bins, 1.5)

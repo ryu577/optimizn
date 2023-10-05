@@ -1,4 +1,4 @@
-def check_bnb_sol(bnb_instance, init_cost, bnb_type, params):
+def check_bnb_sol(bnb_instance, bnb_type, params):
     # determine BnB type
     if bnb_type == 0:
         bnb_alg = 'traditional'
@@ -13,16 +13,17 @@ def check_bnb_sol(bnb_instance, init_cost, bnb_type, params):
         + f'solution ({bnb_instance.best_solution}) is not feasible. '\
         + f'Algorithm: {bnb_alg} branch and bound. Params: {params}'
 
+
+def check_sol_vs_init_sol(best_cost, init_cost):
     # check that final solution is not worse than initial solution
-    assert bnb_instance.best_cost <= init_cost, 'Final solution is less '\
+    assert best_cost <= init_cost, 'Final solution is less '\
         + f'optimal than initial solution. Cost of initial solution: '\
-        + f'{init_cost}. Cost of final solution: {bnb_instance.best_cost}. '\
-        + f'Algorithm: {bnb_alg} branch and bound. Params: {params}'
+        + f'{init_cost}. Cost of final solution: {best_cost} '
 
 
-def check_sol(sol, opt_sol):
-    assert sol == opt_sol, 'Final solution is not optimal solution. Final '\
-        + f'solution: {sol}. Optimal solution: {opt_sol}'
+def check_sol(sol, exp_sols):
+    assert sol in exp_sols, 'Incorrect final solution. '\
+    + f'Expected one of the following: {exp_sols}. Actual: {sol}'
 
 
 def check_sol_optimality(sol_cost, opt_sol_cost, ratio=1.0):

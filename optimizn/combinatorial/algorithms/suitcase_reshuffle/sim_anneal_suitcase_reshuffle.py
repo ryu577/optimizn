@@ -27,8 +27,8 @@ class SuitCaseReshuffle(SimAnnealProblem):
 			candidate1 = deepcopy(candidate)
 			l = np.arange(len(candidate))
 			cases = np.random.choice(l, size=2, replace=False)
-			ix1 = np.random.choice(len(candidate[cases[0]]))
-			ix2 = np.random.choice(len(candidate[cases[1]]))
+			ix1 = np.random.choice(len(candidate[cases[0]]) - 1)
+			ix2 = np.random.choice(len(candidate[cases[1]]) - 1)
 			size1 = candidate[cases[0]][ix1]
 			size2 = candidate[cases[1]][ix2]
 			candidate1[cases[0]][ix1] = size2

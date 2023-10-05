@@ -5,7 +5,7 @@ from optimizn.combinatorial.algorithms.travelling_salesman.bnb_tsp import\
 from python_tsp.heuristics import solve_tsp_simulated_annealing
 import numpy as np
 from tests.combinatorial.algorithms.check_sol_utils import check_bnb_sol,\
-    check_sol_optimality
+    check_sol_optimality, check_sol_vs_init_sol
 
 
 class MockCityGraph:
@@ -272,8 +272,8 @@ def test_bnb_tsp():
     tsp2.solve(1e20, 1e20, 120, 1)
 
     # check final solutions
-    check_bnb_sol(tsp1, init_cost1, 0, params)
-    check_bnb_sol(tsp2, init_cost2, 1, params)
-
-    # check final solution optimality of modified branch and bound
+    check_bnb_sol(tsp1, 0, params)
+    check_sol_vs_init_sol(tsp1.best_cost, init_cost1)
+    check_bnb_sol(tsp2, 1, params)
+    check_sol_vs_init_sol(tsp2.best_cost, init_cost2)
     check_sol_optimality(tsp2.best_cost, distance, 1.1)

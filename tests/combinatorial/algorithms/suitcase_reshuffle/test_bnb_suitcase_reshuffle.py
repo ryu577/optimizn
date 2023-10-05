@@ -4,7 +4,7 @@ from copy import deepcopy
 from optimizn.combinatorial.algorithms.suitcase_reshuffle.suitcases\
     import SuitCases
 from tests.combinatorial.algorithms.check_sol_utils import check_bnb_sol,\
-    check_sol_optimality
+    check_sol_optimality, check_sol_vs_init_sol
 
 
 def test_constructor():
@@ -270,7 +270,8 @@ def test_bnb_suitcasereshuffle():
             srp.solve(1000, 100, 120, bnb_type)
 
             # check final solution
-            check_bnb_sol(srp, init_cost, bnb_type, params)
+            check_bnb_sol(srp, bnb_type, params)
+            check_sol_vs_init_sol(srp.best_cost, init_cost)
 
             # check final solution optimality, if modified branch and bound
             # is used

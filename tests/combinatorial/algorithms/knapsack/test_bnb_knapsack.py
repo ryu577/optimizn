@@ -2,7 +2,7 @@ import numpy as np
 from optimizn.combinatorial.algorithms.knapsack.bnb_knapsack\
     import KnapsackParams, ZeroOneKnapsackProblem
 from tests.combinatorial.algorithms.check_sol_utils import check_bnb_sol,\
-    check_sol
+    check_sol, check_sol_vs_init_sol
 
 
 def test_bnb_zeroone_knapsack():
@@ -24,8 +24,9 @@ def test_bnb_zeroone_knapsack():
             kp.solve(1000, 100, 120, bnb_type)
 
             # check final solution
-            check_bnb_sol(kp, init_cost, bnb_type, params)
+            check_bnb_sol(kp, bnb_type, params)
+            check_sol_vs_init_sol(kp.best_cost, init_cost)
 
             # check final solution optimality
             sol = list(kp.best_solution[0])
-            check_sol(sol, opt_sol)
+            check_sol(sol, [opt_sol])

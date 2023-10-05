@@ -7,27 +7,31 @@ from graphing.special_graphs.neural_trigraph.path_cover import \
 import os
 from optimizn.combinatorial.algorithms.min_path_cover\
     .sim_anneal_min_path_cover import MinPathCover_NTG
+from tests.combinatorial.algorithms.check_sol_utils import\
+    check_sol_optimality, check_sol_vs_init_sol
 
 
-def test_1(edges1=None, edges2=None, n_iter=20000, swtch=1):
-    # edges1, edges2 = neur_trig_edges(8, 10, 14)
+def test_sa_minpathcover1(edges1=None, edges2=None, n_iter=20000, swtch=1):
     if edges1 is None:
         edges1, edges2 = rep_graph(8, 10, 14, reps=4)
+    
+    # get optimal solution
     opt_paths = min_cover_trigraph(edges1, edges2)
-    print("Optimal solution: " + str(len(opt_paths)))
+    opt_sol_cost = len(opt_paths)
+
+    # get simulated annealing solution
     ntg = NeuralTriGraph(edges1, edges2)
-    # print(ntg.g1.adj)
     mpc = MinPathCover_NTG(ntg, swtch=swtch)
-    paths = mpc.get_candidate()
-    # mpc.candidate = np.concatenate((mpc.candidate, mpc.candidate))
-    print("Current solution: " + str(len(mpc.candidate)))
+    init_cost = mpc.best_cost
     mpc.anneal(n_iter)
-    print("Best solution: " + str(mpc.best_cost))
-    # Now, can we get the min path cover for this?
-    return mpc
+
+    # check optimality of simulated annealing solution
+    check_sol_vs_init_sol(mpc.best_cost, init_cost)
+    check_sol_optimality(mpc.best_cost, opt_sol_cost, 1.2)
 
 
-def test_2(n_iter=20000, swtch=1):
+def test_sa_minpathcover2(n_iter=20000, swtch=1):
+    # read edges from file
     dirname = os.path.dirname(__file__)
     edges1_path = os.path.join(dirname, './edges1.csv')
     edges2_path = os.path.join(dirname, './edges2.csv')
@@ -35,4 +39,6 @@ def test_2(n_iter=20000, swtch=1):
     edges1 = edges1.astype(int)
     edges2 = np.loadtxt(edges2_path)
     edges2 = edges2.astype(int)
-    return test_1(edges1, edges2, n_iter, swtch=swtch)
+
+    # test with edges read from file
+    test_sa_minpathcover1(edges1, edges2, n_iter, swtch=swtch)

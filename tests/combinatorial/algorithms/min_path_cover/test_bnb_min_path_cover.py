@@ -6,7 +6,7 @@ from graphing.special_graphs.neural_trigraph.path_cover import \
 from optimizn.combinatorial.algorithms.min_path_cover.bnb_min_path_cover\
     import MinPathCoverParams, MinPathCoverProblem1, MinPathCoverProblem2
 from tests.combinatorial.algorithms.check_sol_utils import check_bnb_sol,\
-    check_sol_optimality
+    check_sol_optimality, check_sol_vs_init_sol
 
 
 def test_bnb_minpathcover():
@@ -38,7 +38,8 @@ def test_bnb_minpathcover():
                 mpc.solve(1000, 100, 120, bnb_type)
 
                 # check final solutoin solution 
-                check_bnb_sol(mpc, init_cost, bnb_type, params)
+                check_bnb_sol(mpc, bnb_type, params)
+                check_sol_vs_init_sol(mpc.best_cost, init_cost)
 
                 # check final solution optimality if modified branch and bound
                 # is used

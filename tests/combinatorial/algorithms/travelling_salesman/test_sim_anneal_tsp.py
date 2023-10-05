@@ -7,16 +7,23 @@ from optimizn.combinatorial.algorithms.travelling_salesman.city_graph\
     import CityGraph
 from optimizn.combinatorial.algorithms.travelling_salesman.sim_anneal_tsp\
     import TravSalsmn
+from tests.combinatorial.algorithms.check_sol_utils import\
+    check_sol_optimality, check_sol_vs_init_sol
 
 
-def tst1():
-    # import optimizn.combinatorial.tst_anneal.trav_salsmn as ts
+def test_sa_tsp():
+    # create graph
     tt = CityGraph()
-    ts1 = TravSalsmn(tt)
-    print("Best solution with external library: ")
+
+    # run external library algorithm
     #permutation, distance = solve_tsp_dynamic_programming(tt.dists)
-    permutation, distance = solve_tsp_local_search(tt.dists)
-    print(distance)
+    _, distance = solve_tsp_local_search(tt.dists)
+
+    # run simulated annealing algorithm
+    ts1 = TravSalsmn(tt)
+    init_cost = ts1.best_cost
     ts1.anneal()
-    print("Best solution: " + str(ts1.best_cost))
-    return ts1
+
+    # check final solution optimality
+    check_sol_vs_init_sol(ts1.best_cost, init_cost)
+    check_sol_optimality(ts1.best_cost, distance, 1.25)
