@@ -23,12 +23,22 @@ class KnapsackParams:
         )
 
 
-# References:
-# https://www.youtube.com/watch?v=yV1d-b_NeK8
 class ZeroOneKnapsackProblem(BnBProblem):
     '''
-    Class for the simplified knapsack problem, where each item is either
-    taken or omitted in its entirety
+    Branch and bound implementation for the 0/1 knapsack problem, where each
+    item is either taken or omitted in its entirety.
+
+    This branch and bound implementation is based on the demonstration shown in
+    the following source.
+
+    Source:
+
+    [1]
+    Title: 7.2 0/1 Knapsack using Branch and Bound
+    Author: Abdul Bari
+    URL: https://www.youtube.com/watch?v=yV1d-b_NeK8
+    Date published: February 26, 2018
+    Date accessed: December 16, 2022
     '''
     def __init__(self, params):
         self.values = np.array(params.values)
@@ -136,7 +146,6 @@ class ZeroOneKnapsackProblem(BnBProblem):
         # greedily take other items
         for _, ix in self.sorted_vw_ratios:
             if ix < sol[1] + 1:
-                knapsack.append(0)
                 continue
             rem_cap = self.capacity - weight
             if rem_cap < self.weights[ix]:
