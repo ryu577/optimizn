@@ -70,8 +70,7 @@ class TravSalsmn(SimAnnealProblem):
 
 def dist_from_lat_long(lat1, long1, lat2, long2):
     """
-    This was taken from the following source. Doesn't currently work. Need to
-    debug (230108)
+    This was taken from the following source.
 
     Source:
     
@@ -80,6 +79,8 @@ def dist_from_lat_long(lat1, long1, lat2, long2):
     Author: Luciano Miño
     URL: https://www.omnicalculator.com/other/latitude-longitude-distance
     Date accessed: January 8, 2023
+
+    Doesn't currently work. Need to debug (230108)
     """
     theta1 = lat1
     theta2 = lat2
