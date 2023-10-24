@@ -70,8 +70,16 @@ class TravSalsmn(SimAnnealProblem):
 
 def dist_from_lat_long(lat1, long1, lat2, long2):
     """
-    Taken from: https://www.omnicalculator.com/other/latitude-longitude-distance
-    Doesn't currently work. Need to debug (230108)
+    This was taken from the following source. Doesn't currently work. Need to
+    debug (230108)
+
+    Source:
+    
+    [1]
+    Title: Latitude Longitude Distance Calculator
+    Author: Luciano Miño
+    URL: https://www.omnicalculator.com/other/latitude-longitude-distance
+    Date accessed: January 8, 2023
     """
     theta1 = lat1
     theta2 = lat2
