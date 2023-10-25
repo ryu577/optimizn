@@ -1,3 +1,6 @@
+This library's simulated annealing implementation is based on the simulated annealing code from [https://github.com/toddwschneider/shiny-salesman/blob/master/helpers.R](https://github.com/toddwschneider/shiny-salesman/blob/master/helpers.R), which is licensed under the MIT License. The original text of the license is shown below. 
+
+```
 MIT License
 
 Copyright (c) 2017 
@@ -19,3 +22,4 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+```

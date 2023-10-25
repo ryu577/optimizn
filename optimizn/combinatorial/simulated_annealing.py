@@ -43,9 +43,8 @@ class SimAnnealProblem(OptProblem):
         Date published: October 1, 2014
         Date accessed: January 8, 2023
 
-        The code presented in this source is licensed under the MIT License in
-        2017, which is provided in the `other_licenses` folder of this
-        library's code repository.
+        The code presented in this source is licensed under the MIT License.
+        The original license text is shown in the NOTICE.md file.
 
         [2]
         Title: The Traveling Salesman with Simulated Annealing, R, and Shiny
