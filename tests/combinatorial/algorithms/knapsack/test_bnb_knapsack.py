@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 import numpy as np
 from optimizn.combinatorial.algorithms.knapsack.bnb_knapsack\
     import KnapsackParams, ZeroOneKnapsackProblem

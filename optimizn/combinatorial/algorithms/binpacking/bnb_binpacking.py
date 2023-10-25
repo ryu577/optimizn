@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 from optimizn.combinatorial.branch_and_bound import BnBProblem
 from functools import reduce
 import copy

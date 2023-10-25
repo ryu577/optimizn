@@ -1,6 +1,17 @@
-# Since problem classes are going to be inherited, 
-# trying some experiments with multiple inheritance.
-# from: https://stackoverflow.com/questions/3277367/how-does-pythons-super-work-with-multiple-inheritance
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+ 
+'''
+Since problem classes are going to be inherited, trying some experiments with
+multiple inheritance.
+
+Experiment code is from the following source: 
+Title: How does Python's super() work with multiple inheritance?
+Author: Callisto
+URL: https://stackoverflow.com/questions/3277367/how-does-pythons-super-work-with-multiple-inheritance
+Date published: July 18, 2010
+Date accessed: March 27, 2023
+'''
 class First(object):
   def __init__(self):
     print("First(): entering")

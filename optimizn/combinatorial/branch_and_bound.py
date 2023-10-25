@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 import time
 from queue import PriorityQueue
 from optimizn.combinatorial.opt_problem import OptProblem

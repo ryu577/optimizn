@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 from optimizn.combinatorial.algorithms.suitcase_reshuffle.suitcases\
     import SuitCases
 from optimizn.combinatorial.algorithms.suitcase_reshuffle\

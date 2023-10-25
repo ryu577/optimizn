@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 import sys
 import numpy as np
 from graphing.special_graphs.neural_trigraph.rand_graph import rep_graph

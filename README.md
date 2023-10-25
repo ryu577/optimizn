@@ -1,6 +1,10 @@
 # optimizn
 This Python library provides several optimization-related utilities that can be used to solve a variety of optimization problems.
 
+## Trademarks
+
+This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft trademarks or logos is subject to and must follow Microsoft’s Trademark & Brand Guidelines. Use of Microsoft trademarks or logos in modified versions of this project must not cause confusion or imply Microsoft sponsorship. Any use of third-party trademarks or logos are subject to those third-party’s policies.
+
 ## Getting Started
 This library is available for use on PyPI here: [https://pypi.org/project/optimizn/](https://pypi.org/project/optimizn/)
 
@@ -28,12 +32,16 @@ To use simulated annealing for their own optimization problem, users should crea
 #### Branch and Bound
 This library offers a generalizeable implementation for branch and bound through a superclass called `BnBProblem`, located in `./optimizn/combinatorial/branch_and_bound.py` file. 
 
+This superclass supports two types of branch and bound. The first type is traditional branch and bound, where partial solutions are not checked against the current best solution. The second type is modified branch and bound, where partial solutions are completed and checked against the current best solution. 
+
 To use branch and bound for their own optimization problem, users should create a subclass specific to their optimization problem that extends `BnBProblem`. The subclass must implement the following methods.
 - `get_candidate` (required): provides an initial solution
 - `branch` (required): produces other solutions from a current solution, which correspond to subproblems with additional constraints and constrained solution spaces
 - `cost` (required): objective function, returns a cost value for a given solution (lower cost value means more optimal solution)
 - `lbound` (required): returns the lowest cost value for a given solution and all other solutions in the same constrained solution space (lower cost value means more optimal solution)
-- `is_sol` (required): returns True if a given solution is feasible, False if not
+- `is_feasible` (required): returns True if a given solution is feasible, False if not
+- `is_complete` (required): returns True if a given solution is complete, False if not
+- `complete_solution` (required/optional): completes a partial solution (required for modified branch and bound, optional for traditional branch and bound)
 - `cost_delta` (optional): default is the difference between two cost values, can be changed based on the nature of the problem
 
 #### Continuous Training

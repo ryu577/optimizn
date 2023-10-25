@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 from numpy.random import uniform
 # from numpy import e
 import numpy as np

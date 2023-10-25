@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 # pip install python-tsp
 # https://github.com/fillipe-gsm/python-tsp
 from python_tsp.heuristics import solve_tsp_local_search

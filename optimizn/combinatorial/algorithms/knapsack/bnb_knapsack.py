@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 import numpy as np
 from optimizn.combinatorial.branch_and_bound import BnBProblem
 
