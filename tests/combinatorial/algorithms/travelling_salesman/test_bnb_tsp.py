@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 from optimizn.combinatorial.algorithms.travelling_salesman.city_graph\
     import CityGraph
 from optimizn.combinatorial.algorithms.travelling_salesman.bnb_tsp import\

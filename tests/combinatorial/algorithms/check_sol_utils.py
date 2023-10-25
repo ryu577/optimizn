@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 def check_bnb_sol(bnb_instance, bnb_type, params):
     # determine BnB type
     if bnb_type == 0:

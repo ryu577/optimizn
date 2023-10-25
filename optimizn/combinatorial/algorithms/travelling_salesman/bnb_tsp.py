@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 from copy import deepcopy
 from optimizn.combinatorial.branch_and_bound import BnBProblem
 

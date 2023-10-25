@@ -1,11 +1,12 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 import time
 from queue import PriorityQueue
 from optimizn.combinatorial.opt_problem import OptProblem
 from copy import deepcopy
 
 
-# References:
-# https://imada.sdu.dk/~jbj/heuristikker/TSPtext.pdf
 class BnBProblem(OptProblem):
     def __init__(self, params):
         self.params = params
@@ -83,8 +84,33 @@ class BnBProblem(OptProblem):
     def solve(self, iters_limit=1e6, print_iters=100, time_limit=3600,
               bnb_type=0):
         '''
-        Executes either the traditional (bnb_type=0) or modified (bnb_type=1)
-        branch and bound algorithm
+        This function executes either the traditional (bnb_type=0) or modified
+        (bnb_type=1) branch and bound algorithm. In traditional branch and
+        bound, partial solutions are not evaluated against the current best
+        solution, while in modified branch and bound, partial solutions are
+        completed and evaluated against the current best solution.
+        
+        This library's branch and bound implementation and the traditional
+        branch and bound algorithm are based on the pseudocode and explanation
+        of eager branch and bound presented in source [1]. The modified branch
+        and bound algorithm is based on the demonstration of branch and bound
+        in source [2].
+
+        Sources:
+
+        [1]
+        Title: Branch and Bound Algorithms - Principles and Examples.
+        Author: Jens Clausen
+        URL: https://imada.sdu.dk/~jbj/heuristikker/TSPtext.pdf 
+        Date published: March 12, 1999
+        Date accessed: December 16, 2022
+
+        [2] 
+        Title: 7.2 0/1 Knapsack using Branch and Bound
+        Author: Abdul Bari
+        URL: https://www.youtube.com/watch?v=yV1d-b_NeK8
+        Date published: February 26, 2018
+        Date accessed: December 16, 2022
         '''
         # initialization
         start = time.time()

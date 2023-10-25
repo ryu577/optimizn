@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 from optimizn.combinatorial.branch_and_bound import BnBProblem
 from functools import reduce
 import copy
@@ -21,12 +24,9 @@ class BinPackingParams:
             + f'{self.capacity}'
 
 
-# References:
-# http://www.or.deis.unibo.it/knapsack.html (See PDF for Chapter 8,
-#   http://www.or.deis.unibo.it/kp/Chapter8.pdf)
 class BinPackingProblem(BnBProblem):
     '''
-    Solution format:
+    Solution format: 2-tuple
     1. Allocation of items to bins (dict, keys are integers representing bins
     (starting from 1, so 1 represents the first bin, 2 is the second bin, etc.)
     and values are sets of integers that represent the items (1 represents
@@ -56,6 +56,20 @@ class BinPackingProblem(BnBProblem):
         return (self._pack_rem_items(dict(), -1), -1)
 
     def _pack_rem_items(self, bin_packing, last_item_idx):
+        '''
+        This function performs the first-fit decreasing algorithm presented in
+        the following source.
+
+        Source:
+
+        [1]
+        Title: Knapsack Problems, Algorithms and Computer Implementations
+        Author: Silvano Martello, Paolo Toth
+        URL: http://www.or.deis.unibo.it/knapsack.html, specifically the PDF for
+        Chapter 8, http://www.or.deis.unibo.it/kp/Chapter8.pdf
+        Date published: 1990
+        Date accessed: January 11, 2023
+        '''
         next_item_idx = last_item_idx + 1
         for i in range(next_item_idx, len(self.sorted_item_weights)):
             next_item_weight, next_item = self.sorted_item_weights[i]
@@ -98,6 +112,20 @@ class BinPackingProblem(BnBProblem):
         return new_bin_packing
 
     def lbound(self, sol):
+        '''
+        This lower bound function is based on the lower bound function L_1
+        presented in the following source.
+
+        Source:
+
+        [1] 
+        Title: Knapsack Problems, Algorithms and Computer Implementations
+        Author: Silvano Martello, Paolo Toth
+        URL: http://www.or.deis.unibo.it/knapsack.html, specifically the PDF for
+        Chapter 8, http://www.or.deis.unibo.it/kp/Chapter8.pdf
+        Date published: 1990
+        Date accessed: January 11, 2023
+        '''
         bin_packing = sol[0]
         last_item_idx = sol[1]
 

@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 import numpy as np
 from graphing.special_graphs.neural_trigraph.neural_trigraph\
     import NeuralTriGraph

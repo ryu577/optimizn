@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 import numpy as np
 from optimizn.combinatorial.simulated_annealing import SimAnnealProblem
 from copy import deepcopy

@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 from optimizn.combinatorial.algorithms.binpacking.bnb_binpacking import\
     BinPackingParams, BinPackingProblem
 from tests.combinatorial.algorithms.check_sol_utils import check_bnb_sol,\

@@ -1,10 +1,11 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 ## Binary assignment for equal spoils.
 import numpy as np
 import cvxpy as cp
 import optimizn.problems.sample_ci as sci
 
-
-## https://math.stackexchange.com/questions/3515223/binary-assignment-distributing-candies/3515391#3515391
 
 def formultn1(ci=sci.candy_preferences):
     #ci = np.array([10,7,6,3])
@@ -17,7 +18,19 @@ def formultn1(ci=sci.candy_preferences):
     return x.value
 
 
-def formulatn2(ci=sci.candy_preferences):    
+def formulatn2(ci=sci.candy_preferences):  
+    '''
+    This formulation is from the following source.
+
+    Source:
+
+    [1]
+    Title: Binary assignment - distributing candies.
+    Author: Rohit Pandey (author of question), RobPratt (author of answer)
+    URL: https://math.stackexchange.com/questions/3515223/binary-assignment-distributing-candies/3515391#3515391
+    Date published: January 19, 2020
+    Date accessed: January 19, 2020
+    '''  
     #ci = np.array([10,7,6,3])
     z = cp.Variable()
     x = cp.Variable(len(ci),boolean=True)

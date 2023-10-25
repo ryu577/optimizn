@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 from numpy.random import uniform
 # from numpy import e
 import numpy as np
@@ -27,10 +30,30 @@ class SimAnnealProblem(OptProblem):
         return self.get_candidate()
 
     def anneal(self, n_iter=100000, reset_p=1/10000, time_limit=3600):
-        """
-        See: https://github.com/toddwschneider/shiny-salesman/blob/master/helpers.R
-        And: https://toddwschneider.com/posts/traveling-salesman-with-simulated-annealing-r-and-shiny/
-        """
+        '''
+        This simulated annealing implementation is based on the code and
+        explanation of simulated annealing presented in the following sources.
+
+        Sources:
+        
+        [1]
+        Title: toddwschneider/shiny-salesman
+        Author: Todd W. Schneider
+        URL: https://github.com/toddwschneider/shiny-salesman/blob/master/helpers.R
+        Date published: October 1, 2014
+        Date accessed: January 8, 2023
+
+        The code presented in this source is licensed under the MIT License in
+        2017, which is provided in the `other_licenses` folder of this
+        library's code repository.
+
+        [2]
+        Title: The Traveling Salesman with Simulated Annealing, R, and Shiny
+        Author: Todd W. Schneider
+        URL: https://toddwschneider.com/posts/traveling-salesman-with-simulated-annealing-r-and-shiny/
+        Date published: October 1, 2014
+        Date accessed: January 8, 2023
+        '''
         reset = False
         j = -1
         start = time.time()
