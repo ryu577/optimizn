@@ -101,6 +101,7 @@ def dist_from_lat_long(lat1, long1, lat2, long2):
     (1)
     Title: Latitude Longitude Distance Calculator
     Author: Luciano Miño
+    Reviewer: Steven Wooding
     URL: https://www.omnicalculator.com/other/latitude-longitude-distance
     Date accessed: January 8, 2023
 
