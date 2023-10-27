@@ -5,9 +5,11 @@
 Since problem classes are going to be inherited, trying some experiments with
 multiple inheritance.
 
-Experiment code is from the following source: 
+Experiment code is from the following source:
+
+(1)
 Title: How does Python's super() work with multiple inheritance?
-Author: Callisto
+Author: Callisto (author of question), rbp (author of answer)
 URL: https://stackoverflow.com/questions/3277367/how-does-pythons-super-work-with-multiple-inheritance
 Date published: July 18, 2010
 Date accessed: March 27, 2023

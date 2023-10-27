@@ -24,7 +24,7 @@ def formulatn2(ci=sci.candy_preferences):
 
     Source:
 
-    [1]
+    (1)
     Title: Binary assignment - distributing candies.
     Author: Rohit Pandey (author of question), RobPratt (author of answer)
     URL: https://math.stackexchange.com/questions/3515223/binary-assignment-distributing-candies/3515391#3515391
