@@ -5,11 +5,15 @@
 Since problem classes are going to be inherited, trying some experiments with
 multiple inheritance.
 
-Experiment code is from the following source: 
+Experiment code is from the following source:
+
+(1)
 Title: How does Python's super() work with multiple inheritance?
-Author: Callisto
+Author: Callisto (author of question), rbp (author of answer)
+Editor: Mateen Ulhaq (editor of question), Neuron (editor of answer)
 URL: https://stackoverflow.com/questions/3277367/how-does-pythons-super-work-with-multiple-inheritance
 Date published: July 18, 2010
+Date edited: April 17, 2022 (question edited), August 30, 2021 (answer edited)
 Date accessed: March 27, 2023
 '''
 class First(object):

@@ -25,6 +25,27 @@ class TravSalsmn(SimAnnealProblem):
         return min_city
 
     def _complete_path(self, path):
+        '''
+        This function performs the nearest-neighbor approximation algorithm
+        for the traveling salesman problem, which is presented in the following
+        source.
+
+        Source:
+
+        (1)
+        Title: An Analysis of Several Heuristics for the Traveling Salesman
+        Problem
+        Authors: Daniel J. Rosenkrantz, Richard E. Stearns, and Philip M.
+        Lewis II
+        Journal: SIAM Journal on Computing
+        Volume: 6
+        Number: 3
+        DOI: 10.1137/0206041
+        URL: https://www.researchgate.net/publication/220616869_An_Analysis_of_Several_Heuristics_for_the_Traveling_Salesman_Problem
+        Date published: September 1977
+        Date accessed: 2021
+        '''
+
         # complete the path greedily, iteratively adding the unvisited city
         # closest to the last city in the accmulated path
         visited = set(path)
@@ -77,9 +98,10 @@ def dist_from_lat_long(lat1, long1, lat2, long2):
 
     Source:
     
-    [1]
+    (1)
     Title: Latitude Longitude Distance Calculator
     Author: Luciano Miño
+    Reviewer: Steven Wooding
     URL: https://www.omnicalculator.com/other/latitude-longitude-distance
     Date accessed: January 8, 2023
 

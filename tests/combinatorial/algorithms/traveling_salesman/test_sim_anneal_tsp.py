@@ -6,9 +6,9 @@
 from python_tsp.heuristics import solve_tsp_local_search
 ## https://developers.google.com/optimization/routing/tsp
 # Their solution didn't work, some cpp error.
-from optimizn.combinatorial.algorithms.travelling_salesman.city_graph\
+from optimizn.combinatorial.algorithms.traveling_salesman.city_graph\
     import CityGraph
-from optimizn.combinatorial.algorithms.travelling_salesman.sim_anneal_tsp\
+from optimizn.combinatorial.algorithms.traveling_salesman.sim_anneal_tsp\
     import TravSalsmn
 from tests.combinatorial.algorithms.check_sol_utils import\
     check_sol_optimality, check_sol_vs_init_sol
