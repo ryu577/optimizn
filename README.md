@@ -1,3 +1,7 @@
+This library has been moved to Microsoft open-source, please use/refer to that library:
+
+https://github.com/microsoft/optimizn
+
 # optimizn
 This Python library provides several optimization-related utilities that can be used to solve a variety of optimization problems.
 
