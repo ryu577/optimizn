@@ -1,24 +1,13 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 import numpy as np
-from optimizn.combinatorial.anneal import OptProblem
+from optimizn.combinatorial.simulated_annealing import SimAnnealProblem
+from optimizn.combinatorial.algorithms.suitcase_reshuffle.suitcases import SuitCases
 from copy import deepcopy
 
 
-class SuitCases():
-	def __init__(self, config):
-		"""
-		The configuration of the suitcases
-		is an array of arrays. The last element
-		of each array must be the amount of empty space.
-		This means that the sum of each array is the 
-		capacity of that suitcase.
-		"""
-		self.config = config
-		self.capacities = []
-		for ar in config:
-			self.capacities.append(sum(ar))
-
-
-class SuitCaseReshuffle(OptProblem):
+class SuitCaseReshuffle(SimAnnealProblem):
 	def __init__(self, params):
 		self.params = params
 		self.name = "SuitcaseReshuffling"
@@ -40,10 +29,10 @@ class SuitCaseReshuffle(OptProblem):
 		keep_going = True
 		while keep_going:
 			candidate1 = deepcopy(candidate)
-			l = np.arange(len(candidate))
-			cases = np.random.choice(l, size=2, replace=False)
-			ix1 = np.random.choice(len(candidate[cases[0]])-1)
-			ix2 = np.random.choice(len(candidate[cases[1]])-1)
+			l1 = np.arange(len(candidate))
+			cases = np.random.choice(l1, size=2, replace=False)
+			ix1 = np.random.choice(len(candidate[cases[0]]) - 1)
+			ix2 = np.random.choice(len(candidate[cases[1]]) - 1)
 			size1 = candidate[cases[0]][ix1]
 			size2 = candidate[cases[1]][ix2]
 			candidate1[cases[0]][ix1] = size2

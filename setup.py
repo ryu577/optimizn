@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 from setuptools import setup, find_packages
 
 INSTALL_DEPS = ['numpy',
@@ -9,12 +12,17 @@ TEST_DEPS = ['pytest']
 DEV_DEPS = []
 
 setup(name='optimizn',
-      version='0.0.0',
-      author='Rohit Pandey',
-      author_email='rohitpandey576@gmail.com',
-      description='Optimization problems.',
-      packages=find_packages(exclude=['tests', 'Images']),
-      long_description="Optimal settings such as optimal timeouts, retry thresholds, stripings required for desired results, etc.",
+      version='0.0.9',
+      author='Rohit Pandey, Akshay Sathiya',
+      author_email='rohitpandey576@gmail.com, akshay.sathiya@gmail.com',
+      description='A Python library for developing customized optimization '
+        + 'algorithms under generalizable paradigms.',
+      packages=find_packages(exclude=['tests', 'experiments', 'Images']),
+      long_description='A Python library for developing customized '
+        + 'optimization algorithms under generalizable paradigms like '
+        + 'simulated annealing and branch and bound. Also features '\
+        + 'continuous training, so algorithms can be run multiple times '
+        + 'and resume from where they left off in previous runs.',
       zip_safe=False,
       install_requires=INSTALL_DEPS,
       include_package_data=True,
