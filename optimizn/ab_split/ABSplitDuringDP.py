@@ -2,13 +2,13 @@
 from typing import List
 
 
-class CurrSumNode:
-    def __init__(self, currSum: int, idx: int, ancestor: 'CurrSumNode'):
+class SumNode:
+    def __init__(self, currSum: int, idx: int, ancestor: 'SumNode'):
         self.currSum = currSum
         self.idx = idx
         self.ancestor = ancestor
 
-def isSubsetSumRecursive(arr: List[int], arrIdx: int, currSumNode: CurrSumNode, targetSum: int, solutions: set[CurrSumNode]):
+def isSubsetSumRecursive(arr: List[int], arrIdx: int, currSumNode: SumNode, targetSum: int, solutions: set[SumNode]):
     """
     Inputs:
     - arr: list of integers
@@ -24,10 +24,10 @@ def isSubsetSumRecursive(arr: List[int], arrIdx: int, currSumNode: CurrSumNode, 
     if arrIdx == len(arr) or currSumNode.currSum > targetSum: return False
     if targetSum == 0 or len(arr) == 0: return False
 
-    return  isSubsetSumRecursive(arr, arrIdx + 1, CurrSumNode(currSumNode.currSum + arr[arrIdx], arrIdx, currSumNode), targetSum, solutions) or\
+    return  isSubsetSumRecursive(arr, arrIdx + 1, SumNode(currSumNode.currSum + arr[arrIdx], arrIdx, currSumNode), targetSum, solutions) or\
             isSubsetSumRecursive(arr, arrIdx + 1, currSumNode, targetSum, solutions)
 
-def printSolution(currSumNode: CurrSumNode):
+def printSolution(currSumNode: SumNode):
     """
     Inputs:
     - currSumNode: CurrSumNode object
@@ -38,6 +38,7 @@ def printSolution(currSumNode: CurrSumNode):
     while currSumNode.idx != -1:
         sol = str(currSumNode.idx) + ', ' + sol
         currSumNode = currSumNode.ancestor
+    # Remove the trailing ', '
     sol = sol[:-2]
     print(f'[{sol}]')
 
@@ -45,7 +46,7 @@ if __name__ == '__main__':
     arr = [3, 34, 4, 12, 5, 2, 5, 5]
     targetSum = 15
     solutions = set()
-    isSubsetSumRecursive(arr, 0, CurrSumNode(0, -1, None), targetSum, solutions)
+    isSubsetSumRecursive(arr, 0, SumNode(0, -1, None), targetSum, solutions)
 
     if len(solutions) > 0:
         print('Found a subset with given sum. Here are the solution Idxs:')
