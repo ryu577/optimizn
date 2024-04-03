@@ -52,4 +52,3 @@ if __name__ == '__main__':
             printSolution(solution)
     else:
         print('No subset with given sum')
-    # Output: 'Found a subset with given sum
