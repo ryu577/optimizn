@@ -24,7 +24,8 @@ def isSubsetSumRecursive(arr: List[int], arrIdx: int, currSumNode: CurrSumNode, 
     if arrIdx == len(arr) or currSumNode.currSum > targetSum: return False
     if targetSum == 0 or len(arr) == 0: return False
 
-    return isSubsetSumRecursive(arr, arrIdx + 1, CurrSumNode(currSumNode.currSum + arr[arrIdx], arrIdx, currSumNode), targetSum, solutions) or isSubsetSumRecursive(arr, arrIdx + 1, currSumNode, targetSum, solutions)
+    return  isSubsetSumRecursive(arr, arrIdx + 1, CurrSumNode(currSumNode.currSum + arr[arrIdx], arrIdx, currSumNode), targetSum, solutions) or\
+            isSubsetSumRecursive(arr, arrIdx + 1, currSumNode, targetSum, solutions)
 
 def printSolution(currSumNode: CurrSumNode):
     """
