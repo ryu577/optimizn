@@ -42,7 +42,7 @@ if __name__ == '__main__':
     arr = [3, 34, 4, 12, 5, 2]
     sum = 9
     n = len(arr)
-    if (isSubsetSum(set, n, sum)[n, sum]):
+    if (isSubsetSum(arr, n, sum)[n][sum]):
         print("Found a subset with given sum")
     else:
         print("No subset with given sum")
