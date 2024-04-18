@@ -3,6 +3,8 @@ from ppbtree import print_tree
 from copy import deepcopy
 from optimizn.ab_split.opt_split_dp import isSubsetSum
 from optimizn.trees.pprnt import display
+import pandas as pd
+from collections import Counter
 
 
 class Node1():
@@ -176,6 +178,16 @@ def tst1():
     print("###########")
     unionTrees(tr.root, tr1.root)
     display(tr.root)
+
+
+def tst3():
+    df = pd.read_csv('Canary_ClusterHW.csv')
+    hws = [i for i in Counter(df['Hardware_Model_V2']).keys()]
+    clusters = [i for i in Counter(df['Cluster']).keys()]
+    arrays = []
+    arr = np.zeros(len(clusters))
+    for hw in hws:
+        entry = df[df.Hardware_Model_V2 == hw]['dcount_NodeId'][0]
 
 
 # Driver code
