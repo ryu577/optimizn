@@ -1,5 +1,5 @@
 import numpy as np
-from ppbtree import print_tree
+#from ppbtree import print_tree
 from copy import deepcopy
 from optimizn.ab_split.opt_split_dp import isSubsetSum
 from optimizn.trees.pprnt import display
@@ -87,14 +87,7 @@ def optimize(arrs):
         trees.append(tree1)
     tree1 = deepcopy(trees[0])
     # Build a no-compromise tree by taking intersections.
-    for ix in range(1, len(trees)):
-        tree = trees[ix]
-        tree1.root = intrsctTrees(tree1.root, tree.root)
-
-    # If we found a complete path without any compromise,
-    # return it.
-    tree1.find_1path(tree1.root)
-    path1 = tree1.path
+    path1 = intrsctAllTrees2(trees)
     if path1 is not None:
         return path1
     # If no path was found, we'll have to start
@@ -102,36 +95,29 @@ def optimize(arrs):
     deltas = [-1, 1, -2, 2, -3, 3, -4, 4, -5, 5]
     for delta in deltas:
         for ix in range(len(trees)):
-            tree = intrsctAllTrees(trees, ix, delta)
             arr = arrs[ix]
             matr = matrices[ix]
             sum1 = sums[ix]
             if matr[len(arr)][sum1+delta]:
                 tree2 = Tree(arr, matr, sum1+delta)
-                tree2.root = intrsctTrees(tree2.root, tree.root)
-                tree2.find_1path(tree2.root)
-                path1 = tree2.path
+                trees[ix].root = unionTrees(trees[ix].root, tree2.root)
+                path1 = intrsctAllTrees2(trees)
                 if path1 is not None:
                     return path1
+
+
+def intrsctAllTrees2(trees):
+    tree1 = deepcopy(trees[0])
+    for tree in trees:
+        tree1.root = intrsctTrees(tree1.root, tree.root)
+    tree1.find_1path(tree1.root)
+    return tree1.path
 
 
 def create_matr(arr=[3, 34, 4, 12, 5, 2], sum1=9):
     n = len(arr)
     matr = isSubsetSum(arr, n, sum1)
     return matr
-
-
-def intrsctAllTrees(trees, ix, delta):
-    if ix == 0:
-        tree1 = deepcopy(trees[1])
-    else:
-        tree1 = deepcopy(trees[0])
-    # Build a no-compromise tree by taking intersections.
-    for ix1 in range(len(trees)):
-        if ix1 != ix:
-            tree = trees[ix1]
-            tree1.root = intrsctTrees(tree1.root, tree.root)
-    return tree1
 
 
 def tst2():
@@ -165,7 +151,7 @@ def tst1():
     display(tr.root)
     tr.find_1path(tr.root)
     print(tr.path)
-    print_tree(tr.root)
+    #print_tree(tr.root)
     print("###########")
     arr = [3, 4, 5, 2]
     sum = 6
