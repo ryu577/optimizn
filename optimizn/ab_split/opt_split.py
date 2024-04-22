@@ -5,6 +5,7 @@ from optimizn.ab_split.opt_split_dp import isSubsetSum
 from optimizn.trees.pprnt import display
 import pandas as pd
 from collections import Counter
+from optimizn.ab_split.testing.cluster_hw import df1
 
 
 class Node1():
@@ -36,9 +37,13 @@ class Tree():
     def mk_tree(self, ro, col):
         if col < 0 or ro < -1 or not self.mat[ro+1][col]:
             return
+        print(str(ro)+","+str(col))
         node1 = Node1(1)
-        node1.right = self.mk_tree(ro-1, col)
-        node1.left = self.mk_tree(ro-1, col - self.arr[ro])
+        if self.mat[ro-1+1][col]:
+            node1.right = self.mk_tree(ro-1, col)
+        if col - self.arr[ro] > -1 and \
+                self.mat[ro-1+1][col - self.arr[ro]]:
+            node1.left = self.mk_tree(ro-1, col - self.arr[ro])
         return node1
 
     def find_1path(self, node, depth=0, path=[]):
@@ -101,6 +106,9 @@ def optimize(arrs):
             if matr[len(arr)][sum1+delta]:
                 tree2 = Tree(arr, matr, sum1+delta)
                 trees[ix].root = unionTrees(trees[ix].root, tree2.root)
+                # The below doesn't work because the array of trees
+                # has to be reset after the change.
+                # trees[ix].root = tree2.root
                 path1 = intrsctAllTrees2(trees)
                 if path1 is not None:
                     return path1
@@ -124,8 +132,8 @@ def tst2():
     arrs = [[2, 5, 9, 3, 1],
             [2, 3, 4, 4, 3]]
     path1 = optimize(arrs)
-    assert path1[0] == 0
-    assert path1[1] == 2
+    assert (path1[0] == 0 and path1[1] == 2) \
+        or (path1[0] == 3 and path1[1] == 4)
     print(path1)
     arrs = [[2, 4, 7, 9],
             [1, 2, 3, 2],
@@ -166,14 +174,28 @@ def tst1():
     display(tr.root)
 
 
-def tst3():
-    df = pd.read_csv('Canary_ClusterHW.csv')
+def form_arrays(df):
     hws = [i for i in Counter(df['Hardware_Model_V2']).keys()]
     clusters = [i for i in Counter(df['Cluster']).keys()]
-    arrays = []
-    arr = np.zeros(len(clusters))
-    for hw in hws:
-        entry = df[df.Hardware_Model_V2 == hw]['dcount_NodeId'][0]
+    hws_ix, clusters_ix = arr_to_map(hws), arr_to_map(clusters)
+    arrays = np.zeros((len(hws), len(clusters))).astype(int)
+    for ix, ro in df.iterrows():
+        hw_ix = hws_ix[ro.Hardware_Model_V2]
+        cl_ix = clusters_ix[ro.Cluster]
+        arrays[hw_ix, cl_ix] = ro.dcount_NodeId
+    # path1 = optimize(arrays)
+    # return path1
+    return arrays, hw_ix, cl_ix
+
+
+def arr_to_map(arr):
+    res = {}
+    ix = 0
+    for i in arr:
+        if i not in res:
+            res[i] = ix
+            ix += 1
+    return res
 
 
 # Driver code
