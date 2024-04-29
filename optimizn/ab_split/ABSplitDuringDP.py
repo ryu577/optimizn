@@ -8,6 +8,7 @@ class SumNode:
         self.idx = idx
         self.ancestor = ancestor
 
+
 def isSubsetSumRecursive(arr: List[int], arrIdx: int, currSumNode: SumNode, targetSum: int, solutions: set[SumNode], errTol=0.0):
     """
     Inputs:
@@ -25,8 +26,9 @@ def isSubsetSumRecursive(arr: List[int], arrIdx: int, currSumNode: SumNode, targ
     if arrIdx == len(arr) or currSumNode.currSum > targetSum: return False
     if targetSum == 0 or len(arr) == 0 or errTol > 1 or errTol < 0: return False
 
-    return  isSubsetSumRecursive(arr, arrIdx + 1, SumNode(currSumNode.currSum + arr[arrIdx], arrIdx, currSumNode), targetSum, solutions, errTol) or\
-            isSubsetSumRecursive(arr, arrIdx + 1, currSumNode, targetSum, solutions, errTol)
+    return isSubsetSumRecursive(arr, arrIdx + 1, SumNode(currSumNode.currSum + arr[arrIdx], arrIdx, currSumNode), targetSum, solutions, errTol) or\
+        isSubsetSumRecursive(arr, arrIdx + 1, currSumNode, targetSum, solutions, errTol)
+
 
 def getSolution(currSumNode: SumNode):
     """
@@ -42,6 +44,7 @@ def getSolution(currSumNode: SumNode):
     # Remove the trailing ', '
     sol = sol[:-2]
     return (f'[{sol}]')
+
 
 def ABTestSituation(features: List[List[int]], tolerance=0.0):
     """
@@ -78,14 +81,14 @@ def ABTestSituation(features: List[List[int]], tolerance=0.0):
                 solutions[targetSplit][sol] += 1
                 if solutions[targetSplit][sol] == len(features):
                     print(f'All features have the same solution: {sol} for targetSplit: {targetSplit} +-{tolerance * 100}%')
-                    return
+                    return sol
 
         targetSplit -= 0.01
         targetSplit = round(targetSplit, 2)
 
-    print ('No common solution found')
+    print('No common solution found')
     print(solutions)
-
+    return sol
 
 
 if __name__ == '__main__':

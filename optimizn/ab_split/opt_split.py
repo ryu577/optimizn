@@ -37,7 +37,7 @@ class Tree():
     def mk_tree(self, ro, col):
         if col < 0 or ro < -1 or not self.mat[ro+1][col]:
             return
-        print(str(ro)+","+str(col))
+        # print(str(ro)+","+str(col))
         node1 = Node1(1)
         if self.mat[ro-1+1][col]:
             node1.right = self.mk_tree(ro-1, col)
@@ -112,6 +112,11 @@ def optimize(arrs):
                 path1 = intrsctAllTrees2(trees)
                 if path1 is not None:
                     return path1
+
+
+def optimize2(arrs):
+    path1 = optimize(arrs)
+    return len(arrs[0]) - np.array(path1) - 1
 
 
 def intrsctAllTrees2(trees):
