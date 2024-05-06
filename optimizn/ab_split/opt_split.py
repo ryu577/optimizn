@@ -6,20 +6,9 @@ from optimizn.trees.pprnt import display
 import pandas as pd
 from collections import Counter
 from optimizn.ab_split.testing.cluster_hw import df1
+from optimizn.ab_split.trees.lvlTrees import Node1
 
-
-class Node1():
-    def __init__(self, key):
-        self.key = key
-        self.val = key
-        self.left = None
-        self.right = None
-
-    def __str__(self):
-        return str(self.val)
-
-    def __repr__(self):
-        return str(self.val)
+# See Boox 240329
 
 
 class Tree():

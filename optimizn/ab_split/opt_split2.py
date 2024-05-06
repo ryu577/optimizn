@@ -1,5 +1,6 @@
-from optimizn.ab_split.opt_split import Node1, Tree, \
+from optimizn.ab_split.opt_split import Tree, \
     form_arrays, create_matr
+from optimizn.ab_split.trees.lvlTrees import Node1
 import numpy as np
 from copy import deepcopy
 import queue
@@ -125,7 +126,7 @@ def optimize1(arrays):
     return tr.path1
 
 
-def optimize3(arrays):
+def prepare_data(arrays):
     matrices = []
     targets = []
     target_cands = []
@@ -142,11 +143,12 @@ def optimize3(arrays):
         target = all_trgts[0]
         targets.append(target)
         matrices.append(matr)
-    # for trgt in itr_arrays(target_cands):
-    #     tr = Tree1(arrays, matrices, trgt)
-    #     if len(tr.path1) > 0:
-    #         return tr.path1
     op = OptProblem2(arrays, matrices, target_cands)
+    return op
+
+
+def optimize3(arrays):
+    op = prepare_data(arrays)
     # op.itr_arrays()
     op.itr_arrays_bfs()
     return op.path1
@@ -271,12 +273,12 @@ if __name__ == "__main__":
 
 #########################
 # TODO
-# 1. Full optimization when combined tree across matrices.
+# 1. [Done] Full optimization when combined tree across matrices.
 # 2. When zeros culled from arrays, update hws_ix and clust_ix.
 # 3. [Done] Switch to using pandas file or include CSV in package.
 # 4. Try on VMSKU as well and then combined HW VMSKU.
 
 #########################
-# 2.
+# 2. Approach
 # Save the mask, original arrays and new array.
 # Create a mapping between original indices and new indices + vice versa.

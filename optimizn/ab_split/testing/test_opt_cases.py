@@ -3,9 +3,11 @@ import multiprocessing
 import time
 import sys
 from optimizn.ab_split.opt_split2 import OptProblm
+from optimizn.ab_split.evaluation import calc_sol_delta
 from optimizn.ab_split.opt_split import optimize2
 from optimizn.ab_split.opt_split2 import optimize1, optimize3
 from optimizn.ab_split.ABSplitDuringDP import ABTestSituation
+from optimizn.ab_split.opt_split3 import optimize4, optimize5
 
 
 class TstCases():
@@ -51,36 +53,37 @@ class TstCases():
                     [22, 10, 4, 12, 5, 2],
                 ],
                 "delta": 25
+            },
+            "problem6: arrays have some zeros and compromise required": {
+                "input": [
+                    [0, 0, 0, 6, 2, 8, 0, 0, 1, 2, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 2, 5, 0, 0, 0, 0]
+                ],
+                "delta": 4
             }
         }
 
     def tst_all(self):
+        print("\n\n Starting test cases \n\n")
         for k in self.inputoutput.keys():
             print("## Trying problem " + k + "\n#######\n")
             arr = self.inputoutput[k]["input"]
             target_delta = self.inputoutput[k]["delta"]
+            start = time.time()
             split = self.fn(arr)
+            end = time.time()
             total_delta = calc_sol_delta(arr, split)
             print("Model delta: " + str(total_delta) + ","
                   + " Best known delta: "
                   + str(target_delta))
+            print("Time taken: " + str(end-start))
             if self.assrt_opt:
                 assert total_delta <= target_delta
-            print("## Passed: " + k + "\n")
-
-
-def calc_sol_delta(arr, split):
-    total_delta = 0
-    for i in range(len(arr)):
-        ar = arr[i]
-        sum1 = sum(ar)
-        cnt1 = sum([ar[ix] for ix in split])
-        total_delta += abs(sum1 - 2*cnt1)
-    return total_delta
+            print("### Passed: " + k + "\n")
 
 
 def tst1():
-    tc = TstCases(ABTestSituation, False)
+    tc = TstCases(optimize5, False)
     # p = multiprocessing.Process(target=tc.tst_all, name="Foo")
     # p.start()
     tc.tst_all()
