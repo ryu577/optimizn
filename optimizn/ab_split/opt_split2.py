@@ -127,7 +127,12 @@ def optimize1(arrays):
     return tr.path1
 
 
-def prepare_data(arrays):
+def find_path1(arrays, matrices, targets):
+    tr = Tree1(arrays, matrices, targets)
+    return tr.path1
+
+
+def prepare_data(arrays, fn1=find_path1):
     matrices = []
     targets = []
     target_cands = []
@@ -143,7 +148,7 @@ def prepare_data(arrays):
         target_cands.append(all_trgts)
         targets.append(target)
         matrices.append(matr)
-    op = OptProblem2(arrays, matrices, targets, target_cands)
+    op = OptProblem2(arrays, matrices, targets, target_cands, fn1)
     return op
 
 
@@ -156,7 +161,6 @@ def optimize3(arrays):
 
 def optimize6(arrays):
     op = prepare_data(arrays)
-    # op.itr_arrays()
     op.itr_arrays_heap()
     return op.path1
 
@@ -188,7 +192,8 @@ class OrderedTuple():
 
 
 class OptProblem2():
-    def __init__(self, arrays, matrices, targets, target_cands):
+    def __init__(self, arrays, matrices, targets, target_cands,
+                 opt_fn=find_path1):
         self.arrays = arrays
         self.matrices = matrices
         self.targets = targets
@@ -207,9 +212,10 @@ class OptProblem2():
         if self.stop_looking:
             return
         if lvl == len(self.target_cands):
-            tr = Tree1(self.arrays, self.matrices, targets)
-            if len(tr.path1) > 0:
-                self.path1 = tr.path1
+            # tr = Tree1(self.arrays, self.matrices, targets)
+            path1 = find_path1(self.arrays, self.matrices, targets)
+            if len(path1) > 0:
+                self.path1 = path1
                 # Could have used yield here as well.
                 self.stop_looking = True
             return
@@ -264,10 +270,10 @@ class OptProblem2():
             dist = u_op.key
             u_arr = self.ix_arr_to_arr(u)
             if u_arr is not None:
-                tr = Tree1(self.arrays, self.matrices, u_arr)
+                path1 = find_path1(self.arrays, self.matrices, u_arr)
                 # print("evaluating: " + str(u_arr) + " at dist: " + str(dist))
-                if len(tr.path1) > 0:
-                    self.path1 = tr.path1
+                if len(path1) > 0:
+                    self.path1 = path1
                     self.stop_looking = True
                     break
             for ix in range(len(self.target_cands)):

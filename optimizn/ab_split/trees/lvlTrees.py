@@ -106,7 +106,7 @@ class Tree2():
         if node is None or self.stop:
             return
         if node.key == -1:
-            self.stop = True
+            # self.stop = True
             objfn = calc_sol_delta(arrs, path)
             if objfn < self.mincost:
                 self.mincost = objfn
@@ -116,6 +116,17 @@ class Tree2():
         self.find_best_path(node.left, arrs, path)
         path.pop()
         self.find_best_path(node.right, arrs, path)
+
+    def find_1_path(self, node, path=[]):
+        if node is None:
+            return
+        if node.key == -1:
+            self.path = deepcopy(path)
+            return
+        path.append(node.key)
+        self.find_1_path(node.left, path)
+        path.pop()
+        self.find_1_path(node.right, path)
 
 
 def tst1():

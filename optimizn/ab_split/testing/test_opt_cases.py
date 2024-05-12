@@ -5,9 +5,10 @@ import sys
 from optimizn.ab_split.opt_split2 import OptProblm
 from optimizn.ab_split.evaluation import calc_sol_delta
 from optimizn.ab_split.opt_split import optimize2
-from optimizn.ab_split.opt_split2 import optimize1, optimize3, optimize6
+from optimizn.ab_split.opt_split2 import optimize1, optimize3,\
+    optimize6
 from optimizn.ab_split.ABSplitDuringDP import ABTestSituation
-from optimizn.ab_split.opt_split3 import optimize4, optimize5
+from optimizn.ab_split.opt_split3 import optimize4, optimize5, optimize7
 
 
 class TstCases():
@@ -83,7 +84,7 @@ class TstCases():
 
 
 def tst1():
-    tc = TstCases(optimize6, False)
+    tc = TstCases(optimize7, False)
     # p = multiprocessing.Process(target=tc.tst_all, name="Foo")
     # p.start()
     tc.tst_all()

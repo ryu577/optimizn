@@ -50,6 +50,26 @@ def optimize4(arrs):
                             return path1
 
 
+def find_a_path(arrays, matrices, targets):
+    trees = []
+    for ix in range(len(arrays)):
+        arr = arrays[ix]
+        matr = matrices[ix]
+        target = targets[ix]
+        arr1, keys1 = remove_zeros(arr)
+        tree1 = Tree2(arr1, matr, keys1, target)
+        trees.append(tree1)
+    tree1 = intrsctAllTrees(trees)
+    tree1.find_best_path(tree1.root)
+    return tree1.path
+
+
+def optimize7(arrays):
+    op = prepare_data(arrays, find_a_path)
+    op.itr_arrays_heap()
+    return op.path1
+
+
 def optimize5(arrs):
     matrices = []
     sums = []
