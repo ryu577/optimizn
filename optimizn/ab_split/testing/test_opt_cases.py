@@ -5,7 +5,7 @@ import sys
 from optimizn.ab_split.opt_split2 import OptProblm
 from optimizn.ab_split.evaluation import calc_sol_delta
 from optimizn.ab_split.opt_split import optimize2
-from optimizn.ab_split.opt_split2 import optimize1, optimize3
+from optimizn.ab_split.opt_split2 import optimize1, optimize3, optimize6
 from optimizn.ab_split.ABSplitDuringDP import ABTestSituation
 from optimizn.ab_split.opt_split3 import optimize4, optimize5
 
@@ -64,7 +64,7 @@ class TstCases():
         }
 
     def tst_all(self):
-        print("\n\n Starting test cases \n\n")
+        print("\n\n Starting test cases for: " + str(self.fn) + "\n\n")
         for k in self.inputoutput.keys():
             print("## Trying problem " + k + "\n#######\n")
             arr = self.inputoutput[k]["input"]
@@ -83,7 +83,7 @@ class TstCases():
 
 
 def tst1():
-    tc = TstCases(optimize5, False)
+    tc = TstCases(optimize6, False)
     # p = multiprocessing.Process(target=tc.tst_all, name="Foo")
     # p.start()
     tc.tst_all()

@@ -5,6 +5,7 @@ import numpy as np
 from copy import deepcopy
 import queue
 from optimizn.ab_split.testing.cluster_hw import df1
+from heapq import heappop, heappush
 
 
 class Tree1(Tree):
@@ -136,14 +137,13 @@ def prepare_data(arrays):
         last_ro = matr[len(matr)-1]
         all_trgts = np.arange(len(matr[0]))[last_ro]
         target = sum1//2
-        deltas = (all_trgts - target)**2
+        deltas = abs(all_trgts - target)
         deltainds = deltas.argsort()
         all_trgts = all_trgts[deltainds[::1]]
         target_cands.append(all_trgts)
-        target = all_trgts[0]
         targets.append(target)
         matrices.append(matr)
-    op = OptProblem2(arrays, matrices, target_cands)
+    op = OptProblem2(arrays, matrices, targets, target_cands)
     return op
 
 
@@ -151,6 +151,13 @@ def optimize3(arrays):
     op = prepare_data(arrays)
     # op.itr_arrays()
     op.itr_arrays_bfs()
+    return op.path1
+
+
+def optimize6(arrays):
+    op = prepare_data(arrays)
+    # op.itr_arrays()
+    op.itr_arrays_heap()
     return op.path1
 
 
@@ -168,10 +175,23 @@ def itr_arrays(arrays, lvl=0, targets=[]):
         targets.pop()
 
 
+class OrderedTuple():
+    def __init__(self, key, arr):
+        self.key = key
+        self.arr = arr
+
+    def __eq__(self, other):
+        return self.key == other.key
+
+    def __gt__(self, other):
+        return self.key > other.key
+
+
 class OptProblem2():
-    def __init__(self, arrays, matrices, target_cands):
+    def __init__(self, arrays, matrices, targets, target_cands):
         self.arrays = arrays
         self.matrices = matrices
+        self.targets = targets
         self.target_cands = target_cands
         self.stop_looking = False
 
@@ -202,7 +222,8 @@ class OptProblem2():
     def itr_arrays_bfs(self):
         q = queue.Queue()
         u1 = np.zeros(len(self.target_cands)).astype(int)
-        init_arr = [self.target_cands[ix][0] for ix in u1]
+        # init_arr = [self.target_cands[ix][0] for ix in u1]
+        init_arr = self.ix_arr_to_arr(u1)
         q.put(u1)
         while q and not self.stop_looking:
             u = q.get()
@@ -229,6 +250,35 @@ class OptProblem2():
             deltainds = dists.argsort()
             for dix in deltainds:
                 q.put(vs[dix])
+
+    def itr_arrays_heap(self):
+        q = []
+        u1 = np.zeros(len(self.target_cands)).astype(int)
+        # The distance isn't really 0, but it doesn't matter
+        # since this is the first tuple.
+        ot = OrderedTuple(0, u1)
+        heappush(q, ot)
+        while q and not self.stop_looking:
+            u_op = heappop(q)
+            u = u_op.arr
+            dist = u_op.key
+            u_arr = self.ix_arr_to_arr(u)
+            if u_arr is not None:
+                tr = Tree1(self.arrays, self.matrices, u_arr)
+                # print("evaluating: " + str(u_arr) + " at dist: " + str(dist))
+                if len(tr.path1) > 0:
+                    self.path1 = tr.path1
+                    self.stop_looking = True
+                    break
+            for ix in range(len(self.target_cands)):
+                delta = np.zeros(len(self.target_cands)).astype(int)
+                delta[ix] = 1
+                v1 = u + delta
+                v = self.ix_arr_to_arr(v1)
+                if v is not None:
+                    dist = manhattan_dist(self.targets, v)
+                    ot1 = OrderedTuple(dist, v1)
+                    heappush(q, ot1)
 
     def ix_arr_to_arr(self, v1):
         v = []
@@ -265,10 +315,11 @@ def tst1():
 if __name__ == "__main__":
     # tst1()
     arrays = [
-                [2, 5, 9, 3, 1],
-                [2, 3, 4, 4, 3]
-            ]
-    arrs = optimize3(arrays)
+                    [3, 34, 4, 12, 5, 2],
+                    [0, 25, 4, 12, 5, 2],
+                    [22, 10, 4, 12, 5, 2],
+             ]
+    arrs = optimize6(arrays)
 
 
 #########################
