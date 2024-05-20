@@ -56,16 +56,28 @@ def find_a_path(arrays, matrices, targets):
         arr = arrays[ix]
         matr = matrices[ix]
         target = targets[ix]
-        arr1, keys1 = remove_zeros(arr)
-        tree1 = Tree2(arr1, matr, keys1, target)
+        tree1 = create_sparse_tree(arr, matr, target)
         trees.append(tree1)
     tree1 = intrsctAllTrees(trees)
-    tree1.find_best_path(tree1.root)
+    tree1.find_best_path(tree1.root, arrays)
     return tree1.path
 
 
-def optimize7(arrays):
+def create_sparse_tree(arr, matr, target):
+    arr1, keys1 = remove_zeros(arr)
+    a1 = [0]
+    a2 = [i+1 for i in keys1]
+    a1.extend(a2)
+    matr1 = [matr[i] for i in a1]
+    tree1 = Tree2(arr1, matr1, keys1, target)
+    return tree1
+
+
+def optimize7(arrays, verbose=True, max_cand=1e4):
     op = prepare_data(arrays, find_a_path)
+    if verbose:
+        op.verbose = True
+    op.max_cand = max_cand
     op.itr_arrays_heap()
     return op.path1
 
@@ -147,14 +159,14 @@ def tst2():
         [0, 0, 0, 6, 2, 8, 0, 0, 1, 2, 0, 0],
         [0, 0, 0, 0, 0, 0, 2, 5, 0, 0, 0, 0]
     ]
-    path1 = optimize4(arrays)
+    path1 = optimize7(arrays)
     print("Optimal path:")
     print(path1)
     return path1
 
 
 if __name__ == "__main__":
-    tst1()
+    tst2()
 
 
 #########################

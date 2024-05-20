@@ -192,13 +192,18 @@ class OrderedTuple():
 
 
 class OptProblem2():
-    def __init__(self, arrays, matrices, targets, target_cands,
+    def __init__(self, arrays, matrices, targets,
+                 target_cands,
                  opt_fn=find_path1):
         self.arrays = arrays
         self.matrices = matrices
         self.targets = targets
         self.target_cands = target_cands
+        self.opt_fn = opt_fn
         self.stop_looking = False
+        self.verbose = False
+        self.path1 = None
+        self.max_cand = np.inf
 
     def itr_arrays(self, lvl=0, targets=[]):
         """
@@ -226,6 +231,9 @@ class OptProblem2():
                 targets.pop()
 
     def itr_arrays_bfs(self):
+        """
+        Don't use. Use itr_arrays_heap instead.
+        """
         q = queue.Queue()
         u1 = np.zeros(len(self.target_cands)).astype(int)
         # init_arr = [self.target_cands[ix][0] for ix in u1]
@@ -264,18 +272,23 @@ class OptProblem2():
         # since this is the first tuple.
         ot = OrderedTuple(0, u1)
         heappush(q, ot)
-        while q and not self.stop_looking:
+        itr = 0
+        while q and not self.stop_looking and itr <= self.max_cand:
+            itr += 1
             u_op = heappop(q)
             u = u_op.arr
             dist = u_op.key
             u_arr = self.ix_arr_to_arr(u)
             if u_arr is not None:
-                path1 = find_path1(self.arrays, self.matrices, u_arr)
-                # print("evaluating: " + str(u_arr) + " at dist: " + str(dist))
-                if len(path1) > 0:
-                    self.path1 = path1
-                    self.stop_looking = True
-                    break
+                path1 = self.opt_fn(self.arrays, self.matrices, u_arr)
+                if self.verbose:
+                    print("evaluating: " + str(u_arr) + " at dist: "
+                          + str(dist))
+                if path1 is not None:
+                    if len(path1) > 0:
+                        self.path1 = path1
+                        self.stop_looking = True
+                        break
             for ix in range(len(self.target_cands)):
                 delta = np.zeros(len(self.target_cands)).astype(int)
                 delta[ix] = 1

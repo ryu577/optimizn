@@ -85,7 +85,7 @@ class Tree2():
         self.keys = keys
         self.mincost = np.inf
         self.stop = False
-        self.root = self.mk_tree(len(arr)-1, sum1)
+        self.root = self.mk_tree(len(mat)-2, sum1)
 
     def mk_tree(self, ro, col):
         if col < 0 or ro < -1 or not self.mat[ro+1][col]:
@@ -95,11 +95,11 @@ class Tree2():
         else:
             key1 = -1
         node1 = Node1(key1)
-        if self.mat[ro-1+1][col]:
-            node1.right = self.mk_tree(ro-1, col)
-        if col - self.arr[ro] > -1 and \
-                self.mat[ro-1+1][col - self.arr[ro]]:
-            node1.left = self.mk_tree(ro-1, col - self.arr[ro])
+        # if self.mat[ro-1+1][col]:
+        node1.right = self.mk_tree(ro-1, col)
+        # if col - self.arr[ro] > -1 and \
+        #        self.mat[ro-1+1][col - self.arr[ro]]:
+        node1.left = self.mk_tree(ro-1, col - self.arr[ro])
         return node1
 
     def find_best_path(self, node, arrs, path=[]):
@@ -156,3 +156,32 @@ def intrsctAllTrees(trees):
         #     display(tree.root)
         tree1.root = intrsct(tree1.root, tree.root)
     return tree1
+
+
+def tst2():
+    arr = [0, 5, 0, 4]
+    arr1 = [5, 4]
+    matr = [
+            [True, False, False, False, False, False, False, False, False, False],
+            [True, False, False, False, False, False, False, False, False, False],
+            [True, False, False, False, False, True, False, False, False, False],
+            [True, False, False, False, False, True, False, False, False, False],
+            [True, False, False, False, True, True, False, False, False, True]
+        ]
+    matr1 = [
+            [True, False, False, False, False, False, False, False, False, False],
+            [True, False, False, False, False, True, False, False, False, False],
+            [True, False, False, False, True, True, False, False, False, True]
+        ]
+    keys1 = [1, 3]
+    a1 = [0]
+    a2 = [i+1 for i in keys1]
+    a1.extend(a2)
+    matr1 = [matr[i] for i in a1]
+    target = 4
+    tr1 = Tree2(arr1, matr1, keys1, target)
+    display(tr1.root)
+
+
+if __name__ == "__main__":
+    tst2()

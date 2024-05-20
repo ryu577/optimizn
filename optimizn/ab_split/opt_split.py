@@ -168,13 +168,13 @@ def tst1():
     display(tr.root)
 
 
-def form_arrays(df):
-    hws = [i for i in Counter(df['Hardware_Model_V2']).keys()]
+def form_arrays(df, col_name='Hardware_Model_V2'):
+    hws = [i for i in Counter(df[col_name]).keys()]
     clusters = [i for i in Counter(df['Cluster']).keys()]
     hws_ix, clusters_ix = arr_to_map(hws), arr_to_map(clusters)
     arrays = np.zeros((len(hws), len(clusters))).astype(int)
     for ix, ro in df.iterrows():
-        hw_ix = hws_ix[ro.Hardware_Model_V2]
+        hw_ix = hws_ix[ro[col_name]]
         cl_ix = clusters_ix[ro.Cluster]
         arrays[hw_ix, cl_ix] = ro.dcount_NodeId
     # path1 = optimize(arrays)
