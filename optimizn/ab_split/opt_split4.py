@@ -1,10 +1,10 @@
-from optimizn.ab_split.opt_split import form_arrays
+from optimizn.ab_split.opt_split import form_arrays, unionTrees
 from optimizn.ab_split.testing.cluster_vmsku import cluster_vmsku
-from optimizn.ab_split.opt_split3 import optimize7, create_sparse_tree
+from optimizn.ab_split.opt_split3 import optimize7, create_sparse_tree, prepare_data, find_a_path
 from optimizn.ab_split.opt_split2 import optimize6, OptProblem2, \
                                         OrderedTuple, manhattan_dist
 from optimizn.ab_split.evaluation import calc_sol_delta
-from optimizn.ab_split.trees.lvlTrees import Tree2
+from optimizn.ab_split.trees.lvlTrees import Tree2, intrsctAllTrees
 import numpy as np
 import random
 from heapq import heappop, heappush
@@ -55,6 +55,7 @@ class OptProblem3(OptProblem2):
                          target_cands,
                          opt_fn)
         self.trees = []
+        self.covered_upto = np.zeros(len(arrays))
         for ix in range(len(self.arrays)):
             arr = arrays[ix]
             mat = matrices[ix]
@@ -74,10 +75,18 @@ class OptProblem3(OptProblem2):
             itr += 1
             u_op = heappop(heap1)
             u = u_op.arr
+            expand_ix = []
+            for ix in range(len(u)):
+                if self.covered_upto[ix] < u[ix]:
+                    self.covered_upto[ix] = u[ix]
+                    expand_ix.append(ix)
             dist = u_op.key
             u_arr = self.ix_arr_to_arr(u)
             if u_arr is not None:
-                path1 = self.opt_fn(self.arrays, self.matrices, u_arr)
+                self.update_trees(u_arr, expand_ix)
+                path1 = self.find_path()
+                ## TODO - define a new opt_fn that takes the expand_ix and creates
+                # trees and unions them in.
                 if self.verbose:
                     print("evaluating: " + str(u_arr) + " at dist: "
                           + str(dist))
@@ -95,6 +104,26 @@ class OptProblem3(OptProblem2):
                     dist = manhattan_dist(self.targets, v)
                     ot1 = OrderedTuple(dist, v1)
                     heappush(heap1, ot1)
+
+    def update_trees(self, u_arr, expand_ix):
+        for ix in expand_ix:
+            arr = self.arrays[ix]
+            mat1 = self.matrices[ix]
+            target = u_arr[ix]
+            tree1 = create_sparse_tree(arr, mat1, target)
+            tree2 = self.trees[ix]
+            tree2 = unionTrees(tree2, tree1)
+
+    def find_path(self):
+        tree1 = intrsctAllTrees(self.trees)
+        tree1.find_best_path()
+        return tree1.path1
+
+
+def optimize9(arrays):
+    op = prepare_data(arrays, find_a_path)
+    op.itr_arrays_heap()
+    return op.path1
 
 
 def tst1():
@@ -117,5 +146,12 @@ def tst1():
             75,   0,   0,  33,   2,   0,   0,   0,   0,   0,   0,   0,   0,
             0,  74,   0,   0, 107,   0,   0,   0,   0,   0,   4,   0,   0,
             0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0])]
-    path1 = optimize7(arrs)
+    path1 = optimize9(arrs)
+    path2 = optimize7(arrs)
+    print(path1)
+    print(path2)
     return path1
+
+
+if __name__ == "__main__":
+    tst1()

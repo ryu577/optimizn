@@ -9,6 +9,7 @@ from optimizn.ab_split.opt_split2 import optimize1, optimize3,\
     optimize6
 from optimizn.ab_split.ABSplitDuringDP import ABTestSituation
 from optimizn.ab_split.opt_split3 import optimize4, optimize5, optimize7
+from optimizn.ab_split.opt_split4 import optimize9
 
 
 class TstCases():
