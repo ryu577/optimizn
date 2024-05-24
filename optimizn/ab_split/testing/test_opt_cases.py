@@ -85,7 +85,7 @@ class TstCases():
 
 
 def tst1():
-    tc = TstCases(optimize7, False)
+    tc = TstCases(optimize9, False)
     # p = multiprocessing.Process(target=tc.tst_all, name="Foo")
     # p.start()
     tc.tst_all()

@@ -56,6 +56,7 @@ class OptProblem3(OptProblem2):
                          opt_fn)
         self.trees = []
         self.covered_upto = np.zeros(len(arrays))
+        self.verbose = True
         for ix in range(len(self.arrays)):
             arr = arrays[ix]
             mat = matrices[ix]
@@ -83,18 +84,17 @@ class OptProblem3(OptProblem2):
             dist = u_op.key
             u_arr = self.ix_arr_to_arr(u)
             if u_arr is not None:
-                self.update_trees(u_arr, expand_ix)
-                path1 = self.find_path()
-                ## TODO - define a new opt_fn that takes the expand_ix and creates
-                # trees and unions them in.
-                if self.verbose:
-                    print("evaluating: " + str(u_arr) + " at dist: "
-                          + str(dist))
-                if path1 is not None:
-                    if len(path1) > 0:
-                        self.path1 = path1
-                        self.stop_looking = True
-                        break
+                if len(expand_ix) > 0:
+                    self.update_trees(u_arr, expand_ix)
+                    path1 = self.find_path()
+                    if self.verbose:
+                        print("evaluating: " + str(u_arr) + " at dist: "
+                              + str(dist))
+                    if path1 is not None:
+                        if len(path1) > 0:
+                            self.path1 = path1
+                            self.stop_looking = True
+                            break
             for ix in range(len(self.target_cands)):
                 delta = np.zeros(len(self.target_cands)).astype(int)
                 delta[ix] = 1
@@ -146,12 +146,22 @@ def tst1():
             75,   0,   0,  33,   2,   0,   0,   0,   0,   0,   0,   0,   0,
             0,  74,   0,   0, 107,   0,   0,   0,   0,   0,   4,   0,   0,
             0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0])]
-    path1 = optimize9(arrs)
-    path2 = optimize7(arrs)
+    path1 = optimize6(arrs)
+    #path2 = optimize7(arrs)
     print(path1)
-    print(path2)
+    #print(path2)
     return path1
 
 
+def tst2():
+    arr = [
+            [3, 34, 4, 12, 5, 2],
+            [0, 25, 4, 12, 5, 2],
+            [22, 10, 4, 12, 5, 2],
+        ]
+    path1 = optimize9(arr)
+    print(path1)
+
+
 if __name__ == "__main__":
-    tst1()
+    tst2()

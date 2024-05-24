@@ -73,7 +73,7 @@ def create_sparse_tree(arr, matr, target):
     return tree1
 
 
-def optimize7(arrays, verbose=True, max_cand=1e4):
+def optimize7(arrays, verbose=False, max_cand=np.inf):
     op = prepare_data(arrays, find_a_path)
     if verbose:
         op.verbose = True
