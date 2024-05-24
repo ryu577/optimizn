@@ -57,10 +57,12 @@ class OptProblem3(OptProblem2):
         self.trees = []
         self.covered_upto = np.zeros(len(arrays))
         self.verbose = True
+        self.best_targets = []
         for ix in range(len(self.arrays)):
             arr = arrays[ix]
             mat = matrices[ix]
             target = targets[ix]
+            self.best_targets.append(sum(arrays)/2)
             tree1 = create_sparse_tree(arr, mat, target)
             self.trees.append(tree1)
 
@@ -104,6 +106,35 @@ class OptProblem3(OptProblem2):
                     dist = manhattan_dist(self.targets, v)
                     ot1 = OrderedTuple(dist, v1)
                     heappush(heap1, ot1)
+
+    def itr_arrays_seq(self):
+        ixs = np.zeros(len(self.arrays))
+        bix = -1
+        while True:
+            path1 = self.get_path(ixs, bix)
+            if path1 is not None and len(path1) > 0:
+                self.path1 = path1
+                return path1
+            bix = self.move_by_one(ixs)
+
+    def move_by_one(self, ixs):
+        min_del = np.inf
+        best_ix = 0
+        for i in range(len(ixs)):
+            if len(self.target_cands[i]) < ixs[i]:
+                del1 = abs(self.target_cands[i][ixs[i] + 1] - self.best_targets[i])\
+                       - abs(self.target_cands[i][ixs[i]] - self.best_targets[i])
+                if del1 < min_del:
+                    min_del = del1
+                    best_ix = i
+        ixs[best_ix] += 1
+        return best_ix
+
+    def get_path(self, ixs, bix):
+        u_arr = [self.target_cands[i] for i in ixs]
+        if bix >= 0:
+            self.update_trees(u_arr, [bix])
+        return self.find_path()
 
     def update_trees(self, u_arr, expand_ix):
         for ix in expand_ix:
