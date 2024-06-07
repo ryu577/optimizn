@@ -5,6 +5,7 @@ from copy import deepcopy
 from optimizn.ab_split.opt_split import create_matr, unionTrees, Tree
 from optimizn.ab_split.trees.lvlTrees import Tree2, intrsctAllTrees
 from optimizn.ab_split.opt_split2 import OptProblm, prepare_data, OptProblem2
+from optimizn.ab_split.subsetsum.count_subsets import findCnt
 
 
 def remove_zeros(arr):
@@ -63,7 +64,10 @@ def find_a_path(arrays, matrices, targets):
     return tree1.path
 
 
-def create_sparse_tree(arr, matr, target):
+def create_sparse_tree(arr, matr, target, max_paths=np.inf):
+    cnt1 = findCnt(arr, len(arr), target)
+    if cnt1 > max_paths:
+        return None
     arr1, keys1 = remove_zeros(arr)
     a1 = [0]
     a2 = [i+1 for i in keys1]

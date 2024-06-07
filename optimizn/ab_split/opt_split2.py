@@ -133,6 +133,9 @@ def find_path1(arrays, matrices, targets):
 
 
 def prepare_data(arrays, fn1=find_path1):
+    """
+    Superceded by prepare_data2
+    """
     matrices = []
     targets = []
     target_cands = []
@@ -331,14 +334,28 @@ def tst1():
     return op
 
 
-if __name__ == "__main__":
+def tst2():
     # tst1()
     arrays = [
-                    [3, 34, 4, 12, 5, 2],
-                    [0, 25, 4, 12, 5, 2],
-                    [22, 10, 4, 12, 5, 2],
+                [3, 34, 4, 12, 5, 2],
+                [0, 25, 4, 12, 5, 2],
+                [22, 10, 4, 12, 5, 2],
              ]
     arrs = optimize6(arrays)
+    print(arrs)
+
+
+def tst3():
+    arrs = [
+        [2, 3],
+        [2, 3]
+    ]
+    path = optimize6(arrs)
+    print(path)
+
+
+if __name__ == "__main__":
+    tst3()
 
 
 #########################

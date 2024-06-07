@@ -9,7 +9,8 @@ from optimizn.ab_split.opt_split2 import optimize1, optimize3,\
     optimize6
 from optimizn.ab_split.ABSplitDuringDP import ABTestSituation
 from optimizn.ab_split.opt_split3 import optimize4, optimize5, optimize7
-from optimizn.ab_split.opt_split4 import optimize9
+from optimizn.ab_split.opt_split4 import optimize9, optimize10
+from optimizn.ab_split.opt_split5 import optimize11
 
 
 class TstCases():
@@ -85,7 +86,7 @@ class TstCases():
 
 
 def tst1():
-    tc = TstCases(optimize9, False)
+    tc = TstCases(optimize11, False)
     # p = multiprocessing.Process(target=tc.tst_all, name="Foo")
     # p.start()
     tc.tst_all()

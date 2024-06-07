@@ -3,6 +3,7 @@ from optimizn.trees.pprnt import display
 from optimizn.ab_split.opt_split_dp import isSubsetSum
 from copy import deepcopy
 from optimizn.ab_split.evaluation import calc_sol_delta
+import pickle
 
 
 class Node1():
@@ -88,6 +89,7 @@ class Tree2():
         self.root = self.mk_tree(len(mat)-2, sum1)
 
     def mk_tree(self, ro, col):
+        # print(str(ro) + "," + str(col))
         if col < 0 or ro < -1 or not self.mat[ro+1][col]:
             return
         if ro >= 0:
@@ -149,11 +151,12 @@ def mk_tree(arr=[6, 2, 8, 1, 2], keys=[3, 4, 5, 8, 9]):
 
 
 def intrsctAllTrees(trees):
-    tree1 = deepcopy(trees[0])
-    # print("Displaying inputs")
-    for tree in trees:
-        # if tree.root is not None:
-        #     display(tree.root)
+    # A None for the tree itself means that every path is a valid path.
+    trees_clean = [tree for tree in trees if tree is not None]
+    if len(trees_clean) == 0:
+        return None
+    tree1 = deepcopy(trees_clean[0])
+    for tree in trees_clean:
         tree1.root = intrsct(tree1.root, tree.root)
     return tree1
 
@@ -183,5 +186,26 @@ def tst2():
     display(tr1.root)
 
 
+def load_pkl(filename='dat1.pickle'):
+    with open(filename, 'rb') as file:
+        # Deserialize and load the object from the file
+        loaded_object = pickle.load(file)
+    return loaded_object
+
+
+def tst3():
+    dat1 = load_pkl('/Users/rohitpandey/Documents/github/optimizn/dat1.pickle')
+    (arr1, matr1, keys1, target) = dat1
+    tr = Tree2(arr1, matr1, keys1, target)
+    return tr
+
+
 if __name__ == "__main__":
-    tst2()
+    tst3()
+
+
+# Array with too many ways to split it into half making the tree
+# too large.
+arr = [ 5,  5,  5,  5,  5,  5,  5,  5,  5,  9,  9,  5,  5, 10, 10, 10,  5,
+       5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  2,  5,  5,  5,  5,  2,
+       2,  2,  2,  8,  6,  5,  2]

@@ -10,6 +10,12 @@ import time
 
 
 class SimAnnealProblem(OptProblem):
+    """
+    Inherit this class. Must implement the follwing methods:
+        cost
+        get_solution
+        next_candidate
+    """
     def __init__(self):
         ''' Initialize the problem '''
         # Instead of always stopping at a random solution, pick
@@ -29,13 +35,13 @@ class SimAnnealProblem(OptProblem):
         '''
         return self.get_candidate()
 
-    def anneal(self, n_iter=100000, reset_p=1/10000, time_limit=3600):
+    def anneal(self, n_iter=100000, reset_p=1/10000, time_limit=3600,
+               retarding_factor=1):
         '''
         This simulated annealing implementation is based on the code and
         explanation of simulated annealing presented in the following sources.
 
         Sources:
-        
         (1)
         Title: toddwschneider/shiny-salesman
         Author: Todd W. Schneider
@@ -79,7 +85,7 @@ class SimAnnealProblem(OptProblem):
                 self.new_candidate = self.next_candidate(self.candidate)
                 self.new_cost = self.cost(self.new_candidate)
             cost_del = self.cost_delta(self.new_cost, self.current_cost)
-            eps = np.exp(cost_del / temprature)
+            eps = np.exp(cost_del / temprature / retarding_factor)
 
             if self.new_cost < self.current_cost or eps < uniform() or reset:
                 self.update_candidate(self.new_candidate,
@@ -88,7 +94,8 @@ class SimAnnealProblem(OptProblem):
                     reset = False
             if self.new_cost < self.best_cost:
                 self.update_best(self.new_candidate, self.new_cost)
-                print("Best cost updated to:" + str(self.new_cost))
+                print("Best cost updated to: " + str(self.new_cost) +
+                      " On iter: " + str(i))
 
     def update_candidate(self, candidate, cost):
         self.candidate = make_copy(candidate)
