@@ -1,5 +1,5 @@
 import numpy as np
-from optimizn.ab_split.opt_split6 import read_best_mat
+from optimizn.ab_split.opt_split6 import read_best_mat, get_arrays
 from optimizn.ab_split.opt_split4 import optimize9
 from optimizn.ab_split.opt_split5 import optimize11
 from optimizn.ab_split.opt_split4 import clean_data, \
@@ -24,6 +24,11 @@ def split_in_3(arrs):
 
 
 class TarCand():
+    """
+    This is just a demonstration of iterating through
+    a jagged array in a way that each arrays index
+    is only increased.
+    """
     def __init__(self, targ_cands, targets=[]):
         self.targ_cands = targ_cands
         self.n = len(targ_cands)
@@ -115,8 +120,8 @@ def optimize13(arrs):
     Will work without an optimal split as well.
     """
     arrs1, arrs2, arrs3 = split_in_3(arrs)
-    split1 = optimize9(arrs1)
-    split2 = optimize9(arrs2)
+    split1 = optimize12(arrs1)
+    split2 = optimize12(arrs2)
 
 
 def tst1():
@@ -137,6 +142,12 @@ def tst2():
         ]
     path1 = optimize12(arr)
     print(path1)
+
+
+def tst3():
+    arrs = read_best_mat()
+    arrs1, arrs2, arrs3 = split_in_3(arrs)
+    optimize12(arrs2)
 
 
 if __name__ == "__main__":
