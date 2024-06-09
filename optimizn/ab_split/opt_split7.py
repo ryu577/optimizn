@@ -12,9 +12,9 @@ def split_in_3(arrs):
     n_cols = len(arrs[0])
     col_split = 20
     arrs_t = np.transpose(arrs)
-    arrs1_t = arrs_t[:17]
-    arrs2_t = arrs_t[17:34]
-    arrs3_t = arrs_t[34:52]
+    arrs1_t = arrs_t[:25]
+    arrs2_t = arrs_t[25:52]
+    arrs3_t = arrs_t[25:52]
     arrs1 = np.transpose(arrs1_t)
     arrs2 = np.transpose(arrs2_t)
     arrs3 = np.transpose(arrs3_t)
@@ -147,8 +147,8 @@ def tst2():
 def tst3():
     arrs = read_best_mat()
     arrs1, arrs2, arrs3 = split_in_3(arrs)
-    optimize12(arrs2)
+    return optimize12(arrs2)
 
 
 if __name__ == "__main__":
-    tst2()
+    aa = tst3()
