@@ -119,6 +119,14 @@ def tst1(ret_f=0.5):
     print(bm.best_cost)
 
 
+def tst2():
+    arrs = get_arrays()
+    u, v, w = np.linalg.svd(arrs)
+    arrs = arrs[:, w[0].argsort()]
+    np.savetxt("arrs_tst.csv", arrs, delimiter=",")
+    # https://stackoverflow.com/questions/63803033/rearrange-rows-of-a-given-numpy-2d-array-given-a-list-with-the-permutations
+
+
 def write2csv(arrs):
     with open("arrs.csv", "w") as f:
         writer = csv.writer(f)
