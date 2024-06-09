@@ -154,7 +154,8 @@ class OptProblem3(OptProblem2):
         best_ix = 0
         for i in range(len(ixs)):
             if len(self.target_cands[i]) < ixs[i]:
-                del1 = abs(self.target_cands[i][ixs[i] + 1] - self.best_targets[i])\
+                del1 = abs(self.target_cands[i][ixs[i] + 1] -
+                           self.best_targets[i])\
                        - abs(self.target_cands[i][ixs[i]] - self.best_targets[i])
                 if del1 < min_del:
                     min_del = del1
@@ -230,9 +231,9 @@ def tst1():
             0,  74,   0,   0, 107,   0,   0,   0,   0,   0,   4,   0,   0,
             0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0])]
     path1 = optimize9(arrs)
-    #path2 = optimize7(arrs)
+    # path2 = optimize7(arrs)
     print(path1)
-    #print(path2)
+    # print(path2)
     return path1
 
 
@@ -257,7 +258,7 @@ def tst3():
 
 
 if __name__ == "__main__":
-    tst3()
+    tst2()
 
 
 def pickle_obj(dat1):
