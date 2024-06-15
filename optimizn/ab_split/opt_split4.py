@@ -185,13 +185,13 @@ class OptProblem3(OptProblem2):
                 tree2.root = unionTrees(tree2.root, tree1.root)
 
     def find_path(self):
-        trees11 = [tree for tree in self.trees if tree is not None and tree.root is not None]
+        # trees11 = [tree for tree in self.trees if tree is not None and tree.root is not None]
         tree1 = intrsctAllTrees(self.trees)
-        tree2 = intrsctAllTrees(trees11)
+        # tree2 = intrsctAllTrees(trees11)
         # display(tree2.root)
         # tree1.find_best_path()
         tree1.find_1_path(tree1.root)
-        tree2.find_1_path(tree2.root)
+        # tree2.find_1_path(tree2.root)
         return tree1.path
 
 

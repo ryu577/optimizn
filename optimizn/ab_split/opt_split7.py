@@ -5,6 +5,7 @@ from optimizn.ab_split.opt_split5 import optimize11
 from optimizn.ab_split.opt_split4 import clean_data, \
     OptProblem3, create_sparse_tree, DataContainer
 from optimizn.ab_split.opt_split import form_arrays, unionTrees, create_matr
+from optimizn.ab_split.testing.cluster_vmsku import cluster_vmsku
 
 
 def split_in_3(arrs):
@@ -12,9 +13,9 @@ def split_in_3(arrs):
     n_cols = len(arrs[0])
     col_split = 20
     arrs_t = np.transpose(arrs)
-    arrs1_t = arrs_t[:25]
-    arrs2_t = arrs_t[25:52]
-    arrs3_t = arrs_t[25:52]
+    arrs1_t = arrs_t[:17]
+    arrs2_t = arrs_t[17:34]
+    arrs3_t = arrs_t[34:52]
     arrs1 = np.transpose(arrs1_t)
     arrs2 = np.transpose(arrs2_t)
     arrs3 = np.transpose(arrs3_t)
@@ -145,7 +146,9 @@ def tst2():
 
 
 def tst3():
-    arrs = read_best_mat()
+    # arrs = read_best_mat()
+    arrs, vm_ix, cl_ix =\
+        form_arrays(cluster_vmsku, "Usage_VMSize")
     arrs1, arrs2, arrs3 = split_in_3(arrs)
     return optimize12(arrs2)
 
