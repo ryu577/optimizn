@@ -150,8 +150,13 @@ def tst3():
     arrs, vm_ix, cl_ix =\
         form_arrays(cluster_vmsku, "Usage_VMSize")
     arrs1, arrs2, arrs3 = split_in_3(arrs)
-    return optimize12(arrs2)
+    return optimize12(arrs3)
 
 
 if __name__ == "__main__":
     aa = tst3()
+
+
+#1st array: [15, 13, 10, 7]
+#2nd array: [13, 12, 6, 5, 3, 2, 1, 0]
+#3rd array: [1,3]
