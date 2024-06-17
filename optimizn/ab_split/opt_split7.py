@@ -111,6 +111,7 @@ class OptProblem4(OptProblem3, TarCand):
 def optimize12(arrs):
     dc = DataContainer(arrs)
     op = OptProblem4(dc)
+    op.show_tree = False
     op.itr_arrays()
     return op.path1
 
