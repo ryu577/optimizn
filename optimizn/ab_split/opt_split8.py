@@ -138,4 +138,32 @@ def simple_split_heuristic():
     aa0 = optimize12(op.res_arrs[0])
     # aa0 = [16, 15, 10, 7, 6]
     aa1 = optimize12(op.res_arrs[1])
+    # aa1 = [12, 11, 5, 4, 2, 1, 0]
     aa2 = optimize12(op.res_arrs[2])
+    # aa2 = [7, 0]
+    aa1_prime = [i for i in np.arange(13) if i not in aa1]
+    aa2_prime = [i for i in np.arange(14) if i not in aa2]
+    aa1s = [aa1, aa1_prime]
+    aa2s = [aa2, aa2_prime]
+
+    min_obj = np.inf
+    res1 = []
+    for aa1 in aa1s:
+        for aa2 in aa2s:
+            res = aa0
+            for i in aa1:
+                res.append(i + 25)
+
+            for i in aa2:
+                res.append(i + 25 + 13)
+
+            arrs = read_best_mat()
+            obj1 = calc_sol_delta(arrs, res)
+            if obj1 < min_obj:
+                min_obj = obj1
+                res1 = res
+
+    print(min_obj)
+    # 12977
+
+
