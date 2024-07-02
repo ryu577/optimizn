@@ -65,8 +65,8 @@ class BlockMatrix(SimAnnealProblem):
         self.candidate = arrs
         self.nros = len(arrs)
         self.ncols = len(arrs[0])
-        self.col_ix = len(arrs[0])//2
-        self.ro_ix = len(arrs)//2
+        self.col_ix = self.ncols//2
+        self.ro_ix = self.nros//2
         # params is only needed if we're persisting.
         self.params = None
         super().__init__()

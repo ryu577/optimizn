@@ -179,7 +179,7 @@ def form_arrays(df, col_name='Hardware_Model_V2'):
         arrays[hw_ix, cl_ix] = ro.dcount_NodeId
     # path1 = optimize(arrays)
     # return path1
-    return arrays, hw_ix, cl_ix
+    return arrays, hws_ix, clusters_ix
 
 
 def arr_to_map(arr):
