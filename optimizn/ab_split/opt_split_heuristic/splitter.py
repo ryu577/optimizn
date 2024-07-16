@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import os
 import time
-import datetime
+from datetime import datetime
 import random
 from optimizn.ab_split.opt_split6 import BlockMatrix
 
@@ -11,13 +11,8 @@ def main1():
     files = os.listdir('Data/OptSplit/Reader/Matrix/')
     file1 = sorted(files)[len(files)-1]
     mat_df = pd.read_csv('Data/OptSplit/Reader/Matrix/' + file1)
-    ro_mx = max(mat_df.roIx)
-    co_mx = max(mat_df.coIx)
     m_id = mat_df.matId[0]
-    mat1 = np.zeros(shape=(ro_mx+1, co_mx+1))
-    for _, ro in mat_df.iterrows():
-        row, col = ro.roIx, ro.coIx
-        mat1[row, col] = int(ro.matDat)
+    mat1 = df_to_mat(mat_df)
     bm = BlockMatrix1(mat1)
     bm.anneal(n_iter=1000, reset_p=0.0)
     # arr1 = bm.best_solution
@@ -25,13 +20,27 @@ def main1():
     return bm
 
 
+def df_to_mat(mat_df):
+    ro_mx = max(mat_df.roIx)
+    co_mx = max(mat_df.coIx)
+    mat1 = np.zeros(shape=(ro_mx+1, co_mx+1))
+    for _, ro in mat_df.iterrows():
+        row, col = ro.roIx, ro.coIx
+        mat1[row, col] = int(ro.matDat)
+    return mat1
+
+
 def write_result(bm, m_id):
     permut_id = int(time.time())
-    index = [i for i in range(len(bm.nros) + len(bm.ncols))]
+    index = [i for i in range(bm.nros + bm.ncols)]
     map_df = pd.DataFrame(columns=['matId', 'permutId',
                                    'IxType',
                                    'Ix', 'origIx'],
                           index=index)
+    index = [i for i in range(3)]
+    splt_df = pd.DataFrame(columns=['permutId',
+                                    'spltIx'],
+                           index=index)
     for i in range(len(bm.row_perm)):
         ro_prm = bm.row_perm[i]
         map_df.loc[i] = [m_id, permut_id, 'row', ro_prm, i]
@@ -42,10 +51,17 @@ def write_result(bm, m_id):
     day = t1.day
     month = t1.month
     year = t1.year
-    map_df.to_csv('Data/OptSplit/Reader/PropertyIx/' +
+    map_df.to_csv('Data/OptSplit/Splitter/Permutation/' +
                   str(year) + str(month) +
                   str(day) + '_' + str(m_id) +
                   '.csv', index=False)
+    splt_df.loc[0] = [permut_id, 0]
+    splt_df.loc[1] = [permut_id, bm.col_ix]
+    splt_df.loc[2] = [permut_id, bm.ncols]
+    splt_df.to_csv('Data/OptSplit/Splitter/Split/' +
+                   str(year) + str(month) +
+                   str(day) + '_' + str(m_id) +
+                   '.csv', index=False)
 
 
 class BlockMatrix1(BlockMatrix):
