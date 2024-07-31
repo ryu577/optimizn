@@ -35,6 +35,21 @@ mat1 = df_to_mat(mat_df)
 
 # Now read the row permutations and permute mat1.
 ro_perm = permut_df[permut_df.IxType == "row"]
-perm_arr = ro_perm.Ix
+perm_arr = np.array(ro_perm.Ix).astype(int)
+mat1 = [mat1[i] for i in perm_arr]
 
 # Then read the column permutations and permute mat1.
+co_perm = permut_df[permut_df.IxType == "col"]
+perm_arr = np.array(ro_perm.Ix).astype(int)
+mat1 = np.transpose(mat1)
+mat1 = [mat1[i] for i in perm_arr]
+mat1 = np.transpose(mat1)
+
+# Now, split the matrix by columns.
+mat1 = np.transpose(mat1)
+splt_ix = len(mat1)//2
+mat01 = mat1[:splt_ix]
+mat02 = mat1[splt_ix:]
+mat01 = np.transpose(mat01)
+mat02 = np.transpose(mat02)
+
