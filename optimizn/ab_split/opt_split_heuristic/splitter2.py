@@ -52,4 +52,3 @@ mat01 = mat1[:splt_ix]
 mat02 = mat1[splt_ix:]
 mat01 = np.transpose(mat01)
 mat02 = np.transpose(mat02)
-
